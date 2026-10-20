@@ -1,0 +1,352 @@
+{
+  "date": "2026-10-20",
+  "backupRoot": "D:/project/Duoscene/.local/backup/2026-10-20-realtime",
+  "scope": "Local realtime playback/chat/WebRTC, home refinements, contracts, tests, local setup and docs",
+  "ignoredGeneratedFiles": "Flutter-generated plugin registrants are regenerated from pubspec.lock",
+  "files": [
+    {
+      "path": "apps/api/src/app.ts",
+      "status": "modified",
+      "sha256": "e1a3453b6dd36195d581b01b8059c67d1b93b0ba884a80d1ef028b1c3be49af4",
+      "beforeSha256": "0e0be0f760602eedfeacf457bbbbb62927d7d05b665d83df332958be2ef32d57",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\src\\app.ts"
+    },
+    {
+      "path": "apps/api/src/config/env.ts",
+      "status": "modified",
+      "sha256": "8fbad9d8577fab95b4f49d1d5243bb66a2cdb50fde05cd22cbd09d3eb7d364e2",
+      "beforeSha256": "fde7605f2b027a83e2a4ea81219e88ee1e9d81a5fcde20c15ee40599f658129e",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\src\\config\\env.ts"
+    },
+    {
+      "path": "apps/api/src/modules/auth/repository.ts",
+      "status": "modified",
+      "sha256": "28197b8ca325b13db0dd137c1848748c93f0c50301fb850cf51f388c069bf762",
+      "beforeSha256": "146072ce3bae2a702ae8aeca4d67d23d11cb6e13671cb171c432e492d9c84990",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\src\\modules\\auth\\repository.ts"
+    },
+    {
+      "path": "apps/api/src/modules/auth/service.ts",
+      "status": "modified",
+      "sha256": "6e2bc0ac4fc6880bdb1e667079e27ab193a6e89a20b5374083c01b5d67f37fd1",
+      "beforeSha256": "1e529db2f206bfab2b4e32dd328bdf311b89403786fdc24ee4e1d841b7ff2af2",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\src\\modules\\auth\\service.ts"
+    },
+    {
+      "path": "apps/api/src/modules/chat/repository.ts",
+      "status": "added",
+      "sha256": "813b06db0d803df89dfb60f29b97455b3b77303bb2d51edaf9274c3fc6b0bef7",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/src/modules/realtime/hub.ts",
+      "status": "added",
+      "sha256": "aa3693522e0f3baa926f7fd759207f9b70d731b4517b645ce4a7b8d9d8d64301",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/src/modules/realtime/timeline.ts",
+      "status": "added",
+      "sha256": "ac6567e52a950a1ab6c4c1558247a5f1c7e41b57aa30a862358b1ccce1632aa9",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/src/modules/rooms/routes.ts",
+      "status": "modified",
+      "sha256": "f021fec713d195ba4124ad425c26a85a77069167a66267025a810b068c9fc851",
+      "beforeSha256": "da0f66468e3b4ac224879deb81d5de5c2287b4c2dda078794844cb8f13378afa",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\src\\modules\\rooms\\routes.ts"
+    },
+    {
+      "path": "apps/api/src/plugins/database.ts",
+      "status": "modified",
+      "sha256": "f51927bd51892e6d9496f3088512f93b090935b89248d606f18eaac1f0dc172a",
+      "beforeSha256": "bbd326a64e1f61ef1ac6b8e37a5518bf5f29e0d21ba097e513fa0759aaa39a02",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\src\\plugins\\database.ts"
+    },
+    {
+      "path": "apps/api/test/realtime-policy.test.ts",
+      "status": "added",
+      "sha256": "c2713fd762de8bfd3dfad96b0deb34a7a0820c106f845161e83fa49266058de1",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/test/realtime.integration.ts",
+      "status": "added",
+      "sha256": "62c0bfaf9c3b6b341d503f1d5b96388decd7e719adaf51b75604fb563bdf08a2",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/migrations/0007_chat_messages.sql",
+      "status": "added",
+      "sha256": "67f0740b36a110fafa8f544dcb626b02045805c80bedc4f771f22a701232ec1f",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/migrations/0008_room_playback.sql",
+      "status": "added",
+      "sha256": "4d4ee9cf641cab70dda66327529d21071e208a0d6898c4767d777e224dc2641b",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/design/motion.dart",
+      "status": "modified",
+      "sha256": "a03d1bdea4411ba796d398e19e452946281f5d6d8b47e095e4e2ebac53347525",
+      "beforeSha256": "332326a08759eb4546e20f39a913b063d0a4e3ced5ec050402fcff3f941f99a5",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\design\\motion.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/app_shell.dart",
+      "status": "modified",
+      "sha256": "0746b1d955611d5664d5825edfc36c6667ea3c2fb9a4d07dfd72a13dfd8ff118",
+      "beforeSha256": "14bacda45888268498139e5dcc99ac8eef3f54668d4edb58455fc33cf07b841c",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\catalog\\app_shell.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/catalog.dart",
+      "status": "modified",
+      "sha256": "511a0cce537427a70a506232f6667cab9febe3a59add1acd6500067f66a4e333",
+      "beforeSha256": "740dd3e349e1239c4451ff26cf29fb8a144171bc623ad1ad11fe39fbf049beae",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\catalog\\catalog.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/home_content.dart",
+      "status": "added",
+      "sha256": "25b254fb13e95a7655258992d2b5843699a83638e970a89c55f2c95a1c5015b6",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/home_page.dart",
+      "status": "modified",
+      "sha256": "27e148ac4356ad10878e7a3046dc10ba7c8e115aad4019c9abd908a8014e5a43",
+      "beforeSha256": "ca5645586ee4934ad6eefa0996d17fceaab8c162662e24458c1f14d6ad4938e0",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\catalog\\home_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/library_state.dart",
+      "status": "modified",
+      "sha256": "68c94824d55313a9e9ebbba8b65b0612c6e11a45db915d4d3a1950dbcb9ee648",
+      "beforeSha256": "035b26bb43b3403068838d8b3fc5e6e9e18568d6858a584fd2f7ccb4da1f217c",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\catalog\\library_state.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/chat_panel.dart",
+      "status": "modified",
+      "sha256": "f5d6e9abea76e71eb673920bf43f6dfc4f418e3d60349b45d57a619bfbb0c960",
+      "beforeSha256": "63795cb4c6da4a1136ea3dadd0bd8cb685bd39d574d074aef8855853197b9663",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\experience\\chat_panel.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/episode_sheet.dart",
+      "status": "modified",
+      "sha256": "a75498d1d916c6499564a7a962ff89d580dc8053460cc79e8e68b9a8ed330114",
+      "beforeSha256": "c570fce20dbbed69a51c3942320211fd0e1132c1711c3bfbaf239c586ecac04c",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\experience\\episode_sheet.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/experience_player.dart",
+      "status": "modified",
+      "sha256": "4754a7a95a90cecc32d57bdc0008ed34e4f6373e74f2a9e708708957df2c2b39",
+      "beforeSha256": "b69b15b139523dd243f4c0cae57f26cf6601af86e534daadbd9e9806c2a0d370",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\experience\\experience_player.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/invite_pages.dart",
+      "status": "modified",
+      "sha256": "67a9100f83fe472f8bceb2b381ef6758023fe52219bd9848666a2e1c451988bc",
+      "beforeSha256": "cdf9b86d119b857483394ded5e33a5a7ad38a54265e3631a6910ac12e20e5c04",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\experience\\invite_pages.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/settings_pages.dart",
+      "status": "modified",
+      "sha256": "49fb4e51b9177335fef2b7173b1ea6a91e8a8c5331f5746283e5ec391a3f4f51",
+      "beforeSha256": "cd23525ba2b1124683595a3732f634e27c265112c918f0b2d725ad9427d5ba1f",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\experience\\settings_pages.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/playback/playback_session.dart",
+      "status": "modified",
+      "sha256": "75b61de515486dbb8dc89a1be6c2e5f36e0a63949320a99ae5d814c4e4b523ef",
+      "beforeSha256": "9eae8ab992d4beb915aa5035f6b4a16ed824cbb931f6bfc88cbd2ec5ee20e625",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\playback\\playback_session.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/playback/player_page.dart",
+      "status": "modified",
+      "sha256": "981cfcfc69a455ce69677611d65e21a616b10b8cdb12c10b1a5873b3eb507fac",
+      "beforeSha256": "30532068548f93f47baa3286424ad3782c7068a4f48eb3bd4a0b2fa2630db657",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\playback\\player_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/realtime/room_connection.dart",
+      "status": "added",
+      "sha256": "31b7219a5deea354c69787b4fb54e8b55f615103260a5f58280966f8547e61dd",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/features/realtime/room_playback.dart",
+      "status": "added",
+      "sha256": "982d2d89cb9de035f4a184ba3158b3c9082fd8c18c805aef10c6e84a0d9994f5",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/features/realtime/room_watch_page.dart",
+      "status": "added",
+      "sha256": "82c136697a055f300d219e6c3093e53a575494e67f31e309ceb9a589ee1d04f3",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/features/rooms/room_detail_page.dart",
+      "status": "modified",
+      "sha256": "cb700f82203fb793c04a8310a871e23618a28e3ab9e5e5bc86d69f75dbfc6185",
+      "beforeSha256": "34962a0b4097248be04bbc01c619c323432f79f83ec273dfd853dddfd40bcc2b",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\lib\\features\\rooms\\room_detail_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/voice/room_voice.dart",
+      "status": "added",
+      "sha256": "8814bcde0ceea4fc635937067efc1bcbf48e70b9a8e9f312bd7a75574bf770ff",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/test/home_content_test.dart",
+      "status": "added",
+      "sha256": "22be55eabf8bfafcb5991bf9ff5807fdf8ca2576cd77fac62fb03dd9916f3310",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/test/room_connection_test.dart",
+      "status": "added",
+      "sha256": "9fefb279b398780df43ea179a280c1dc33a04fcaf6d74fe2a64757ad9390d17b",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/integration_test/realtime_pair_test.dart",
+      "status": "added",
+      "sha256": "9d435e2b6ec29bcc724ab6a66a1e5cc695fe72eb6c633f4d05263fd4ba6377e2",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/android/app/src/main/AndroidManifest.xml",
+      "status": "modified",
+      "sha256": "44716a77eb587e3fc0f9f2f26b098b133a65fe84b1450893b0be4d33745c9a31",
+      "beforeSha256": "12bac2537a7036d61910293dee8ac4433d586477fde25ebf72fc6347f44e2e1c",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\android\\app\\src\\main\\AndroidManifest.xml"
+    },
+    {
+      "path": "docs/architecture.md",
+      "status": "modified",
+      "sha256": "232ea4762ff3adcf8af29e4c9c87358f0b54e1d5d79e3f3c6b93b545c7577cbf",
+      "beforeSha256": "2a757ac3201e04094390c3db90184f870b62d73c25aafde2af4792110f002214",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\docs\\architecture.md"
+    },
+    {
+      "path": "docs/realtime-local-slice.md",
+      "status": "added",
+      "sha256": "9a92c239b8bb8eb1f3c3a1c065454ce956ea949c8da30b8273257ed1a83da9bd",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "docs/realtime-verification.md",
+      "status": "added",
+      "sha256": "e73e6151f1eeab151febb61b3f82a0334b09741834f77d911e64eb265b044e1c",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "packages/contracts/websocket/commands.schema.json",
+      "status": "added",
+      "sha256": "c82205efa55be315356675d5b2f3324ea024f57c47630849d7fbd460f1c0bf1f",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "packages/contracts/websocket/README.md",
+      "status": "modified",
+      "sha256": "ab6746d5ce87e66bbc833fd814a0e9b5e025e5ee3c2a5188df26009c67c55cc8",
+      "beforeSha256": "bc64648faa824ddf59e32a873b1bfb2acf4152586eab8fa2b3ba5fcca31e9854",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\packages\\contracts\\websocket\\README.md"
+    },
+    {
+      "path": "infra/compose/compose.voice.local.yaml",
+      "status": "added",
+      "sha256": "e4ad15f4bb800495a520a56cb87f949e8d3e5f8ccb301996e835c8824a588f14",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "scripts/start-local-realtime.ps1",
+      "status": "added",
+      "sha256": "aa3f36694829899f28289165dac749ac32d569f3be1598cc56c8b80980acfed5",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "scripts/test-realtime-pair.mjs",
+      "status": "added",
+      "sha256": "cbd84c7655ee5b4c3d50a065c12c929106903e461a615295e92b8f264fd315f5",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/api/package.json",
+      "status": "modified",
+      "sha256": "ec63b9c73ec9b2a032d90372218abe35179777d612a58911b49e4383345e3f1e",
+      "beforeSha256": "52f168b1128c49a094cd07303184c3b1a48d645018b8ea1226e6488fd5bf88bd",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\api\\package.json"
+    },
+    {
+      "path": "package-lock.json",
+      "status": "modified",
+      "sha256": "f6890582a9e296e767b0618986e4e6e3990e0193ea6b0cc800e511f938b19cb8",
+      "beforeSha256": "ff75abd6420c524aff31ad172728a31db0c57677fda48432462e3889f04a0cf6",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\package-lock.json"
+    },
+    {
+      "path": "apps/mobile/pubspec.yaml",
+      "status": "modified",
+      "sha256": "a3e394e585c09b05ac786f61a75256fa6b7ce8b155f8940596c151c704ae6aa1",
+      "beforeSha256": "993e0a7a8cfdd76b85bc062e0855d6af2ab08e0294a5b22d7368d235d300c895",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\pubspec.yaml"
+    },
+    {
+      "path": "apps/mobile/pubspec.lock",
+      "status": "modified",
+      "sha256": "4056ecc5f7f3c4fcd4e82c0c3edc8c44ab096925fb154f60cbf87383081f3939",
+      "beforeSha256": "f9e427643605004d897ac4818cc8a581ceaa47cbd75d94591828d0d0bc4926f4",
+      "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-realtime\\apps\\mobile\\pubspec.lock"
+    },
+    {
+      "path": ".env.example",
+      "status": "modified",
+      "sha256": "d91bbdc3703392be6dfe48b1428910e42a4309f1de665dde9de9c4835fec02fe",
+      "beforeSha256": null,
+      "backup": null,
+      "rollback": "Remove the appended optional TURN configuration comment block; no existing values changed."
+    },
+    {
+      "path": "apps/mobile/test_driver/realtime_pair_driver.dart",
+      "status": "added",
+      "sha256": "5305cf0ed3926ce8da87095c47ef2b108dc38161bc45d28ed484180a28893ccd",
+      "beforeSha256": null,
+      "backup": null
+    }
+  ]
+}

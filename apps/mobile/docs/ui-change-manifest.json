@@ -1,0 +1,502 @@
+[
+  {
+    "path": "apps/mobile/android/app/src/main/kotlin/com/example/duoscene/MainActivity.kt",
+    "change": "modified",
+    "sha256": "da1d4e10ed3432849350023a1a758cc1bac9eb24016cbe265362e84dd0b9b580"
+  },
+  {
+    "path": "apps/mobile/assets/design/fonts/LibreBaskerville-Italic.ttf",
+    "change": "new",
+    "sha256": "223959683dc73ec4437bd61fabaa4b3f22209e22855ffd3aee36ba61a5116e97"
+  },
+  {
+    "path": "apps/mobile/assets/design/fonts/OFL.txt",
+    "change": "new",
+    "sha256": "3624eddd4c8f8a908130a417ae7cd089c9da69899c4e0ca1a5217d0a6fae16fd"
+  },
+  {
+    "path": "apps/mobile/assets/design/fonts/ZhiMangXing-OFL.txt",
+    "change": "new",
+    "sha256": "10947328199e369a3e6b4a67e8e5507ed99d5bbb264a1f156415aa9b665e4d15"
+  },
+  {
+    "path": "apps/mobile/assets/design/fonts/ZhiMangXing-Regular.ttf",
+    "change": "new",
+    "sha256": "644e0cae9b40f0b10ab729a01bd32032e3973bac22be3dccae01bf6ae7fde969"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/arrow-left.svg",
+    "change": "new",
+    "sha256": "c5f4b88076108eb1a0d95336e1aa7e7bb1419a3a92af96f6247d88cd3456f933"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/arrow-up.svg",
+    "change": "new",
+    "sha256": "8c22c25874c80bb062bef985d207d8f1d4a4d7847237d0a8cf720a3235968518"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/bookmark-check.svg",
+    "change": "new",
+    "sha256": "2f60d065675fd43e336c4d99f2f22d19f33bc84b2333025525b51d2d5671c5c4"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/bookmark.svg",
+    "change": "new",
+    "sha256": "1d5023760db81f21c3b5a63f012ef540acc01932731c733e4645012a876d39f4"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/check-check.svg",
+    "change": "new",
+    "sha256": "2b08c34edf3177ef80d523ad4ec3ebbd9efb92c581a48b6765044464e7e373f9"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/check.svg",
+    "change": "new",
+    "sha256": "7f33acc9a77a61659531044525fc008edebe215bf4dcf1c789c8674ad3277db0"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/chevron-down.svg",
+    "change": "new",
+    "sha256": "66ea878e72ed3488bb3b464c39dfdccee8d1f78e560dccea40e5e12da0e87e87"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/chevron-right.svg",
+    "change": "new",
+    "sha256": "2758143d7b2434e4aa7307dfd34405c87909ff4052f21b5f3f40d45224b4f19b"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/chevron-up.svg",
+    "change": "new",
+    "sha256": "d09f13fcbef3c493ead7e4663b5ee91804fec38d5edb5e7cc3acfbd547641cf4"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/circle-alert.svg",
+    "change": "new",
+    "sha256": "ce3e98b7a03b78c0071131df42466e4e1ff5187fccad30e739ec9ce951cf685a"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/circle-help.svg",
+    "change": "new",
+    "sha256": "975db087da041530dbf59ba1e61a7b99c3519fad43dae6375e42ccc74ba63924"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/clapperboard.svg",
+    "change": "new",
+    "sha256": "e4d78946cda7812f13c431c68b6d4d0077a92217c7f468667a203f237e247d7e"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/clock-3.svg",
+    "change": "new",
+    "sha256": "0e097d0b66278965fb53bc14900575d95f5c21b9cca932028bbb33294b56c9e2"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/copy.svg",
+    "change": "new",
+    "sha256": "ea80e566c7a12628a447cb53179b19aea4f60b9143e2becd0d0f20bf260e5718"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/ellipsis.svg",
+    "change": "new",
+    "sha256": "4f495cc72013ffdfec677f03b33a150f7b4dd741979283fd6853a09024bca112"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/eye-off.svg",
+    "change": "new",
+    "sha256": "774bcd975c5de781a4ee778c76e5591bcdeb409955f7054847e7e6003da0a520"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/eye.svg",
+    "change": "new",
+    "sha256": "5bf90197dd7629cad64a2e48d1186a71559deb6121207d10e3dc5b19ebaffdcf"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/film-reel.svg",
+    "change": "new",
+    "sha256": "2eb8854bc660d6ff8986959353cab6c294d3202f2f4a3c1a66cad363dbb9dd67"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/history.svg",
+    "change": "new",
+    "sha256": "a98ff758157910b9fc9d42d5d5dc80c2f4e037afa5f8ea4dee5f5649f03d438d"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/info.svg",
+    "change": "new",
+    "sha256": "bc977a64eb96f3e9c1041ffd09a3fceb70e3e65c02b571f76064062ed31f3cb9"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/LICENSE",
+    "change": "new",
+    "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/link.svg",
+    "change": "new",
+    "sha256": "4f3237183dcaabfac92f4e94c776a9a9e45c3c5e77a921061a6b34b61eb5413f"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/list-video.svg",
+    "change": "new",
+    "sha256": "f6d062a395d0e39d7639a76815f4f1a92017774c55c76b88e4d0dbd933ef47a3"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/loader-circle.svg",
+    "change": "new",
+    "sha256": "043021bb903919668804bdb6fee0342072e4ffea5f03fbd857774c440179ad3b"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/lock-keyhole.svg",
+    "change": "new",
+    "sha256": "fc0b8b7590d1d9e9bb0112c5c2e15a78ade0bfeca6d6f8c79fbbe149236d74be"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/log-out.svg",
+    "change": "new",
+    "sha256": "f24b5b45c05a3acc346af8095408f6ba197ff58ea1641a4f2cb25a9702d2c0ac"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/maximize.svg",
+    "change": "new",
+    "sha256": "1f790856b0de805ab62e871609f1990b89d227d472022e57a11fde015aad4826"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/message-circle.svg",
+    "change": "new",
+    "sha256": "146f39740fe50844394d56ae1f8821937655bcfff3842bf6fe8ffc0bcd324076"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/mic-off.svg",
+    "change": "new",
+    "sha256": "bcb5a033b4ecd182ec8d0d0945810ccc5147219b1a21c017b47fd4d5ae3a8320"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/mic.svg",
+    "change": "new",
+    "sha256": "9b940cd735d1ffa270ba670c4e677d9a09400f3fa81d6b3f405b12a3b67a59a8"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/minimize.svg",
+    "change": "new",
+    "sha256": "7daa304bc3dccac1f100304e66a41139662cc6c0ba3eba67480d97466a9ce02b"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/notebook.svg",
+    "change": "new",
+    "sha256": "0086b2fe200c6d1fa589c531cecd04fb1934cbd9d41a4c4dab3f1be75e6d5c79"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/pause.svg",
+    "change": "new",
+    "sha256": "f122ec4ea7f5693a0b1baafa9c708b53980dc87b4aacb297c6e6f71c1a4c115c"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/play.svg",
+    "change": "new",
+    "sha256": "d7c34786135922a92b6896f6c2384ceeb0346afbf6041dc79982011411409833"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/refresh-cw.svg",
+    "change": "new",
+    "sha256": "2e10dd403c85a24f163d59fc6151aa21147fe9402e1305dfc8979208caee8944"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/search.svg",
+    "change": "new",
+    "sha256": "283d371c2e433817bb9c0c8310caa6c77fa4177c0f4f1168d9c83b97af7389dc"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/send.svg",
+    "change": "new",
+    "sha256": "1be9684a517d1d3286217d9dfcf10f778055cf680ae7a01faaa5f08421404550"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/settings.svg",
+    "change": "new",
+    "sha256": "0ae27fd0f81999229e3127ac96c5b32edfea448e291d509e76212b917551d66b"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/share-2.svg",
+    "change": "new",
+    "sha256": "de283acf45610a564ade56bc55bb94e7cf4040bc942efe9163fd98cdfe07672c"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/shield-check.svg",
+    "change": "new",
+    "sha256": "8d4fcdbde5bba4abb1a2f6fe53e37ceb6343a1d5449a9d88f6f97c1971d26c4e"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/sliders-horizontal.svg",
+    "change": "new",
+    "sha256": "e43a00e5eb684e6cbb61083bed2528d7a3fa5f265693eb2b5f314cd432aa65f4"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/smile.svg",
+    "change": "new",
+    "sha256": "0018f779245b089b700ad4a2ab99db4518f5c87c559af743fbbf9abc070f10d3"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/ticket.svg",
+    "change": "new",
+    "sha256": "37dfe2d23041dd13224fef9d1cb7db4b4f589b661b850f23f57105e843534a2f"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/trash-2.svg",
+    "change": "new",
+    "sha256": "27299f69ad7c6272be64b1b8e2d48cbd6dcf0ef0d4f92827a1affa945c91700e"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/user-round.svg",
+    "change": "new",
+    "sha256": "84870f26f3faf8da45da84174517519e81b9e8f00319c78954fcbb74f50038a1"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/users-round.svg",
+    "change": "new",
+    "sha256": "8b41ee3ada1609e25a410d64056aa333952cf27d770f0c379a100065270de7f7"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/volume-2.svg",
+    "change": "new",
+    "sha256": "fb404f9c128a0579de67b399177631e5edb3502fdc247ceb30e8b15754b46071"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/volume-x.svg",
+    "change": "new",
+    "sha256": "f382e421b7aae01172989f2b749ee87e44c0c82c16970b13a9ad5a323b613be0"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/wifi-off.svg",
+    "change": "new",
+    "sha256": "318b290106e55c3505933f434d3663524206c7a44165a89508774fba4fdbaadd"
+  },
+  {
+    "path": "apps/mobile/assets/design/icons/x.svg",
+    "change": "new",
+    "sha256": "4a9cdab38fbb96162e7dace28e33f4ca0e49d8963a6162abc3d4691b7d675117"
+  },
+  {
+    "path": "apps/mobile/assets/design/licenses/Playra-GPL-3.0.txt",
+    "change": "new",
+    "sha256": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809"
+  },
+  {
+    "path": "apps/mobile/assets/design/media/frame-short-drama.png",
+    "change": "new",
+    "sha256": "8e540686594cb1c8e89121b3c0a9f4e7c292531a9b56c7b3270c45f6da5ffc89"
+  },
+  {
+    "path": "apps/mobile/assets/design/media/media-mountains-landscape.png",
+    "change": "new",
+    "sha256": "cc3dffebe83de22cdbbed1de6951ab1d9a1ef0f0b2cb1e40b39bb6e88e14589c"
+  },
+  {
+    "path": "apps/mobile/assets/design/media/poster-clouds.png",
+    "change": "new",
+    "sha256": "8e91e0f6ceb73ad75b606cad072a1147796a53a1cfab402d6002629d1dac63c9"
+  },
+  {
+    "path": "apps/mobile/assets/design/media/poster-mountains.png",
+    "change": "new",
+    "sha256": "0fc371557103c6de321cd4ab41dcff562fa3038f8302351ffbc3648bdcd73b2e"
+  },
+  {
+    "path": "apps/mobile/assets/design/media/poster-stars.png",
+    "change": "new",
+    "sha256": "16baad65efd0e8f2c2de59908019e33f44c99494b906575c8df7775c0d5a9d91"
+  },
+  {
+    "path": "apps/mobile/assets/design/media/poster-summer.png",
+    "change": "new",
+    "sha256": "dd43e2a5ccf87e6c60370c632e1dd76ff8533b1dd56f9394ec86793851901ea1"
+  },
+  {
+    "path": "apps/mobile/docs/playra-layout-reference.md",
+    "change": "new",
+    "sha256": "a4b72f32947faa9f979dea98f8e7ff072f8e29eeb017e856ddd2e7167362a4fe"
+  },
+  {
+    "path": "apps/mobile/docs/ui-asset-manifest.json",
+    "change": "new",
+    "sha256": "85b2514024c51d38309ef9d40b2457a8627a4f5a65d719edadf5aace998d5310"
+  },
+  {
+    "path": "apps/mobile/docs/ui-implementation.md",
+    "change": "new",
+    "sha256": "e3dbd353c574ac17ccb0e88f47fdec5f4c27d4537df3ffb57088b10cf5a951b0"
+  },
+  {
+    "path": "apps/mobile/docs/ui-verification.md",
+    "change": "new",
+    "sha256": "d28499f8d9b100af485b69a92c67d596609955d2e430c4665020154389235630"
+  },
+  {
+    "path": "apps/mobile/docs/ui-visual-calibration.md",
+    "change": "new",
+    "sha256": "ff7daff86adf8709fb47b7d37caea949fd24e00d547847e8d4e3e5f2aa412001"
+  },
+  {
+    "path": "apps/mobile/integration_test/rooms_flow_test.dart",
+    "change": "modified",
+    "sha256": "4456a2ac4d27c22a98d822ea9fd168be21c8a72895a01b53d338f1cd98e2fa3b"
+  },
+  {
+    "path": "apps/mobile/integration_test/ui_gallery_test.dart",
+    "change": "new",
+    "sha256": "d890257ba32c389633ccc93e6f742c498a7eb53af8c58e0f6d2a84f8121e432e"
+  },
+  {
+    "path": "apps/mobile/lib/app/duoscene_app.dart",
+    "change": "modified",
+    "sha256": "a6160697ea5d5035f1ceed39edeeba2fd8b8c566ba8cad6b9b481c55ef4bc29f"
+  },
+  {
+    "path": "apps/mobile/lib/app/theme.dart",
+    "change": "modified",
+    "sha256": "c24b01fd886fcc8f36be796ba5099ce7a150ee8fc49b10d40407df2708db61ad"
+  },
+  {
+    "path": "apps/mobile/lib/design/bottom_navigation.dart",
+    "change": "new",
+    "sha256": "0caa3fb3b27574b61e80811c299d834a51033934efce807bebf05832efcc93ee"
+  },
+  {
+    "path": "apps/mobile/lib/design/components.dart",
+    "change": "new",
+    "sha256": "ee6ab32a2dbe525b18022242986e5de984ab88a962e71c90c2f613e792f1aa7f"
+  },
+  {
+    "path": "apps/mobile/lib/design/tokens.dart",
+    "change": "new",
+    "sha256": "2baf071c5c494913e31932eb02e4ec9599c0f9e2d3cc340afb0474286aaddd75"
+  },
+  {
+    "path": "apps/mobile/lib/features/auth/login_page.dart",
+    "change": "modified",
+    "sha256": "ab23d4234b933f3cc397f6a25ae2f4b379c16fc8e09b4cf4d4b55b3509c2b6d3"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/app_shell.dart",
+    "change": "new",
+    "sha256": "a206a301e823cae475c2eb959f79f1478eaa5e59b8cc327473f1b1addf791024"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/catalog.dart",
+    "change": "new",
+    "sha256": "740dd3e349e1239c4451ff26cf29fb8a144171bc623ad1ad11fe39fbf049beae"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/collection_pages.dart",
+    "change": "new",
+    "sha256": "b2ef99da385d829fdaa55a9fce9b25cb8a89d1da4f717d6efb5ea2cb972c48c2"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/detail_page.dart",
+    "change": "new",
+    "sha256": "7150460c3efd41b9717ac4109963c09a9131fa3cb9ae0a50296452312fe38638"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/home_page.dart",
+    "change": "new",
+    "sha256": "15c150d14064409ea1032db6b0267c31b73f0d6ee6a064616fc1acb465095c9b"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/library_state.dart",
+    "change": "new",
+    "sha256": "035b26bb43b3403068838d8b3fc5e6e9e18568d6858a584fd2f7ccb4da1f217c"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/posters.dart",
+    "change": "new",
+    "sha256": "8b97f49b64bff798d561f21c60471373cedec43c9c99b5bc114b87e30d7952d4"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/profile_page.dart",
+    "change": "new",
+    "sha256": "953963656ec068d499ce306d19e755af84e8f538b68566a7c9de8a22219bf83d"
+  },
+  {
+    "path": "apps/mobile/lib/features/catalog/search_page.dart",
+    "change": "new",
+    "sha256": "c06e00fb3be33611bf357162d9ea5ee15bd5685f60c9748a20afc4a241f382da"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/chat_panel.dart",
+    "change": "new",
+    "sha256": "199125a85a9f2475c4309f1b585ca88fdc9176d26e43ac283a23b517bbd0490d"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/conversation.dart",
+    "change": "new",
+    "sha256": "2b1d485e143c99705e2fb86e316675be5cc145e7d5d048bcbb3c3089be6e60ac"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/episode_sheet.dart",
+    "change": "new",
+    "sha256": "ea52fca12fdf7ae3172530a887a61b8cc168abc666a7a0d4acfea48c142b3f4a"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/experience_player.dart",
+    "change": "new",
+    "sha256": "6f42f92b3fd2253c323b0f2b4b12f554175f7f2e9a4438ac073c9f91d6c49027"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/invite_pages.dart",
+    "change": "new",
+    "sha256": "63a0ee5d77c07eaa42421fe719ce0ba3e41492086f585641cb2d6aea425b9a5e"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/preview_gallery.dart",
+    "change": "new",
+    "sha256": "48f0addae3b24a0cac9f8af1b98d6819e3a3fca8f6661b226b4ab6466a36c222"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/settings_pages.dart",
+    "change": "new",
+    "sha256": "c52c4d2d77a00b081167ac8864c9ed58cd32376e4ed5d7936e06afcdcaaa6113"
+  },
+  {
+    "path": "apps/mobile/lib/features/experience/short_feed.dart",
+    "change": "new",
+    "sha256": "22648f799ea907e0975b16506c87e41157bcb591f311edec34ee6cdf5981a418"
+  },
+  {
+    "path": "apps/mobile/lib/features/playback/player_page.dart",
+    "change": "modified",
+    "sha256": "63dcb99dbd7988a61d67d47cd8dd166b61d4535e24471d2692aa9ad5b98da176"
+  },
+  {
+    "path": "apps/mobile/lib/main.dart",
+    "change": "modified",
+    "sha256": "bfe36be2ae3c56751b148cfdb15785b408a4855ecef19088632df933d8c5e836"
+  },
+  {
+    "path": "apps/mobile/pubspec.lock",
+    "change": "modified",
+    "sha256": "f9e427643605004d897ac4818cc8a581ceaa47cbd75d94591828d0d0bc4926f4"
+  },
+  {
+    "path": "apps/mobile/pubspec.yaml",
+    "change": "modified",
+    "sha256": "993e0a7a8cfdd76b85bc062e0855d6af2ab08e0294a5b22d7368d235d300c895"
+  },
+  {
+    "path": "apps/mobile/test/app_test.dart",
+    "change": "modified",
+    "sha256": "bf973a4979f29e6d3bfcf3e0b3f6e7e8bdb2830fb0bd277845e3350049e27e82"
+  },
+  {
+    "path": "apps/mobile/test/ui_behavior_test.dart",
+    "change": "new",
+    "sha256": "2be289ab2233789bf6b1d55503b2019b5b24d4c0fe2dedfe0e889ac60e8471f7"
+  },
+  {
+    "path": "apps/mobile/tool/ui-native.mjs",
+    "change": "new",
+    "sha256": "578464d46ea94f29e4aad27b33e63b33b26e05dbb3310df6bc6ee4f86bb60710"
+  },
+  {
+    "path": "scripts/test-mobile-backend.mjs",
+    "change": "modified",
+    "sha256": "1e2a40732165858acb6dfaba0630a9a57bd3a36416ed2ac198bda54325983f62"
+  }
+]

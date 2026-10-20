@@ -1,0 +1,21 @@
+name: duoscene-voice-local
+services:
+  turn:
+    image: coturn/coturn:4.6.3
+    ports:
+      - "127.0.0.1:3478:3478/tcp"
+    environment:
+      TURN_SECRET: ${TURN_SECRET:?Create a local TURN secret}
+    # 仅用于两个 ADB 回环客户端；relay IP 的回环规则不能用于公网部署。
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        exec turnserver --no-cli --no-tls --no-dtls --fingerprint
+        --listening-port=3478 --listening-ip=0.0.0.0 --relay-ip=127.0.0.1
+        --realm=duoscene.local --use-auth-secret --static-auth-secret="$${TURN_SECRET}"
+        --min-port=49160 --max-port=49200 --allow-loopback-peers
+        --allowed-peer-ip=127.0.0.1 --no-multicast-peers
+        --total-quota=20 --user-quota=2 --log-file=stdout --simple-log
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "2" }

@@ -1,0 +1,13 @@
+{
+  "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-notice-single-icon",
+  "files": [
+    {
+      "path": "apps/mobile/lib/core/widgets.dart",
+      "sha256": "0d5497812bf1aff78d2fc56060d32e1bf500dfb54384263b40ec8e8d5bfc328b"
+    },
+    {
+      "path": "apps/mobile/test/error_notice_test.dart",
+      "sha256": "a78c9cd7127dc3a50f383bc9f3f57deeb8829fa3708aaffed6d54b1b247e5581"
+    }
+  ]
+}

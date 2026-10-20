@@ -1,0 +1,12 @@
+CREATE TABLE users (
+  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  username VARCHAR(32) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  display_name VARCHAR(80) NOT NULL,
+  password_hash VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  avatar_url VARCHAR(2048) NULL,
+  status ENUM('ACTIVE', 'DISABLED') NOT NULL DEFAULT 'ACTIVE',
+  created_at DATETIME(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)),
+  updated_at DATETIME(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)),
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_users_username (username)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;

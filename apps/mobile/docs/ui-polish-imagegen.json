@@ -1,0 +1,10 @@
+{
+  "mode": "built-in image_gen",
+  "date": "2026-10-20",
+  "asset": "assets/design/media/forest-atmosphere-v2.png",
+  "source": "C:/Users/zhuyi/.codex/generated_images/01a15336-50b7-7ea1-993c-2c1889b19736/exec-ad797711-14af-40c2-9f7e-f3b914e8568b.png",
+  "width": 1024,
+  "height": 1536,
+  "prompt": "Use case: photorealistic-natural\nAsset type: Duoscene mobile app portrait background texture, NOT a UI mockup.\nPrimary request: a cinematic very dark evergreen forest with layered distant mountain silhouettes and soft low mist, elegant restrained atmosphere matching a forest charcoal and mint movie watching app.\nComposition: portrait 2:3, upper 60 percent nearly uniform deep charcoal teal negative space for readable UI text; mountain ridges and fine evergreen silhouettes confined to bottom 40 percent, edges naturally fading to dark. No horizon glow. Subtle photographic texture, low contrast.\nColor palette: dominant #0B1617, shadows #081112, subdued forest #203A37, slight mist #405953. Entire image dark with no white or bright areas.\nConstraints: no people, no trails, no buildings, no sun, no moon, no stars, no UI, no typography, no logo, no watermark. Full bleed opaque photograph.",
+  "inspection": "No text, no people, no UI. Dark upper negative space; mist and trees confined to lower region. Used as a decorative background beneath live Flutter controls."
+}

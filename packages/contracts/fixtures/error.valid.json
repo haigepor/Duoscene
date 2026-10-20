@@ -1,0 +1,4 @@
+{
+  "error": { "code": "DATABASE_NOT_CONFIGURED", "message": "Service is not ready" },
+  "requestId": "fixture-request-2"
+}

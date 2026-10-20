@@ -1,0 +1,17 @@
+{
+  "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-login",
+  "files": [
+    {
+      "path": "apps/mobile/test/app_test.dart",
+      "sha256": "ad364bf62ae2dc7cf1f34896049055b5e46fc046961f8e3a60a32c375b1cd848"
+    },
+    {
+      "path": "apps/mobile/lib/app/duoscene_app.dart",
+      "sha256": "e2d20e76dc753e906cf1fe7539a8ff2315785e4e02c30bec848dc390afbce08a"
+    },
+    {
+      "path": "apps/mobile/lib/features/auth/login_page.dart",
+      "sha256": "c83e8611cd50d812d30298bbf46d81b939cf8070b5c13324483513d0b31d3462"
+    }
+  ]
+}

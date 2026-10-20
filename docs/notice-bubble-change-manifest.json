@@ -1,0 +1,25 @@
+{
+  "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-notice-bubble",
+  "files": [
+    {
+      "path": "apps/mobile/lib/core/widgets.dart",
+      "new": false,
+      "sha256": "2e95564b12688967914e0e84564f8ac9b19accfb68a4561e55d01279164675d7"
+    },
+    {
+      "path": "apps/mobile/lib/design/tokens.dart",
+      "new": false,
+      "sha256": "1058648229a4dd2722395eee90be8ad45445e4c6f49089012600b4823d80609b"
+    },
+    {
+      "path": "apps/mobile/lib/features/auth/login_page.dart",
+      "new": false,
+      "sha256": "10a05d911c103e3cf9b3dc2254880bcc921db9838d81ed27ed1f3bd76daf90e8"
+    },
+    {
+      "path": "apps/mobile/test/error_notice_test.dart",
+      "new": true,
+      "sha256": "1c1348e30945461e6cc8c2f44dc0468cf0662c195a15628a02dcb9e9f0aa0498"
+    }
+  ]
+}

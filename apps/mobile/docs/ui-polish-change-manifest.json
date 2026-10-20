@@ -1,0 +1,229 @@
+{
+  "date": "2026-10-20",
+  "backupRoot": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2",
+  "scope": "UI tokens, motion, presentation, assets, tests and docs only",
+  "files": [
+    {
+      "path": "apps/mobile/lib/app/theme.dart",
+      "status": "modified",
+      "sha256": "feff7d17c3e5b69cea191a8476a116a60fb620c49f2475a6f265482a26a01be4",
+      "beforeSha256": "c24b01fd886fcc8f36be796ba5099ce7a150ee8fc49b10d40407df2708db61ad",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/app/theme.dart"
+    },
+    {
+      "path": "apps/mobile/lib/design/bottom_navigation.dart",
+      "status": "modified",
+      "sha256": "796cc604a41dd274128fe16a60787e9ef829f3ea9c09391bf178d6188a42f31c",
+      "beforeSha256": "0caa3fb3b27574b61e80811c299d834a51033934efce807bebf05832efcc93ee",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/design/bottom_navigation.dart"
+    },
+    {
+      "path": "apps/mobile/lib/design/components.dart",
+      "status": "modified",
+      "sha256": "c4b7596f90f18ef534b3d4606e0900a2513c2f622ee44fd6351d95e373b63892",
+      "beforeSha256": "ee6ab32a2dbe525b18022242986e5de984ab88a962e71c90c2f613e792f1aa7f",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/design/components.dart"
+    },
+    {
+      "path": "apps/mobile/lib/design/motion.dart",
+      "status": "added",
+      "sha256": "332326a08759eb4546e20f39a913b063d0a4e3ced5ec050402fcff3f941f99a5",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/design/scroll_chrome.dart",
+      "status": "added",
+      "sha256": "a1ef9b2dba122b5908d499bc0c24913403e3f6f08480d70d71e53bfe715b3a67",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/design/tokens.dart",
+      "status": "modified",
+      "sha256": "2af5cd5f43ae36372e749e87eb831167c94c56fb5adb79ca4f576c0876d386a0",
+      "beforeSha256": "2baf071c5c494913e31932eb02e4ec9599c0f9e2d3cc340afb0474286aaddd75",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/design/tokens.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/auth/login_page.dart",
+      "status": "modified",
+      "sha256": "ce45b440efd9cd651002108a777c84a036624709864a4c506dd3e1929ed8e72f",
+      "beforeSha256": "ab23d4234b933f3cc397f6a25ae2f4b379c16fc8e09b4cf4d4b55b3509c2b6d3",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/auth/login_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/app_shell.dart",
+      "status": "modified",
+      "sha256": "14bacda45888268498139e5dcc99ac8eef3f54668d4edb58455fc33cf07b841c",
+      "beforeSha256": "a206a301e823cae475c2eb959f79f1478eaa5e59b8cc327473f1b1addf791024",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/app_shell.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/collection_pages.dart",
+      "status": "modified",
+      "sha256": "9b5659c462d1c6a4c61f392ec8b0c15ca7bd06e48fc9652bd0cddc0f02558472",
+      "beforeSha256": "b2ef99da385d829fdaa55a9fce9b25cb8a89d1da4f717d6efb5ea2cb972c48c2",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/collection_pages.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/detail_page.dart",
+      "status": "modified",
+      "sha256": "6b091f0614d7889bea81cdabd22790e6a6766c0639acb3736b92556ba8b14772",
+      "beforeSha256": "7150460c3efd41b9717ac4109963c09a9131fa3cb9ae0a50296452312fe38638",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/detail_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/home_page.dart",
+      "status": "modified",
+      "sha256": "ca5645586ee4934ad6eefa0996d17fceaab8c162662e24458c1f14d6ad4938e0",
+      "beforeSha256": "15c150d14064409ea1032db6b0267c31b73f0d6ee6a064616fc1acb465095c9b",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/home_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/posters.dart",
+      "status": "modified",
+      "sha256": "c562af2670c34c3f9ad00bdfee4aa78d29db8395b7d4671a37543e111d5f95e0",
+      "beforeSha256": "8b97f49b64bff798d561f21c60471373cedec43c9c99b5bc114b87e30d7952d4",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/posters.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/profile_page.dart",
+      "status": "modified",
+      "sha256": "c4dd2706ecf0373e585109552462d321984d75a01d77027aecb55cd66f58c1dc",
+      "beforeSha256": "953963656ec068d499ce306d19e755af84e8f538b68566a7c9de8a22219bf83d",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/profile_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/search_page.dart",
+      "status": "modified",
+      "sha256": "316c1c3f8fd0f5a8e0c35d0b1f30361f58e4f5d59d785fb365ce8138d7220ed8",
+      "beforeSha256": "c06e00fb3be33611bf357162d9ea5ee15bd5685f60c9748a20afc4a241f382da",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/catalog/search_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/chat_panel.dart",
+      "status": "modified",
+      "sha256": "63795cb4c6da4a1136ea3dadd0bd8cb685bd39d574d074aef8855853197b9663",
+      "beforeSha256": "199125a85a9f2475c4309f1b585ca88fdc9176d26e43ac283a23b517bbd0490d",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/experience/chat_panel.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/episode_sheet.dart",
+      "status": "modified",
+      "sha256": "c570fce20dbbed69a51c3942320211fd0e1132c1711c3bfbaf239c586ecac04c",
+      "beforeSha256": "ea52fca12fdf7ae3172530a887a61b8cc168abc666a7a0d4acfea48c142b3f4a",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/experience/episode_sheet.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/experience_player.dart",
+      "status": "modified",
+      "sha256": "b69b15b139523dd243f4c0cae57f26cf6601af86e534daadbd9e9806c2a0d370",
+      "beforeSha256": "6f42f92b3fd2253c323b0f2b4b12f554175f7f2e9a4438ac073c9f91d6c49027",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/experience/experience_player.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/invite_pages.dart",
+      "status": "modified",
+      "sha256": "cdf9b86d119b857483394ded5e33a5a7ad38a54265e3631a6910ac12e20e5c04",
+      "beforeSha256": "63a0ee5d77c07eaa42421fe719ce0ba3e41492086f585641cb2d6aea425b9a5e",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/experience/invite_pages.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/settings_pages.dart",
+      "status": "modified",
+      "sha256": "cd23525ba2b1124683595a3732f634e27c265112c918f0b2d725ad9427d5ba1f",
+      "beforeSha256": "c52c4d2d77a00b081167ac8864c9ed58cd32376e4ed5d7936e06afcdcaaa6113",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/experience/settings_pages.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/short_feed.dart",
+      "status": "modified",
+      "sha256": "702f873b959da0bc6fa94675709819edd67b07291b516bf51aff136e6ec60ff7",
+      "beforeSha256": "22648f799ea907e0975b16506c87e41157bcb591f311edec34ee6cdf5981a418",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/experience/short_feed.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/playback/player_page.dart",
+      "status": "modified",
+      "sha256": "30532068548f93f47baa3286424ad3782c7068a4f48eb3bd4a0b2fa2630db657",
+      "beforeSha256": "63dcb99dbd7988a61d67d47cd8dd166b61d4535e24471d2692aa9ad5b98da176",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/playback/player_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/playback/widgets/player_library_view.dart",
+      "status": "added",
+      "sha256": "723da84de6eef242b3b71d826cad7780a36685fdf1880cb8e6dd407c6e0114fb",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/lib/features/playback/widgets/player_settings.dart",
+      "status": "modified",
+      "sha256": "1b8f202a1b84eabe5f408e34453a433801d73170b0561c91f7fc7204bc06fb21",
+      "beforeSha256": "6c8ac9dd637c88ae6ddb860acf67efeb3d184d84a927a06420b5774007f21f48",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/playback/widgets/player_settings.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/playback/widgets/player_surface.dart",
+      "status": "modified",
+      "sha256": "4b11479a793741510144e035943e45268be19843076e1c308f16322a2fb1be4c",
+      "beforeSha256": "b195d79a3d9f82f85f2f2c26a1644ecef33db06d55ba3ca74392c3ab58a92a2b",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/lib/features/playback/widgets/player_surface.dart"
+    },
+    {
+      "path": "apps/mobile/test/ui_motion_test.dart",
+      "status": "added",
+      "sha256": "f16e30a34799390af8e5bba6dd12d12fd5e25513fb69a3198fe81cfa2f95e960",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/integration_test/player_media_test.dart",
+      "status": "modified",
+      "sha256": "be6b281830a49cc50b86b6b29e89657708014eece472a84eaf50d63011458ceb",
+      "beforeSha256": "7448538657a1ca2b402bdfe7d3226a7617ae6feb4bbc5009f4629ed3de2645ef",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/integration_test/player_media_test.dart"
+    },
+    {
+      "path": "apps/mobile/integration_test/ui_gallery_test.dart",
+      "status": "modified",
+      "sha256": "f245cdb0709cb4f27cdf3544c1ec7750621bb866b47fd8e3cd9521a5a3b9c549",
+      "beforeSha256": "d890257ba32c389633ccc93e6f742c498a7eb53af8c58e0f6d2a84f8121e432e",
+      "backup": "D:/project/Duoscene/.local/backup/2026-10-19-ui-polish-v2/integration_test/ui_gallery_test.dart"
+    },
+    {
+      "path": "apps/mobile/docs/ui-polish-imagegen.json",
+      "status": "added",
+      "sha256": "3442acbb129faa84f1f5fd8413dbd1ea2d3faabefa99b964417ab7212dd8f698",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/docs/ui-polish-v2.md",
+      "status": "added",
+      "sha256": "883322ee056dba41fea39f8e114c38f68441265b96c4405c79e9b183507af181",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/docs/ui-polish-verification.md",
+      "status": "added",
+      "sha256": "b52636818a3c710871d060e7ab46ab840a1c53d770527ecb158d51b94ab8dafc",
+      "beforeSha256": null,
+      "backup": null
+    },
+    {
+      "path": "apps/mobile/assets/design/media/forest-atmosphere-v2.png",
+      "status": "added",
+      "sha256": "c3c9b3f0f9c9a1734f1a09a7c8b8cc97323d2281a28d17eb3bb8bb07052f7963",
+      "rollback": null
+    },
+    {
+      "path": "apps/mobile/tool/ui-native.mjs",
+      "status": "modified",
+      "sha256": "1f23a06c46a5d3ae8502ee607695055407ac05bf21148831c675cc7e1bbae8ee",
+      "rollback": "Restore captures.size assertion from 46 to 42; no other harness changes."
+    }
+  ]
+}

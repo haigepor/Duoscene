@@ -1,0 +1,60 @@
+name: duoscene
+description: Private two-person watch room mobile application.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.13.0 <4.0.0'
+  flutter: '>=3.47.6'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: 1.6.0
+  flutter_secure_storage: 11.2.0
+  media_kit:
+    path: third_party/media-kit/media_kit
+  media_kit_video:
+    path: third_party/media-kit/media_kit_video
+  mobx: 2.6.0
+  flutter_mobx: 2.3.0
+  audio_video_progress_bar: 2.0.3
+  path_provider: 2.1.5
+  path: 1.9.1
+  flutter_volume_controller: 2.0.1
+  screen_brightness_android: 2.1.4
+  screen_brightness_ios: 2.1.3
+  screen_brightness_platform_interface: 2.1.1
+  saver_gallery: 4.1.1
+  shared_preferences: 2.5.5
+  audio_service: 0.18.18
+  audio_session: 0.2.3
+  file_selector: 1.1.0
+  flutter_svg: 2.3.0
+  flutter_webrtc: 1.6.2+hotfix.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/shaders/
+    - assets/design/media/
+    - assets/design/icons/
+    - assets/design/fonts/OFL.txt
+    - assets/design/fonts/ZhiMangXing-OFL.txt
+    - assets/design/licenses/
+  fonts:
+    - family: DuosceneSerif
+      fonts:
+        - asset: assets/design/fonts/LibreBaskerville-Italic.ttf
+          style: italic
+    - family: DuosceneDisplay
+      fonts:
+        - asset: assets/design/fonts/ZhiMangXing-Regular.ttf

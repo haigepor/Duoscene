@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Duoscene · 晴空主题设计参考</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eceef2;color:#202633;font-family:system-ui,"Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
+main{max-width:1200px;margin:auto;padding:40px 28px}h1{font-size:30px;letter-spacing:-1px;margin:8px 0}p{margin:8px 0;color:#626d7d}
+.eyebrow{font-size:12px;letter-spacing:2px;color:#4f67c8;font-weight:700}.intro{max-width:760px}.controls{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 16px}
+button{font:inherit;border:1px solid #828d9d;border-radius:12px;background:white;color:#202633;min-height:48px;padding:0 18px;cursor:pointer}
+button[aria-pressed=true]{background:#4f67c8;border-color:#4f67c8;color:white}button:focus-visible{outline:3px solid #4f67c8;outline-offset:3px}
+.status{min-height:24px}.palette{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0 28px}.swatch{display:flex;align-items:center;gap:8px;font-size:12px}.swatch i{width:28px;height:28px;border-radius:8px;border:1px solid #ccd1db}.swatch code{display:block;color:#626d7d}
+.board{--bg:#f7f8fa;--surface:#fff;--subtle:#f0f2f6;--ink:#202633;--muted:#626d7d;--primary:#4f67c8;--on:#fff;--tint:#e9eeff;--on-tint:#334a9e;--line:#e4e7ed;--outline:#828d9d;--success:#267252;--scene:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.board[data-theme=dark]{--bg:#15171c;--surface:#20232b;--subtle:#2b303a;--ink:#f0f2f7;--muted:#adb5c3;--primary:#a9b9ff;--on:#1d2b5b;--tint:#2c3964;--on-tint:#dee5ff;--line:#353b47;--outline:#768193;--success:#8fd3b0}
+.board[data-theme=forest]{--bg:#0b1617;--surface:#172425;--subtle:#22302f;--ink:#f3f1e9;--muted:#a9b6b4;--primary:#b2eed8;--on:#102d23;--tint:#29453e;--on-tint:#d0f4e5;--line:#344747;--outline:#8a9e98;--success:#b2eed8;--scene:linear-gradient(#0b1617aa,#0b161733),url('../../apps/mobile/assets/design/media/forest-atmosphere-v2.png')}
+.phone{height:724px;border:1px solid #c9cfd9;border-radius:24px;overflow:hidden;background-color:var(--bg);background-image:var(--scene);background-position:center;background-size:cover;color:var(--ink);position:relative;display:flex;flex-direction:column;transition:background-color .2s,color .2s;box-shadow:0 8px 24px #2026330a}
+.caption{font-size:13px;margin:12px 0;color:#4b5565}.caption b{color:#202633}.phone p{color:var(--muted)}.phone svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.top{height:48px;padding:0 16px;display:flex;align-items:center;gap:10px;flex:none}.top .brand{flex:1}.brand{font-family:Georgia,serif;font-size:24px;font-style:italic;letter-spacing:-1px;color:var(--primary)}.rings{font-style:normal;font-size:26px;letter-spacing:-10px;margin-left:7px}.avatar{background:var(--tint);color:var(--on-tint);border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font-size:12px;flex:none}
+.scroll{overflow:auto;scrollbar-width:none;flex:1;min-height:0}.scroll::-webkit-scrollbar{display:none}.pad{padding:0 16px}.search{display:flex;gap:8px;align-items:center;background:var(--subtle);color:var(--muted);border-radius:12px;height:40px;padding:0 12px;font-size:12px}
+.tabs{display:flex;justify-content:space-between;height:48px;align-items:center;gap:10px;color:var(--muted);font-size:12px}.tabs span{height:48px;display:flex;align-items:center;position:relative}.tabs .selected{color:var(--primary);font-weight:600}.tabs .selected:after{content:"";position:absolute;height:3px;width:20px;bottom:1px;background:var(--primary);border-radius:3px;left:50%;transform:translateX(-50%)}
+.hero{height:176px;border-radius:14px;overflow:hidden;position:relative;margin-top:8px;color:#fff;background:#101216}.hero img{width:100%;height:100%;object-fit:cover}.hero:after{content:"";position:absolute;inset:30% 0 0;background:linear-gradient(transparent,#101216df)}.hero-copy{position:absolute;left:16px;bottom:14px;z-index:1}.hero h2{font-size:25px;line-height:1.2;margin:0 0 6px}.hero p{color:#fff;font-size:12px;margin:0}.dots{position:absolute;z-index:2;right:16px;bottom:18px;font-size:10px;color:white}
+.resume{display:flex;gap:10px;align-items:center;padding:10px;background:var(--surface);border-radius:12px;margin-top:12px;min-height:72px}.resume img{width:36px;height:50px;border-radius:6px;object-fit:cover}.grow{flex:1;min-width:0}.small{font-size:11px;color:var(--muted)}.resume b{font-size:12px}.progress{height:2px;background:var(--line);margin-top:7px}.progress:before{content:"";display:block;background:var(--primary);width:45%;height:100%}
+.together{margin-top:12px;background:var(--tint);color:var(--on-tint);display:flex;align-items:center;padding:10px 12px;gap:10px;border-radius:12px;min-height:48px}.together b{font-size:12px}.together .small{color:var(--on-tint)}
+.section-title{display:flex;align-items:center;margin:20px 0 10px;font-weight:600;font-size:15px}.section-title span{margin-left:auto;display:flex;align-items:center;gap:2px;color:var(--primary);font-size:12px;font-weight:400}.section-title svg{width:14px;height:14px}
+.posters{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.posters img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px}.posters b{font-size:12px;display:block}.nav{display:flex;justify-content:space-around;border-top:1px solid var(--line);background:var(--surface);padding:9px 4px 12px;color:var(--muted);flex:none}.nav>span{display:grid;justify-items:center;gap:3px;font-size:10px}.nav .selected{color:var(--primary)}
+.media{aspect-ratio:16/9;background:#101216;position:relative;flex:none;overflow:hidden}.media img{width:100%;height:100%;object-fit:cover}.media:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#101216e0)}.media-controls{position:absolute;bottom:10px;left:14px;right:14px;color:white;z-index:1;display:flex;align-items:center;gap:10px;font-size:11px}.track{flex:1;height:3px;background:#ffffff55}.track:before{content:"";height:3px;width:34%;background:white;display:block}
+.filmbar{padding:12px 16px 8px;display:flex;align-items:center;gap:10px}.filmbar b{font-size:14px}.pill{padding:4px 9px;border:1px solid var(--outline);border-radius:8px;font-size:11px;color:var(--ink)}.presence{padding:0 16px 6px;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}.dot{width:6px;height:6px;border-radius:50%;background:var(--success)}.roomtabs{padding:0 16px;border-bottom:1px solid var(--line);justify-content:flex-start;gap:30px}
+.chat{padding:16px;flex:1;min-height:0;background:var(--bg)}.chat .stamp{text-align:center;font-size:10px;color:var(--muted);margin-bottom:18px}.msg{max-width:86%;display:flex;gap:7px;margin-bottom:18px;align-items:flex-start}.bubble{padding:10px 12px;border-radius:12px;background:var(--surface);font-size:13px;line-height:1.55}.mine{margin-left:auto;justify-content:flex-end}.mine .bubble{background:var(--tint);color:var(--on-tint)}.msg-name{font-size:10px;color:var(--muted);margin-bottom:4px}
+.composer{background:var(--surface);border-top:1px solid var(--line);padding:12px 16px}.compose-row{display:flex;gap:8px;align-items:center}.fake-input{background:var(--subtle);border-radius:12px;padding:11px 12px;font-size:12px;color:var(--muted);flex:1}.send{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--primary);color:var(--on)}.voice{margin-top:12px;display:flex;gap:8px;align-items:center;color:var(--muted);font-size:11px}.voice svg{width:18px;height:18px}
+.auth{padding:68px 24px 24px;flex:1}.auth .brand{font-size:32px;text-align:center}.tagline{font-size:18px;font-weight:500;text-align:center;margin:20px 0 40px}.field-label{display:block;font-size:12px;margin:16px 0 7px}.field{height:48px;border:1px solid var(--outline);border-radius:12px;background:var(--surface);display:flex;align-items:center;gap:10px;padding:0 12px;color:var(--muted);font-size:13px}
+.forgot{text-align:right;font-size:12px;color:var(--primary);margin:12px 0 20px}.cta{text-align:center;display:grid;place-items:center;min-height:48px;border-radius:12px;font-weight:600;background:var(--primary);color:var(--on);font-size:14px}.secondary{margin-top:12px;background:transparent;border:1px solid var(--outline);color:var(--ink);font-weight:500}
+.auth-foot{margin-top:30px;text-align:center;font-size:11px;color:var(--muted)}.notes{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:24px}.notes p{font-size:13px}.notes b{font-size:14px}.footer{border-top:1px solid #ccd1db;padding-top:20px;margin-top:32px;font-size:12px}a{color:#334a9e}
+@media(max-width:950px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}.notes{grid-template-columns:1fr}.phone{height:740px}}@media(max-width:620px){main{padding:24px 16px}.board{grid-template-columns:1fr;max-width:390px;margin:auto}h1{font-size:26px}.phone{height:780px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+<symbol id="search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></symbol>
+<symbol id="play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8z"/></symbol>
+<symbol id="chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="back" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7M7 12h14"/></symbol>
+<symbol id="people" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><path d="M2 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 4 5"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/></symbol>
+<symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/><path d="m3 3 18 18"/></symbol>
+<symbol id="history" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/></symbol>
+<symbol id="home" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 8 6 4-6 4z"/></symbol>
+<symbol id="pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+<symbol id="expand" viewBox="0 0 24 24"><path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6"/></symbol>
+<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8M3 3l18 18"/></symbol>
+<symbol id="send" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7M12 5v16"/></symbol>
+<symbol id="more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+</svg>
+<main>
+<div class="eyebrow">DUOSCENE / DESIGN DIRECTION 01</div>
+<h1>让故事有色彩，让界面轻下来。</h1>
+<p class="intro">推荐「晴空」：雾白、柔蓝与清楚的内容层级。浏览与聊天轻盈，视频画面保持沉浸；森林继续作为可选主题保留。</p>
+<div class="controls" aria-label="切换设计参考主题">
+<button data-mode="light" aria-pressed="true">晴空 · 浅色</button>
+<button data-mode="dark" aria-pressed="false">晴空 · 深色</button>
+<button data-mode="forest" aria-pressed="false">森林 · 保留</button>
+</div>
+<p class="status" id="status" role="status">当前：晴空浅色。下方为设计参考，影片与聊天为示例；仅上方主题切换可操作。</p>
+<div class="palette" id="palette" aria-label="当前主题关键颜色"></div>
+<div class="board" data-theme="light">
+<section><div class="phone">
+<div class="top"><div class="brand">duoscene <span class="rings">○○</span></div><span class="avatar">知</span></div>
+<div class="scroll"><div class="pad">
+<div class="search"><svg><use href="#search"/></svg>搜索影片、剧集</div>
+<div class="tabs"><span class="selected">推荐</span><span>电影</span><span>电视剧</span><span>动漫</span><span>短剧</span></div>
+<div class="hero"><img src="../../apps/mobile/assets/design/media/media-mountains-landscape.png" alt="山间云海与道路"><div class="hero-copy"><h2>山海之间</h2><p>越过山海，恰好遇见你</p></div><span class="dots">● ━ ○</span></div>
+<div class="resume"><img src="../../apps/mobile/assets/design/media/poster-summer.png" alt="风起的夏天海报"><div class="grow"><b>继续观看 · 风起的夏天</b><div class="small">第 3 集 · 18:42</div><div class="progress"></div></div><svg><use href="#play"/></svg></div>
+<div class="together"><svg><use href="#people"/></svg><div class="grow"><b>好故事，也可以一起看</b><div class="small">创建房间或加入好友</div></div><svg><use href="#chevron"/></svg></div>
+<div class="section-title">值得一看的电影<span>全部<svg><use href="#chevron"/></svg></span></div>
+<div class="posters">
+<div><img src="../../apps/mobile/assets/design/media/poster-mountains.png" alt="山海之间海报"><b>山海之间</b><div class="small">电影 · 108 分钟</div></div>
+<div><img src="../../apps/mobile/assets/design/media/poster-stars.png" alt="星海回声海报"><b>星海回声</b><div class="small">电影 · 126 分钟</div></div>
+<div><img src="../../apps/mobile/assets/design/media/poster-clouds.png" alt="云的另一边海报"><b>云的另一边</b><div class="small">动画 · 12 集</div></div>
+</div><div class="section-title">动漫 · 另一种想象<span>全部<svg><use href="#chevron"/></svg></span></div>
+</div></div>
+<div class="nav"><span class="selected"><svg><use href="#home"/></svg>观影</span><span><svg><use href="#play"/></svg>短剧</span><span><svg><use href="#history"/></svg>记录</span><span><svg><use href="#user"/></svg>我的</span></div>
+</div><div class="caption"><b>01 / 发现故事</b>　内容有边界，首页直达一起看</div></section>
+<section><div class="phone">
+<div class="top"><svg><use href="#back"/></svg><b class="grow">周末放映室</b><svg><use href="#more"/></svg></div>
+<div class="media"><img src="../../apps/mobile/assets/design/media/media-mountains-landscape.png" alt="播放区域示例画面"><div class="media-controls"><svg><use href="#pause"/></svg><span>36:20</span><div class="track"></div><svg><use href="#expand"/></svg></div></div>
+<div class="filmbar"><div class="grow"><b>山海之间</b><div class="small">电影 · 正在一起看</div></div><span class="pill">视频设置</span></div>
+<div class="presence"><span class="dot"></span>2/2 人在线 · 同步播放中</div>
+<div class="tabs roomtabs"><span class="selected">交流</span><span>视频</span></div>
+<div class="chat"><div class="stamp">今天 20:36 · 仅房间成员可见</div>
+<div class="msg"><span class="avatar">满</span><div><div class="msg-name">小满</div><div class="bubble">这个画面好美，想一起去看看。</div></div></div>
+<div class="msg mine"><div><div class="bubble">等下次假期，我们也出发吧。</div><div class="msg-name" style="text-align:right;margin-top:4px">已发送</div></div></div>
+</div>
+<div class="composer"><div class="compose-row"><div class="fake-input">和好友说点什么…</div><div class="send"><svg><use href="#send"/></svg></div></div><div class="voice"><svg><use href="#mic"/></svg><span class="grow">麦克风已关闭</span><span>声音设置</span></div></div>
+</div><div class="caption"><b>02 / 同一场电影</b>　视频保持暗色，聊天使用清晰实色</div></section>
+<section><div class="phone">
+<div class="auth"><div class="brand">duoscene <span class="rings">○○</span></div><div class="tagline">下一场，一起开始。</div>
+<span class="field-label">账户</span><div class="field"><svg><use href="#user"/></svg><span>请输入账户</span></div>
+<span class="field-label">密码</span><div class="field"><svg><use href="#lock"/></svg><span class="grow">请输入密码</span><svg><use href="#eye"/></svg></div>
+<div class="forgot">忘记密码？</div><div class="cta">登录</div><div class="cta secondary">注册账号</div>
+</div>
+</div><div class="caption"><b>03 / 开始使用</b>　补齐注册与找回入口，克制的品牌表达</div></section>
+</div>
+<div class="notes">
+<div><b>颜色有明确任务</b><p>柔蓝用于操作与选择，绿色仅表示连接成功。海报保留自身色彩，浅色面板不叠森林纹理。</p></div>
+<div><b>视觉紧凑，触控宽松</b><p>原生实施按390dp校准：正文14，辅助12，标题18；输入和主按钮48高。参考画板会自适应宽度，不作为物理像素标尺。</p></div>
+<div><b>状态稳定，过渡克制</b><p>Tab只滑动下划线；消息不打断历史阅读；键盘与主题切换保留播放器实例。森林模式只改变外观。</p></div>
+</div>
+<div class="footer">2026-10-20 · 静态页面设计＋主题比较。注册、聊天、播放等展示元素不连接业务服务；完整交互与原生验收见 <a href="../ui-audit-theme-direction-2026-10-20.md">逐页审查与实施方案</a>。</div>
+</main>
+<script>
+const presets={
+ light:{name:'晴空浅色',colors:[['背景','#F7F8FA'],['内容表面','#FFFFFF'],['主要操作','#4F67C8'],['正文','#202633'],['轻色容器','#E9EEFF']]},
+ dark:{name:'晴空深色',colors:[['背景','#15171C'],['内容表面','#20232B'],['主要操作','#A9B9FF'],['正文','#F0F2F7'],['轻色容器','#2C3964']]},
+ forest:{name:'森林主题',colors:[['背景','#0B1617'],['内容表面','#172425'],['主要操作','#B2EED8'],['正文','#F3F1E9'],['轻色容器','#29453E']]}
+};
+function setTheme(mode){
+ const preset=presets[mode];document.querySelector('.board').dataset.theme=mode;
+ document.querySelectorAll('[data-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===mode)));
+ document.querySelector('#status').textContent=`当前：${preset.name}。下方为设计参考，影片与聊天为示例；仅上方主题切换可操作。`;
+ const palette=document.querySelector('#palette');palette.replaceChildren();
+ for(const [label,color] of preset.colors){const item=document.createElement('div');item.className='swatch';const swatch=document.createElement('i');swatch.style.backgroundColor=color;const text=document.createElement('span');text.append(label);const code=document.createElement('code');code.textContent=color;text.append(code);item.append(swatch,text);palette.append(item)}
+}
+document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>setTheme(button.dataset.mode)));
+setTheme('light');
+</script>
+</body>
+</html>

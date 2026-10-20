@@ -1,0 +1,132 @@
+[
+  {
+    "source": "lib/pages/player/controller/player_aspect_ratio.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_aspect_ratio.dart",
+    "sourceSha256": "31b8810e192b5e2b103b1ffd388ce7dde64a8a069abd9f5173a9857819dcbe73"
+  },
+  {
+    "source": "lib/pages/player/controller/player_super_resolution.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_super_resolution.dart",
+    "sourceSha256": "77db823185890b3faa32368524661792cffa925b41397b5175c11bdc3c2f5e33"
+  },
+  {
+    "source": "lib/pages/player/controller/player_panel_controller.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_panel_controller.dart",
+    "sourceSha256": "e06dbea0084a96cf1c816c538bbe619e5b7545f56a20f30245e079909fe982ee"
+  },
+  {
+    "source": "lib/pages/player/controller/player_panel_controller.g.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_panel_controller.g.dart",
+    "sourceSha256": "a339e22b7e50ea2425fec72a266b6af26c17a2f0b86c7dbdbde1f71d74867092"
+  },
+  {
+    "source": "lib/pages/player/controller/player_debug_controller.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_debug_controller.dart",
+    "sourceSha256": "c4d2ab79d55a039a8c0898d2c6b7bb2b91a48f30bf27ab51943e2453e8cbd31b"
+  },
+  {
+    "source": "lib/pages/player/controller/player_debug_controller.g.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_debug_controller.g.dart",
+    "sourceSha256": "e1b568ca3c1b8049c58b379cd668a0041ee7c80dafc76bf6af6c17dd0ecb440e"
+  },
+  {
+    "source": "lib/pages/player/controller/player_playback_controller.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_playback_controller.dart",
+    "sourceSha256": "e0d27cb8bdb2a44449ceafc333bbf138d2aa88fb70a3f3df0452b7bbd461725c"
+  },
+  {
+    "source": "lib/pages/player/controller/player_playback_controller.g.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_playback_controller.g.dart",
+    "sourceSha256": "3040aa4ff6a5b11cfc20ee621b22c367b068e9795280f04e489f809a2a3004ed"
+  },
+  {
+    "source": "lib/pages/player/controller/player_seek_controller.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_seek_controller.dart",
+    "sourceSha256": "3ff67dfbcdf6177f8992289323e44d4a4f7eaefd53344faa2f7e466aa3f84458"
+  },
+  {
+    "source": "lib/pages/player/player_transport_bar.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_transport_bar.dart",
+    "sourceSha256": "70834f27eb86d8ead35c91afa89c7fe1b234f74eb3de5fb93215a73fec575b01"
+  },
+  {
+    "source": "lib/pages/player/player_gesture_detector.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_gesture_detector.dart",
+    "sourceSha256": "bd9b8dd2242bad970275c99785e32fbcac0455895dfe5390cb2fb7b11bf01e1c"
+  },
+  {
+    "source": "lib/pages/player/player_pointer_interaction.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_pointer_interaction.dart",
+    "sourceSha256": "2fac9f1865b42d18131c4fe00aa3514c8d024da6b9173eb2699cc59dba8939b7"
+  },
+  {
+    "source": "lib/pages/player/player_adjustment_hud.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_adjustment_hud.dart",
+    "sourceSha256": "74f5b9a7c49c2b50674e54410da8cc6ec8bd3fe7fbc7727e400992d04a9ba49c"
+  },
+  {
+    "source": "lib/pages/player/player_buffering_overlay.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_buffering_overlay.dart",
+    "sourceSha256": "817de7610588a390d6d731b88d834fbe0ff2fc717642056f33de49c8d1659daa"
+  },
+  {
+    "source": "lib/pages/player/player_screenshot_controls.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_screenshot_controls.dart",
+    "sourceSha256": "dcbbdad65274e7a45f1490056d2f3481dd260a9f638d93cc5281e256981c0ee2"
+  },
+  {
+    "source": "lib/pages/player/player_screenshot_image.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_screenshot_image.dart",
+    "sourceSha256": "1278f57142bee314ab8b3811312a015a1f642c4fa2a2554bd75f3b616c5ff15d"
+  },
+  {
+    "source": "lib/pages/player/player_screenshot_feedback_overlay.dart",
+    "target": "apps/mobile/lib/features/playback/playra/widgets/player_screenshot_feedback_overlay.dart",
+    "sourceSha256": "e4027be5acaf608348ccde67add2816cd40e17b85fb51dc8990a91bebf44cc78"
+  },
+  {
+    "source": "lib/services/player/screenshot_candidate.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/screenshot_candidate.dart",
+    "sourceSha256": "239d950fc1edfd4eb9ec20a39c4fa4a6ea53a7e0d48b90fca67a46c7668c54ee"
+  },
+  {
+    "source": "lib/services/player/screenshot_image_cache.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/screenshot_image_cache.dart",
+    "sourceSha256": "6bfbe3af982bdddb1bbb5651f9ef8e04761c61481b485a734a54e20480a2e121"
+  },
+  {
+    "source": "lib/services/player/playback_start_position.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/playback_start_position.dart",
+    "sourceSha256": "9ddd697f7b125b6eb30a348c28f2d320813cf29b46b62aee9489f4eb49bc5d67"
+  },
+  {
+    "source": "lib/services/player/player_error_mapper.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/player_error_mapper.dart",
+    "sourceSha256": "ce049024ac7f40d438f52a66502a624ef064b81092394bc13331e3204dce727e"
+  },
+  {
+    "source": "lib/pages/player/controller/player_screenshot_controller.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_screenshot_controller.dart",
+    "sourceSha256": "3e4b9f2142425f1e9d7f5f6a08db1c3dd25dd02872c7c1599f616d06c50eea5f"
+  },
+  {
+    "source": "lib/pages/player/controller/player_screenshot_controller.g.dart",
+    "target": "apps/mobile/lib/features/playback/playra/controller/player_screenshot_controller.g.dart",
+    "sourceSha256": "f8287078ae85b2a72ef0f0d12841db9a1e9c47887ddca67a69dc86d16519ff79"
+  },
+  {
+    "source": "lib/utils/async_session.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/async_session.dart",
+    "sourceSha256": "4cbeafb6e6c6e567ecc2c38f027a5f2cec5976c2b362c10ec88e407e2aeb4528"
+  },
+  {
+    "source": "lib/utils/async_serial_queue.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/async_serial_queue.dart",
+    "sourceSha256": "b52e003aaab2f396b144681df2ab6aeb498d2b4b60b23776424de415bcf6b70c"
+  },
+  {
+    "source": "lib/services/player/playback_cache_policy.dart",
+    "target": "apps/mobile/lib/features/playback/playra/services/playback_cache_policy.dart",
+    "sourceSha256": "36c783995d009db9513ed7e6d2390392c4230692cb36c616785a2ff3c26ac8f8"
+  }
+]

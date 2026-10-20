@@ -1,0 +1,19 @@
+{
+  "name": "duoscene",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/api"],
+  "devDependencies": { "ajv": "8.20.0" },
+  "engines": { "node": ">=24.14.0 <25", "npm": ">=11 <12" },
+  "scripts": {
+    "check:structure": "node scripts/check-structure.mjs",
+    "test:unit": "node --test --test-concurrency=1 apps/api/test/config.test.ts apps/api/test/clock.test.ts apps/api/test/auth-security.test.ts apps/api/test/room-policy.test.ts",
+    "test:contracts": "node --test packages/contracts/test/contracts.test.mjs",
+    "typecheck": "npm run typecheck --workspace=@duoscene/api",
+    "build": "npm run build --workspace=@duoscene/api",
+    "test": "npm run test:contracts && npm run test --workspace=@duoscene/api",
+    "test:mysql": "npm run test:mysql --workspace=@duoscene/api",
+    "db:migrate": "npm run db:migrate --workspace=@duoscene/api",
+    "dev:api": "npm run dev --workspace=@duoscene/api"
+  }
+}

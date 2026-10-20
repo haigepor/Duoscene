@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Duoscene room playback commands v1",
+  "definitions": {
+    "play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "commandId",
+        "epoch",
+        "expectedRevision"
+      ],
+      "properties": {
+        "type": {
+          "const": "play"
+        },
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "epoch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "pause": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "commandId",
+        "epoch",
+        "expectedRevision"
+      ],
+      "properties": {
+        "type": {
+          "const": "pause"
+        },
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "epoch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "seek": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "commandId",
+        "epoch",
+        "expectedRevision",
+        "positionMs"
+      ],
+      "properties": {
+        "type": {
+          "const": "seek"
+        },
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "epoch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "positionMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 86400000
+        }
+      }
+    },
+    "rate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "commandId",
+        "epoch",
+        "expectedRevision",
+        "rate"
+      ],
+      "properties": {
+        "type": {
+          "const": "rate"
+        },
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "epoch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rate": {
+          "type": "number",
+          "minimum": 0.25,
+          "maximum": 8
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "commandId",
+        "epoch",
+        "expectedRevision",
+        "media"
+      ],
+      "properties": {
+        "type": {
+          "const": "media"
+        },
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "epoch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "media": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "uri",
+            "identity",
+            "title",
+            "hls"
+          ],
+          "properties": {
+            "uri": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "identity": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            "hls": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/play"
+    },
+    {
+      "$ref": "#/definitions/pause"
+    },
+    {
+      "$ref": "#/definitions/seek"
+    },
+    {
+      "$ref": "#/definitions/rate"
+    },
+    {
+      "$ref": "#/definitions/media"
+    }
+  ]
+}

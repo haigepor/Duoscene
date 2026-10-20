@@ -1,0 +1,50 @@
+[
+  {
+    "asset": "assets/design/media/frame-short-drama.png",
+    "source": "C:\\Users\\zhuyi\\Desktop\\Duoscene-完整设计交付-2026-10-19\\02-imagegen原始生成\\02-无字图片素材\\frame-short-drama.png",
+    "sha256": "8e540686594cb1c8e89121b3c0a9f4e7c292531a9b56c7b3270c45f6da5ffc89",
+    "type": "original-design-asset"
+  },
+  {
+    "asset": "assets/design/media/media-mountains-landscape.png",
+    "source": "C:\\Users\\zhuyi\\Desktop\\Duoscene-完整设计交付-2026-10-19\\02-imagegen原始生成\\02-无字图片素材\\media-mountains-landscape.png",
+    "sha256": "cc3dffebe83de22cdbbed1de6951ab1d9a1ef0f0b2cb1e40b39bb6e88e14589c",
+    "type": "original-design-asset"
+  },
+  {
+    "asset": "assets/design/media/poster-clouds.png",
+    "source": "C:\\Users\\zhuyi\\Desktop\\Duoscene-完整设计交付-2026-10-19\\02-imagegen原始生成\\02-无字图片素材\\poster-clouds.png",
+    "sha256": "8e91e0f6ceb73ad75b606cad072a1147796a53a1cfab402d6002629d1dac63c9",
+    "type": "original-design-asset"
+  },
+  {
+    "asset": "assets/design/media/poster-mountains.png",
+    "source": "C:\\Users\\zhuyi\\Desktop\\Duoscene-完整设计交付-2026-10-19\\02-imagegen原始生成\\02-无字图片素材\\poster-mountains.png",
+    "sha256": "0fc371557103c6de321cd4ab41dcff562fa3038f8302351ffbc3648bdcd73b2e",
+    "type": "original-design-asset"
+  },
+  {
+    "asset": "assets/design/media/poster-stars.png",
+    "source": "C:\\Users\\zhuyi\\Desktop\\Duoscene-完整设计交付-2026-10-19\\02-imagegen原始生成\\02-无字图片素材\\poster-stars.png",
+    "sha256": "16baad65efd0e8f2c2de59908019e33f44c99494b906575c8df7775c0d5a9d91",
+    "type": "original-design-asset"
+  },
+  {
+    "asset": "assets/design/media/poster-summer.png",
+    "source": "C:\\Users\\zhuyi\\Desktop\\Duoscene-完整设计交付-2026-10-19\\02-imagegen原始生成\\02-无字图片素材\\poster-summer.png",
+    "sha256": "dd43e2a5ccf87e6c60370c632e1dd76ff8533b1dd56f9394ec86793851901ea1",
+    "type": "original-design-asset"
+  },
+  {
+    "asset": "assets/design/fonts/LibreBaskerville-Italic.ttf",
+    "source": "https://github.com/google/fonts/tree/main/ofl/librebaskerville",
+    "sha256": "223959683dc73ec4437bd61fabaa4b3f22209e22855ffd3aee36ba61a5116e97",
+    "license": "SIL OFL 1.1"
+  },
+  {
+    "asset": "assets/design/fonts/ZhiMangXing-Regular.ttf",
+    "source": "https://github.com/google/fonts/tree/main/ofl/zhimangxing",
+    "sha256": "644e0cae9b40f0b10ab729a01bd32032e3973bac22be3dccae01bf6ae7fde969",
+    "license": "SIL OFL 1.1"
+  }
+]

@@ -1,0 +1,397 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:duoscene:api:v1",
+  "definitions": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "token": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{43}$"
+    },
+    "login": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "username",
+        "password",
+        "deviceLabel"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]{3,32}$"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "deviceLabel": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "refresh": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "refreshToken"
+      ],
+      "properties": {
+        "refreshToken": {
+          "$ref": "#/definitions/token"
+        }
+      }
+    },
+    "createRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "joinRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "$ref": "#/definitions/token"
+        }
+      }
+    },
+    "roomParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "roomId"
+      ],
+      "properties": {
+        "roomId": {
+          "$ref": "#/definitions/id"
+        }
+      }
+    },
+    "inviteParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "roomId",
+        "inviteId"
+      ],
+      "properties": {
+        "roomId": {
+          "$ref": "#/definitions/id"
+        },
+        "inviteId": {
+          "$ref": "#/definitions/id"
+        }
+      }
+    },
+    "memberParams": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "roomId",
+        "userId"
+      ],
+      "properties": {
+        "roomId": {
+          "$ref": "#/definitions/id"
+        },
+        "userId": {
+          "$ref": "#/definitions/id"
+        }
+      }
+    },
+    "roomListQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "$ref": "#/definitions/id"
+        },
+        "limit": {
+          "type": "string",
+          "pattern": "^([1-9]|[1-4][0-9]|50)$"
+        }
+      }
+    },
+    "user": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "username",
+        "displayName"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "username": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "accessToken",
+        "refreshToken",
+        "tokenType",
+        "expiresIn",
+        "user"
+      ],
+      "properties": {
+        "accessToken": {
+          "$ref": "#/definitions/token"
+        },
+        "refreshToken": {
+          "$ref": "#/definitions/token"
+        },
+        "tokenType": {
+          "const": "Bearer"
+        },
+        "expiresIn": {
+          "const": 900
+        },
+        "user": {
+          "$ref": "#/definitions/user"
+        }
+      }
+    },
+    "member": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "displayName",
+        "seatNo",
+        "joinedAt"
+      ],
+      "properties": {
+        "userId": {
+          "$ref": "#/definitions/id"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "seatNo": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "joinedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "room": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "ownerUserId",
+        "status",
+        "controlMode",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "ownerUserId": {
+          "$ref": "#/definitions/id"
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "CLOSED"
+          ]
+        },
+        "controlMode": {
+          "enum": [
+            "BOTH",
+            "OWNER_ONLY"
+          ]
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/definitions/member"
+          }
+        }
+      }
+    },
+    "roomList": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "nextCursor"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/room"
+          }
+        },
+        "nextCursor": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "invite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "token",
+        "expiresAt",
+        "maxUses"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/id"
+        },
+        "token": {
+          "$ref": "#/definitions/token"
+        },
+        "expiresAt": {
+          "type": "string"
+        },
+        "maxUses": {
+          "const": 1
+        }
+      }
+    },
+    "ok": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ok"
+      ],
+      "properties": {
+        "ok": {
+          "const": true
+        }
+      }
+    },
+    "register": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "username",
+        "displayName",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]{3,32}$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "password": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 128
+        }
+      }
+    },
+    "recover": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "username",
+        "recoveryCode",
+        "password"
+      ],
+      "properties": {
+        "username": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]{3,32}$"
+        },
+        "recoveryCode": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 12,
+          "maxLength": 128
+        }
+      }
+    },
+    "registration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user",
+        "recoveryCode"
+      ],
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/user"
+        },
+        "recoveryCode": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        }
+      }
+    },
+    "recovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recoveryCode"
+      ],
+      "properties": {
+        "recoveryCode": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "backup": "D:\\project\\Duoscene\\.local\\backup\\2026-10-20-ui-details",
+  "files": [
+    {
+      "path": "apps/mobile/test/home_content_test.dart",
+      "sha256": "dfe0acec296a6168a92ec0eadfe49b9002cd773ce58361106495b6b77b165eef"
+    },
+    {
+      "path": "apps/mobile/lib/design/components.dart",
+      "sha256": "8d916b0062caf63f4e54aefd923af70808b709db2dc03945c6061f9fc7cc7065"
+    },
+    {
+      "path": "apps/mobile/lib/design/tokens.dart",
+      "sha256": "05578784ea599ebf81a529a87154369febaf6a0baf3b7f230f10353440115df0"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/home_content.dart",
+      "sha256": "6cab099c738459396c0ab521dbc5f52e91119361a912909a5cd5de5aff3b5a48"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/home_page.dart",
+      "sha256": "bea40c70fdf9ec0635c3561a88cded0ee3f10d2bd40846324f20fdca27ad50ec"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/posters.dart",
+      "sha256": "363c02fbfedf88d48f2f116df30c903db16ef1cc5857bec6e90f802632bcb5a0"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/profile_page.dart",
+      "sha256": "aef584a785d05bbd138d3c9199e48e5530fa68ec2632ba9035bbe3847dd486a6"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/settings_pages.dart",
+      "sha256": "e27334a3254a5c011a46e86abed1e5e6c1c03b6bafb934c312dd082970464732"
+    },
+    {
+      "path": "apps/mobile/lib/features/rooms/invite_panel.dart",
+      "sha256": "f4afab832e52d2145522553be0b9f1e535dd9069562e1e93da503b3fd364dea3"
+    },
+    {
+      "path": "apps/mobile/lib/features/rooms/room_detail_page.dart",
+      "sha256": "07d03c9f9710e706001e68b99351d825adf4253086ecafc80b02fe273b9a66ba"
+    },
+    {
+      "path": "apps/mobile/lib/features/rooms/room_form_page.dart",
+      "sha256": "8836002b1dc87a937c7596705a1bdde8b41f8886da956e99e332071906040c6f"
+    },
+    {
+      "path": "apps/mobile/lib/features/rooms/room_list_page.dart",
+      "sha256": "4db35fbe4e87e488f7fd09d69c69bec62becc794af614f0fa9dba2a397a3f3b0"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/arrow-left.svg",
+      "sha256": "dcd54831a1efd6190128b75d71756ecf1fb17d0f73a8ad8ccab7d14ad7282ce8"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/chevron-down.svg",
+      "sha256": "36e5aab0a0b3b571fae4c99d717d036b86d95ff9f9609d03b342c8a2d50fe084"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/chevron-right.svg",
+      "sha256": "ed7ddee75c6aa00d93e15173418c1dc7f27121cebea8ac5c511d5dc2c81836b9"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/chevron-up.svg",
+      "sha256": "b9cba6398dbfc39534344b5fadaee81745ff8abd527c2367b9111970e6bdeca3"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/circle-help.svg",
+      "sha256": "e47a70f7ce14c27343b8d0c38a36139781c9227767aab91106968ef39f840fd5"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/info.svg",
+      "sha256": "cb7102b7d46ead9fe8d6fd203ff86ff8dd5e68300ffb7819b362547c6ccaf0d6"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/log-out.svg",
+      "sha256": "10c1ad26f5567c4ded3d83e473a5475a87462530938d6ad48440aebbe68aca55"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/send.svg",
+      "sha256": "288091476f56abf8971d3577542a4a6dcaee892b43140ce81af0511464f95352"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/shield-check.svg",
+      "sha256": "6a85fe894597447776ff9d1437ba29b413d5ad04160ac6463a525204d16f7c13"
+    },
+    {
+      "path": "apps/mobile/assets/design/icons/volume-2.svg",
+      "sha256": "86673abba490cc8f3ea09ba2588f4b5e084e01889119dd46f496e3241a374559"
+    }
+  ]
+}

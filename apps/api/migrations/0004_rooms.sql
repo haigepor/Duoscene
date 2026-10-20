@@ -1,0 +1,12 @@
+CREATE TABLE rooms (
+  id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  owner_user_id CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  status ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN',
+  control_mode ENUM('BOTH', 'OWNER_ONLY') NOT NULL DEFAULT 'BOTH',
+  created_at DATETIME(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)),
+  updated_at DATETIME(3) NOT NULL DEFAULT (UTC_TIMESTAMP(3)),
+  PRIMARY KEY (id),
+  KEY ix_rooms_owner (owner_user_id),
+  CONSTRAINT fk_rooms_owner FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
