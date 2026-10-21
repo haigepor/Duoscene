@@ -30,24 +30,28 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     final f = widget.film, l = widget.library;
     final unavailable = l.scenario == 'media-unavailable';
+    final heroHeight = (MediaQuery.sizeOf(context).height * .36).clamp(
+      240.0,
+      320.0,
+    );
     return Scaffold(
       body: Forest(
         child: Stack(
           children: [
             ScrollChrome(
-              fadeStart: MediaQuery.sizeOf(context).height * .42 - 110,
+              fadeStart: heroHeight - 110,
               fadeExtent: 64,
               header: SafeArea(
                 bottom: false,
                 child: Row(
                   children: [
-                    IconTap(
+                    _CoverAction(
                       'arrow-left',
                       '返回',
                       () => Navigator.maybePop(context),
                     ),
                     const Spacer(),
-                    IconTap(
+                    _CoverAction(
                       l.favorites.contains(f.id)
                           ? 'bookmark-check'
                           : 'bookmark',
@@ -67,9 +71,11 @@ class _DetailPageState extends State<DetailPage> {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 110),
                 children: [
-                  FilmHero(f, height: MediaQuery.sizeOf(context).height * .42),
+                  FilmHero(f, height: heroHeight),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DS.pageInset,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -84,9 +90,8 @@ class _DetailPageState extends State<DetailPage> {
                         const SizedBox(height: 12),
                         Text(
                           f.synopsis,
-                          style: TextStyle(
+                          style: DS.body.copyWith(
                             color: DSPalette.of(context).muted,
-                            height: 1.8,
                           ),
                         ),
                         if (f.episodes > 1)
@@ -132,6 +137,8 @@ class _DetailPageState extends State<DetailPage> {
                                   padding: const EdgeInsets.only(right: 10),
                                   child: FilmPoster(
                                     other,
+                                    editorial: true,
+                                    aspectRatio: .72,
                                     onTap: () => openPage(
                                       context,
                                       DetailPage(film: other, library: l),
@@ -214,4 +221,27 @@ class _DetailPageState extends State<DetailPage> {
       ),
     );
   }
+}
+
+/// 媒体封面与滚动后的浅色顶栏都需要稳定对比度，视觉圆片与触控区分离。
+class _CoverAction extends StatelessWidget {
+  const _CoverAction(this.icon, this.label, this.onTap);
+  final String icon, label;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: label,
+    onPressed: onTap,
+    icon: Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: DSPalette.media.withValues(alpha: .45),
+      ),
+      child: Center(
+        child: DSIcon(icon, size: DS.navigationIcon, color: DSPalette.onMedia),
+      ),
+    ),
+  );
 }

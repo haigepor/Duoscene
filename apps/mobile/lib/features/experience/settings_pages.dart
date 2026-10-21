@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/illustrations.dart';
 import '../catalog/library_state.dart';
-import 'experience_player.dart';
 import '../catalog/collection_pages.dart';
 import '../playback/player_page.dart';
 
@@ -23,6 +23,8 @@ class _AudioSettingsPageState extends State<AudioSettingsPage> {
     child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        const DSIntro('听见故事，也听见彼此', '好的声音，让一起看更有氛围。', artwork: 'audio-glass'),
+        const SizedBox(height: DS.space16),
         _volume('影片音量', widget.library.movieVolume, (v) {
           setState(() => widget.library.movieVolume = v);
           widget.player?.session.core.mediaPlayer?.setVolume(v * 100);
@@ -67,14 +69,6 @@ class _AudioSettingsPageState extends State<AudioSettingsPage> {
             '播放器高级设置',
             subtitle: '保留 Playra 全部功能',
             onTap: widget.player!.settings,
-          )
-        else
-          MenuRow(
-            'play',
-            '打开播放器',
-            subtitle: '载入自己的 MP4 / HLS / 本地视频',
-            onTap: () =>
-                openPage(context, ExperiencePlayer(library: widget.library)),
           ),
       ],
     ),
@@ -129,33 +123,28 @@ class PrivacyPage extends StatelessWidget {
   Widget build(BuildContext context) => PageFrame(
     title: '隐私与记录',
     child: ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(
+        DS.pageInset,
+        DS.space8,
+        DS.pageInset,
+        DS.space16,
+      ),
       children: [
         Panel(
           child: Row(
             children: [
-              DSIcon(
-                'shield-check',
-                size: 28,
-                color: DSPalette.of(context).primary,
-              ),
-              const SizedBox(width: DS.space12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '只属于你们的交流',
-                      style: const TextStyle(
-                        fontSize: DS.secondarySectionSize,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('交流范围仅限房间成员。私聊记录保存在服务端。', style: DS.smallFor(context)),
+                    const Text('只属于你们的交流', style: DS.secondarySection),
+                    const SizedBox(height: DS.space4),
+                    Text('仅房间成员可见，私聊记录保存在服务端。', style: DS.smallFor(context)),
                   ],
                 ),
               ),
+              const SizedBox(width: DS.space8),
+              const DSIllustration('privacy-glass', width: 56, height: 56),
             ],
           ),
         ),
@@ -168,17 +157,16 @@ class PrivacyPage extends StatelessWidget {
               MenuRow(
                 'play',
                 '个人观看进度',
+                compact: true,
                 subtitle: '保存你独自观看的位置 · 本机',
                 onTap: () => openPage(
                   context,
-                  PageFrame(
-                    title: '个人观看进度',
-                    child: HistoryPage(
-                      library: library,
-                      onBrowse: () =>
-                          Navigator.popUntil(context, (r) => r.isFirst),
-                      sharedScope: false,
-                    ),
+                  HistoryPage(
+                    secondary: true,
+                    library: library,
+                    onBrowse: () =>
+                        Navigator.popUntil(context, (r) => r.isFirst),
+                    sharedScope: false,
                   ),
                 ),
               ),
@@ -186,17 +174,16 @@ class PrivacyPage extends StatelessWidget {
               MenuRow(
                 'users-round',
                 '共同观看进度',
+                compact: true,
                 subtitle: '保存你与好友一起看的位置 · 本机',
                 onTap: () => openPage(
                   context,
-                  PageFrame(
-                    title: '共同观看进度',
-                    child: HistoryPage(
-                      library: library,
-                      onBrowse: () =>
-                          Navigator.popUntil(context, (r) => r.isFirst),
-                      sharedScope: true,
-                    ),
+                  HistoryPage(
+                    secondary: true,
+                    library: library,
+                    onBrowse: () =>
+                        Navigator.popUntil(context, (r) => r.isFirst),
+                    sharedScope: true,
                   ),
                 ),
               ),
@@ -214,8 +201,13 @@ class PrivacyPage extends StatelessWidget {
               MenuRow(
                 'history',
                 '清理我的本机观看记录',
+                compact: true,
                 subtitle: '仅清理当前账户在本机保存的记录。',
-                trailing: DSIcon('trash-2', color: DSPalette.of(context).muted),
+                trailing: DSIcon(
+                  'trash-2',
+                  size: DS.iconSmall,
+                  color: DSPalette.of(context).muted,
+                ),
                 onTap: () async {
                   if (await confirm(
                     context,
@@ -238,7 +230,8 @@ class PrivacyPage extends StatelessWidget {
               MenuRow(
                 'notebook',
                 '清理本机缓存',
-                subtitle: '暂不可用 · 不会清除播放器或登录数据',
+                compact: true,
+                subtitle: '不会清除播放器或登录数据',
                 trailing: Text('暂不可用', style: DS.smallFor(context)),
               ),
               const Divider(),
@@ -265,79 +258,259 @@ class AccountPage extends StatelessWidget {
   const AccountPage({super.key, required this.library});
   final LibraryState library;
   @override
-  Widget build(BuildContext context) => PageFrame(
-    title: '账户信息',
-    bottom: SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: () => logout(context, library),
-        icon: const DSIcon('log-out'),
-        label: const Text('退出登录'),
-      ),
-    ),
-    child: ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Panel(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: DS.space8),
-            child: Row(
-              children: [
-                MountainAvatar(initial: library.initial, size: DS.avatarMedium),
-                const SizedBox(width: DS.space12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) {
+    final p = DSPalette.of(context);
+    final username = library.preview
+        ? 'zhixia · 示例'
+        : library.session?.user?.username;
+    return PageFrame(
+      title: '账户信息',
+      child: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              DS.pageInset,
+              DS.space8,
+              DS.pageInset,
+              0,
+            ),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final compact =
+                          constraints.maxWidth < 340 ||
+                          MediaQuery.textScalerOf(context).scale(14) > 22;
+                      return Row(
+                        children: [
+                          Container(
+                            width: DS.avatarLarge,
+                            height: DS.avatarLarge,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                DS.radiusMedium,
+                              ),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  p.primary.withValues(alpha: .5),
+                                  p.primary,
+                                ],
+                              ),
+                            ),
+                            child: Text(
+                              library.initial,
+                              style: TextStyle(
+                                fontSize: DS.displaySize,
+                                color: p.onPrimary,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: DS.space12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(library.displayName, style: DS.heading),
+                                const SizedBox(height: DS.space8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: DS.space8,
+                                    vertical: DS.space2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: p.tint,
+                                    borderRadius: BorderRadius.circular(
+                                      DS.radiusSmall,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    library.preview ? '预览身份' : '私有账户',
+                                    style: DS.label.copyWith(color: p.onTint),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: DS.space8),
+                          DSIllustration(
+                            'account-identity-glass',
+                            width: compact ? 64 : 112,
+                            height: compact ? 88 : 128,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: DS.space12),
+                  Stack(
                     children: [
-                      Text(library.displayName, style: DS.secondarySection),
-                      const SizedBox(height: 8),
-                      Text(
-                        library.preview ? '界面预览 · 未登录' : '已登录',
-                        style: TextStyle(color: DSPalette.of(context).primary),
+                      Panel(
+                        padding: const EdgeInsets.all(DS.space16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('登录账户', style: DS.smallFor(context)),
+                            const SizedBox(height: DS.space4),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SelectableText(
+                                    username ?? '未登录',
+                                    key: const Key('account-username'),
+                                    style: DS.body.copyWith(
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ),
+                                IconTap(
+                                  'copy',
+                                  '复制账户名',
+                                  username == null || library.preview
+                                      ? null
+                                      : () async {
+                                          try {
+                                            await Clipboard.setData(
+                                              ClipboardData(text: username),
+                                            );
+                                            if (context.mounted)
+                                              tell(context, '账户名已复制');
+                                          } catch (_) {
+                                            if (context.mounted)
+                                              tell(context, '无法复制，请长按账户名手动复制。');
+                                          }
+                                        },
+                                  color: p.muted,
+                                ),
+                              ],
+                            ),
+                            const Divider(height: DS.space24),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final large =
+                                    MediaQuery.textScalerOf(context).scale(14) >
+                                    22;
+                                final width = large
+                                    ? constraints.maxWidth
+                                    : (constraints.maxWidth - DS.space24) / 2;
+                                return Wrap(
+                                  spacing: DS.space24,
+                                  runSpacing: DS.space12,
+                                  children: [
+                                    SizedBox(
+                                      width: width,
+                                      child: _info(
+                                        context,
+                                        '显示名',
+                                        library.displayName,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: width,
+                                      child: _info(
+                                        context,
+                                        '账户类型',
+                                        library.preview ? '预览身份' : '个人账户',
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        top: 1,
+                        left: 1,
+                        child: Container(
+                          width: DS.space4,
+                          height: DS.space16,
+                          decoration: BoxDecoration(
+                            color: p.primary,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(DS.panelRadius),
+                              bottomRight: Radius.circular(DS.radiusSmall),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: DS.space24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: DS.space8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DSIcon(
+                          'lock-keyhole',
+                          size: DS.navigationIcon,
+                          color: p.muted,
+                        ),
+                        const SizedBox(width: DS.space12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('账户安全', style: DS.secondarySection),
+                              const SizedBox(height: DS.space4),
+                              Text(
+                                '忘记密码时，可在登录页使用恢复码重设。',
+                                style: DS.smallFor(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: DS.space24),
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: p.muted,
+                      side: BorderSide(color: p.line),
+                      alignment: Alignment.centerLeft,
+                    ),
+                    onPressed: () => logout(context, library),
+                    icon: DSIcon('log-out', size: DS.iconSmall, color: p.muted),
+                    label: const Text('退出登录'),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Panel(
-          child: Column(
-            children: [
-              _info(context, '显示名', library.displayName),
-              const Divider(),
-              _info(
-                context,
-                '账户名',
-                library.preview
-                    ? 'zhixia · 示例'
-                    : library.session?.user?.username ?? '未登录',
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: DS.space24),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: ExcludeSemantics(
+                  child: Opacity(
+                    opacity: .25,
+                    child: Brand(size: DS.sectionSize, ringsFirst: true),
+                  ),
+                ),
               ),
-              const Divider(),
-              _info(context, '账户类型', library.preview ? '预览身份' : '个人账户'),
-              const Divider(height: 30),
-              Text('账户名用于登录。忘记密码可在登录页使用恢复码重设。', style: DS.smallFor(context)),
-            ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-  Widget _info(BuildContext context, String name, String value) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: DS.space8),
-    child: Row(
-      children: [
-        Expanded(
-          child: Text(
-            name,
-            style: TextStyle(color: DSPalette.of(context).muted),
-          ),
-        ),
-        Expanded(child: Text(value)),
-      ],
-    ),
+        ],
+      ),
+    );
+  }
+
+  Widget _info(BuildContext context, String name, String value) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(name, style: DS.smallFor(context)),
+      const SizedBox(height: DS.space4),
+      Text(value, style: DS.body),
+    ],
   );
 }
 
@@ -355,20 +528,12 @@ class _HelpPageState extends State<HelpPage> {
     child: ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SizedBox(height: 16),
-        const Text(
-          '让一起看，更顺畅。',
-          style: TextStyle(
-            fontSize: DS.secondaryTitleSize,
-            fontWeight: FontWeight.w600,
-          ),
+        const DSIntro(
+          '遇到问题，先看看这里',
+          '常见问题与使用方法。',
+          artwork: 'conversation-glass',
         ),
-        const SizedBox(height: 8),
-        Text(
-          '遇到问题，先从这里找到答案。',
-          style: TextStyle(color: DSPalette.of(context).muted),
-        ),
-        const SizedBox(height: 24),
+        const SizedBox(height: DS.space24),
         Panel(
           padding: const EdgeInsets.all(4),
           child: Column(
@@ -476,8 +641,12 @@ class _AboutPageState extends State<AboutPage> {
     child: ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       children: [
-        SizedBox(height: MediaQuery.sizeOf(context).height * .1),
+        const SizedBox(height: DS.space24),
         const Center(child: Brand(size: DS.brandSize + DS.space8)),
+        const SizedBox(height: DS.space16),
+        const Center(
+          child: DSIllustration('duo-tickets-glass', width: 160, height: 120),
+        ),
         const SizedBox(height: DS.space16),
         const Text(
           '一部好片，独自沉浸，\n也可以一起。',

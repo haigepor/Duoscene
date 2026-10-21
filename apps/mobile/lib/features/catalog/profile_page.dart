@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/illustrations.dart';
 import '../../design/scroll_chrome.dart';
 import '../experience/invite_pages.dart';
 import '../experience/settings_pages.dart';
@@ -43,7 +44,12 @@ class ProfilePage extends StatelessWidget {
     ),
     child: ListView(
       key: const PageStorageKey('profile'),
-      padding: const EdgeInsets.fromLTRB(16, DS.toolbarHeight, 16, 16),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        DS.toolbarHeight,
+        16,
+        16 + MediaQuery.paddingOf(context).bottom,
+      ),
       children: [
         const SizedBox(height: 6),
         InkWell(
@@ -51,13 +57,13 @@ class ProfilePage extends StatelessWidget {
           child: Panel(
             child: Row(
               children: [
-                MountainAvatar(initial: library.initial, size: DS.avatarLarge),
+                MountainAvatar(initial: library.initial, size: DS.avatarMedium),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(library.displayName, style: DS.heading),
+                      Text(library.displayName, style: DS.section),
                       const SizedBox(height: 6),
                       Text(
                         library.preview ? '与喜欢的人，看喜欢的故事。' : '私有账户 · 仅受邀加入',
@@ -88,15 +94,23 @@ class ProfilePage extends StatelessWidget {
                       openPage(context, FavoritesPage(library: library)),
                 ),
               ),
-              Text('喜欢的故事，留到下次。', style: DS.smallFor(context)),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('喜欢的故事，留到下次。', style: DS.smallFor(context)),
+                  ),
+                  const DSIllustration(
+                    'collection-favorites-glass',
+                    width: 72,
+                    height: 52,
+                  ),
+                ],
+              ),
               const SizedBox(height: 7),
               if (library.favorites.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Text(
-                    '还没有收藏，找到喜欢的影片就收藏吧。',
-                    style: DS.smallFor(context),
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: DS.space8),
+                  child: Text('还没有收藏，去发现喜欢的影片。', style: DS.smallFor(context)),
                 )
               else
                 Row(
@@ -108,6 +122,7 @@ class ProfilePage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: FilmPoster(
                             f,
+                            editorial: true,
                             showTitle: false,
                             showMetadata: false,
                             aspectRatio: .85,
@@ -193,11 +208,14 @@ class ProfilePage extends StatelessWidget {
                 onTap: () =>
                     openPage(context, AudioSettingsPage(library: library)),
               ),
-              Divider(
-                height: 1,
-                indent: DS.navigationIcon + DS.space12,
-                color: DSPalette.of(context).line,
-              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: DS.space16),
+        Panel(
+          padding: const EdgeInsets.symmetric(horizontal: DS.space12),
+          child: Column(
+            children: [
               MenuRow(
                 'shield-check',
                 '隐私与记录',
@@ -250,10 +268,6 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
         ),
-        if (previewTools != null) previewTools!,
-        PreviewLabel(
-          text: library.preview ? '开发预览 · 示例身份，无账户凭据' : '片库为设计预览 · 收藏与记录仅保存在本机',
-        ),
       ],
     ),
   );
@@ -271,7 +285,7 @@ class ProfilePage extends StatelessWidget {
     return items.take(3);
   }
 
-  Future<void> _invitations(BuildContext context) => showModalBottomSheet<void>(
+  Future<void> _invitations(BuildContext context) => showDSSheet<void>(
     context: context,
     builder: (sheet) => SafeArea(
       child: Padding(
