@@ -21,6 +21,7 @@ backups/
 .packages
 build/
 **/android/.gradle/
+**/android/.kotlin/
 **/android/local.properties
 **/android/key.properties
 **/ios/Pods/

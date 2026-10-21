@@ -141,6 +141,18 @@ MySQL/realtime/account-recovery 的 `.integration.ts` 不在默认 npm test 范�
 原因是 runner 的 SDK 已安装但 sdkmanager 不在 PATH。工作流已改为从 ANDROID_HOME 查找可执行文件，
 同时获取并验证 Flutter 官方版本 tag，供浅克隆后的版本检测使用；不跳过失败的检查。
 
+第二次云端构建 [39619224040](https://github.com/haigepor/Duoscene/actions/runs/39619224040) 已成功，
+产物源码提交为 `884f605b82fbf6618b7b37b9828b5883b9b4d1f9`。api-checks 与 android 两个 job 均 success，
+云端分析无问题，106 项 Flutter 测试全部通过，Gradle 构建 428.8 秒。
+artifact 名称 `duoscene-arm64-debug-2`，ZIP 为 101064627 字节，保留至 2026-11-04。
+GitHub 提供的 ZIP SHA256 为 `3b71af2ffdab563c71e43ca14501947c54570e6dd4d2316bb42a9b579119306e`。
+
+本机构建也成功，冷构建 569.5 秒。Gradle wrapper 首次经旧代理下载停滞，已从官方
+downloads.gradle.org 获取同版本 8.14 归档，校验官方 SHA256 后补入 wrapper 缓存，未修改 wrapper 版本。
+本机 APK 仅用于验证本地构建能力；真机安装使用下载的云端 artifact。
+Flutter 提示现有 Gradle/AGP/Kotlin 支持将在未来移除，vendor Java 8 编译也有弃用警告；
+本次未跳过版本校验或顺便升级工具链，后续升级需要单独验证固定播放器与插件兼容性。
+
 ## 7. 官方依据
 
 - [Flutter Android 构建和签名](https://docs.flutter.dev/deployment/android)
@@ -153,8 +165,39 @@ MySQL/realtime/account-recovery 的 `.integration.ts` 不在默认 npm test 范�
 
 - `scripts/mobile-env.ps1`：从环境变量/PATH 发现工具，发现实际 sdkmanager，保留显式目录参数与 UTF-8 vswhere 适配。
 - `.github/workflows/android-apk.yml`：新增云端检查和调试包 artifact，不部署后端、不发行正式签名包。
+- `.gitignore`：忽略本次真实构建生成的 Android `.kotlin/` 缓存，不改业务源码。
 - `apps/mobile/README.md`：更新可移植环境入口、Actions 使用方法和 USB 联调边界。
 - 本文：记录源码结构、链路、风险、工具版本与验证证据。
 - `.local/`：被忽略的 Node 工具、日志、范围记录和后续构建产物，不进入 Git。
 
 回滚来源为分析基线提交；只恢复上述本次修改的文件并移除新增工作流/文档，保留用户后续改动。
+
+## 9. 最终产物与真机证据
+
+- APK：`output/android/duoscene-arm64-debug.apk`，167726718 字节；同目录附 `SHA256SUMS.txt` 和 `build-info.txt`。
+- APK SHA256：`fe84086a6fca778eaa83517fd56e493b441d0cc046bf57c9c66d96635746e202`。下载 ZIP 与 GitHub artifact digest 一致，解压 APK 与云端 SHA256SUMS 一致，交付副本再次核验一致。
+- 包信息：`com.example.duoscene`，0.1.0+1，minSdk 28、targetSdk 36、debuggable，仅 arm64-v8a。
+- 签名：apksigner verify 通过，APK Signature Scheme v2，Android Debug 证书；这不是正式发行身份。
+- 原生库：libflutter、libmpv、libmediakitandroidhelper、libmedia_kit_event_loop、WebRTC/libjingle、JNI 等均在 arm64-v8a 下；没有混入其他 ABI 的不完整目录。
+- PASS：下载的云端 APK 在 Honor LLD-AL20 / Android 9 上 `adb install -r` 返回 Success，实际前台 Activity 与进程存在，登录表单及中文资源可见。
+- PASS：经 ADB reverse 连接本机真实 Fastify 程序（明确 database disabled），用非真实账户填写登录。服务端收到 POST 并返回 503，手机显示“服务暂时不可用，请稍后重试。”。此项只证明网络和错误处理，不代表账户登录成功。
+- PASS：force-stop 后重启，`am start -W` 返回 Status: ok；使用新文件名采集的新 UI hierarchy 确认登录按钮和两个空输入框，测试输入没有留在页面。
+- 限制：首次冷启动 `am start -W` 等待超时，最初截图仍在恢复登录；稍后登录页正常可操作。重启一次 Activity 等待约 9.3 秒，不能把 debug 包结果作为正式启动性能通过。
+- 日志：本次观察未发现 E/flutter、FATAL EXCEPTION 或 Unhandled Exception；存在老系统扩展类探测和 KeyStore 初始化警告。没有据此声称所有 Android 机型兼容。
+- 清理：停止临时 API，移除本次创建的 tcp:3000 reverse 及手机临时截图/XML；保留已安装 App 和空登录页，没有执行卸载或清空应用数据。
+
+截图和 UI 证据位于本机 `.local/screenshots/`：`cloud-login.png`、`cloud-service-error.png`、
+`cloud-restart-login-final.png`、`service-error.xml`、`restart-final.xml`。
+这些文件被忽略，不随源码推送；APK 与摘要已复制到被忽略的 `output/android/`，不会因 GitHub artifact 过期而消失。
+
+## 10. 工作状态
+
+| 项目 | 状态 | 结果 |
+| --- | --- | --- |
+| 克隆与源码分析 | DONE | 源码入口、数据流、依赖边界、实现与文档漂移已记录 |
+| Android 依赖配置 | DONE | Flutter/Dart/JDK/SDK/NDK、锁文件和本机构建已验证 |
+| GitHub Actions 打包 | DONE | 第二次运行成功，下载与摘要核验完成 |
+| 单真机冒烟 | DONE | 安装、登录页、503 错误处理、重启与进程日志已验证 |
+| 交付与范围复核 | DONE | 五个源码/文档文件，仅构建与说明；无业务逻辑或 vendor 修改 |
+| 完整业务集成验证 | BLOCKED | 当前没有 MySQL、真实 API 账户和第二台终端；本次不把这些能力记为通过 |
+| 公网后端、TURN、稳定签名和双机测试 | NEXT | 可选后续工作，不包含在本次调试 APK 的完成声明中 |
