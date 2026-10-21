@@ -108,9 +108,9 @@ void main() {
       find.byKey(const Key('password')),
       'correct-password',
     );
-    await tester.ensureVisible(find.text('登录 Duoscene'));
+    await tester.ensureVisible(find.text('登录'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('登录 Duoscene'));
+    await tester.tap(find.text('登录'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('tab-3')));
     await tester.pumpAndSettle();
@@ -131,23 +131,30 @@ void main() {
     createSession();
     await tester.pumpWidget(DuosceneApp(session: session));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('登录 Duoscene'));
-    await tester.tap(find.text('登录 Duoscene'));
+    await tester.ensureVisible(find.text('登录'));
+    await tester.tap(find.text('登录'));
     await tester.pump();
-    expect(find.text('请输入密码'), findsOneWidget);
+    expect(
+      tester
+          .widget<TextFormField>(find.byKey(const Key('password')))
+          .controller!
+          .text,
+      isEmpty,
+    );
+    expect(find.text('请输入密码'), findsNWidgets(2));
     expect(requests, isEmpty);
     await tester.enterText(find.byKey(const Key('username')), 'owner');
     await tester.enterText(find.byKey(const Key('password')), 'wrong');
-    await tester.ensureVisible(find.text('登录 Duoscene'));
-    await tester.tap(find.text('登录 Duoscene'));
+    await tester.ensureVisible(find.text('登录'));
+    await tester.tap(find.text('登录'));
     await tester.pumpAndSettle();
     expect(find.textContaining('登录信息无效'), findsOneWidget);
     await tester.enterText(
       find.byKey(const Key('password')),
       'correct-password',
     );
-    await tester.ensureVisible(find.text('登录 Duoscene'));
-    await tester.tap(find.text('登录 Duoscene'));
+    await tester.ensureVisible(find.text('登录'));
+    await tester.tap(find.text('登录'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('tab-0')), findsOneWidget);
     expect(find.text('搜索影片、剧集'), findsOneWidget);
@@ -218,13 +225,13 @@ void main() {
       ),
       isTrue,
     );
-    await tester.tap(find.byType(BackButton));
+    await tester.tap(find.byTooltip('返回'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('退出登录'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, '退出登录'));
     await tester.pumpAndSettle();
-    expect(find.text('登录 Duoscene'), findsOneWidget);
+    expect(find.text('登录'), findsOneWidget);
     expect(find.text('我们的房间'), findsNothing);
     expect((session.store as MemoryTokenStore).value, isNull);
   });
@@ -233,7 +240,7 @@ void main() {
     tester,
   ) async {
     await login(tester);
-    await tester.tap(find.text('使用邀请码加入'));
+    await tester.tap(find.text('邀请加入'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('invite-token')), 'too-short');
     await tester.tap(find.text('加入房间'));
@@ -276,7 +283,7 @@ void main() {
         tester.platformDispatcher.clearTextScaleFactorTestValue();
       });
       await login(tester);
-      await tester.tap(find.text('使用邀请码加入'));
+      await tester.tap(find.text('邀请加入'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     },

@@ -84,7 +84,13 @@ class ApiClient {
     } on ApiException {
       rethrow;
     } on TimeoutException {
-      throw const ApiException('NETWORK_ERROR', '连接超时。若刚提交过操作，请先刷新房间确认结果。');
+      // 登录尚未进入房间；房间写操作仍需提示先核实结果，避免重复提交。
+      throw ApiException(
+        'NETWORK_ERROR',
+        path == '/auth/login'
+            ? '登录连接超时，请检查网络和服务地址后重试。'
+            : '连接超时。若刚提交过操作，请先刷新房间确认结果。',
+      );
     } on http.ClientException {
       throw const ApiException(
         'NETWORK_ERROR',

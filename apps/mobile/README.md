@@ -30,10 +30,19 @@ Android/iOS 工程已由 `flutter create --project-name duoscene --platforms and
 npm run dev:api
 ```
 
-API 默认仅绑定 127.0.0.1:3000。Android 模拟器通过 10.0.2.2:3000 访问宿主机。
-USB 手机连接并授权后，使用 `adb reverse tcp:3000 tcp:3000`，然后执行：
+API 默认仅绑定 127.0.0.1:3000。`10.0.2.2` 是官方 Android Emulator 的宿主映射，
+不能直接用于雷电模拟器。当前本机调试统一通过 ADB 回环转发；从仓库根目录执行：
 
 ```powershell
+.\scripts\start-mobile-debug.ps1 -Device 127.0.0.1:5557
+```
+
+该脚本设置端口转发并显式传入 `API_BASE_URL=http://127.0.0.1:3000`，保留热更新终端。
+`flutter attach` 只能连接已启动的应用，不能更换其编译时服务地址；更换地址需要重新 `flutter run`。
+USB 手机或其他设备连接并授权后，也可手动执行：
+
+```powershell
+adb -s <adb-device-id> reverse tcp:3000 tcp:3000
 flutter run -d <adb-device-id> --dart-define=API_BASE_URL=http://127.0.0.1:3000
 ```
 
@@ -61,6 +70,13 @@ node --env-file=.env scripts/test-mobile-backend.mjs --native
 测试凭据仅进入专用集成测试构建，不得将该构建分发给用户。
 
 实际已运行项目及平台限制见 ../../docs/mobile-verification.md。
+
+## Web 样式预览
+
+浏览器入口位于 [`web/`](web/README.md)，直接复用 Android / iOS 的页面、
+组件和主题，不另做一套网页。项目根目录运行
+`.\scripts\start-web-preview.ps1`，然后打开 <http://127.0.0.1:7357>。
+Web 仅用于查看样式，不接入真实账户、播放或双人同步功能。
 
 ## 依赖边界
 

@@ -11,6 +11,58 @@ import 'package:http/testing.dart';
 import 'session_test.dart' show MemoryTokenStore, ok;
 
 void main() {
+  testWidgets('password visibility only changes the selected access field', (
+    t,
+  ) async {
+    final session = Session(
+      ApiClient(
+        Uri.parse('http://localhost:3000'),
+        client: MockClient((_) async => ok({})),
+      ),
+      MemoryTokenStore(),
+    );
+    await t.pumpWidget(
+      MaterialApp(
+        theme: duosceneTheme,
+        home: AccountAccessPage(session: session),
+      ),
+    );
+    final password = find.byKey(const Key('access-password'));
+    final repeat = find.byKey(const Key('access-repeat'));
+    await t.ensureVisible(password);
+    await t.enterText(password, 'a-new-long-password');
+    await t.ensureVisible(repeat);
+    await t.enterText(repeat, 'a-new-long-password');
+    final toggle = find.descendant(
+      of: password,
+      matching: find.byType(IconButton),
+    );
+    await t.ensureVisible(toggle);
+    await t.tap(toggle);
+    await t.pump();
+    expect(
+      t.widget<TextFormField>(password).controller!.text,
+      'a-new-long-password',
+    );
+    expect(
+      t
+          .widget<EditableText>(
+            find.descendant(of: password, matching: find.byType(EditableText)),
+          )
+          .obscureText,
+      isFalse,
+    );
+    expect(
+      t
+          .widget<EditableText>(
+            find.descendant(of: repeat, matching: find.byType(EditableText)),
+          )
+          .obscureText,
+      isTrue,
+    );
+    await t.pumpWidget(const SizedBox());
+    session.dispose();
+  });
   for (final recover in [false, true]) {
     testWidgets(
       '${recover ? 'recover' : 'register'} validates and gates recovery-code dismissal',
@@ -60,9 +112,11 @@ void main() {
           recover ? '重设密码' : '创建账号',
         );
         await t.ensureVisible(submit);
+        await t.pumpAndSettle();
         await t.tap(submit);
         await t.pumpAndSettle();
         expect(requests, 0);
+        expect(find.text('密码需12–128个字符'), findsOneWidget);
         for (final entry in {
           'username': 'new_user',
           if (recover) 'recovery': 'A' * 43 else 'nickname': '新朋友',
@@ -74,6 +128,7 @@ void main() {
           await t.enterText(field, entry.value);
         }
         await t.ensureVisible(submit);
+        await t.pumpAndSettle();
         await t.tap(submit);
         await t.pumpAndSettle();
         expect(requests, 1);

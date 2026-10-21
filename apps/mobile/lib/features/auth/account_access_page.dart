@@ -5,6 +5,7 @@ import '../../core/widgets.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import 'session.dart';
+import 'auth_widgets.dart';
 
 /// 注册和恢复成功后先保存恢复码，再返回登录；凭据不会写进普通偏好存储。
 class AccountAccessPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
   final username = TextEditingController(), nickname = TextEditingController();
   final password = TextEditingController(), repeat = TextEditingController();
   final recovery = TextEditingController();
-  bool busy = false, hidden = true, saved = false;
+  bool busy = false, hidden = true, repeatHidden = true, saved = false;
   String? error, issuedCode;
   @override
   void dispose() {
@@ -76,12 +77,14 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
     },
     child: PageFrame(
       title: widget.recover ? '找回密码' : '注册账号',
-      child: ListView(
-        padding: const EdgeInsets.all(24),
+      child: AuthBody(
         children: [
           if (issuedCode != null) ...[
-            Text(widget.recover ? '密码已更新' : '账号已创建', style: DS.heading),
-            const SizedBox(height: 12),
+            AuthIntro(
+              widget.recover ? '密码已更新' : '账号已创建',
+              '请保存这份新的恢复码。',
+              artwork: 'auth-key-glass',
+            ),
             Text(
               '请保存恢复码。它只在此时显示，可用于重设密码。请勿与他人分享。'
               '${widget.recover ? '旧恢复码和旧登录会话已失效。' : ''}',
@@ -122,18 +125,13 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    widget.recover ? '使用恢复码重设密码' : '开启你的下一场',
-                    style: DS.heading,
+                  AuthIntro(
+                    widget.recover ? '用恢复码，找回下一场' : '开启你的下一场',
+                    widget.recover ? '输入注册时保存的恢复码。' : '创建账号后，请妥善保存恢复码。',
+                    artwork: widget.recover
+                        ? 'auth-key-glass'
+                        : 'auth-account-glass',
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    widget.recover
-                        ? '输入注册时保存的恢复码。重设成功会退出其他设备，并生成新的恢复码。'
-                        : '创建账号后，请保存用于找回密码的恢复码。',
-                    style: DS.smallFor(context),
-                  ),
-                  const SizedBox(height: 24),
                   _field(
                     '账户',
                     username,
@@ -183,8 +181,11 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
                     validator: (v) => v == password.text ? null : '两次密码不一致',
                   ),
                   if (error != null) ErrorNotice(error!),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: DS.space8),
                   FilledButton(
+                    style: FilledButton.styleFrom(
+                      textStyle: DS.title.copyWith(fontSize: DS.itemTitleSize),
+                    ),
                     onPressed: busy ? null : submit,
                     child: Text(
                       busy
@@ -193,6 +194,12 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
                           ? '重设密码'
                           : '创建账号',
                     ),
+                  ),
+                  const SizedBox(height: DS.space12),
+                  AuthLink(
+                    '返回登录',
+                    busy ? null : () => Navigator.pop(context),
+                    prefix: widget.recover ? null : '已有账号？',
                   ),
                 ],
               ),
@@ -208,7 +215,7 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
     bool secret = false,
     String? Function(String?)? validator,
   }) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
+    padding: const EdgeInsets.only(bottom: DS.space12),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,7 +225,8 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
           key: Key(key),
           controller: controller,
           enabled: !busy,
-          obscureText: secret && hidden,
+          obscureText:
+              secret && (key == 'access-repeat' ? repeatHidden : hidden),
           autocorrect: false,
           enableSuggestions: false,
           textInputAction: key == 'access-repeat'
@@ -234,14 +242,43 @@ class _AccountAccessPageState extends State<AccountAccessPage> {
               : 32,
           validator: validator,
           style: DS.body,
-          decoration: InputDecoration(
-            counterText: '',
-            hintText: '请输入$label',
-            suffixIcon: secret
+          decoration: authInputDecoration(
+            context,
+            key == 'access-password'
+                ? widget.recover
+                      ? '设置新密码'
+                      : '设置登录密码'
+                : key == 'access-repeat'
+                ? widget.recover
+                      ? '再次输入新密码'
+                      : '再次输入密码'
+                : '请输入$label',
+            secret
+                ? 'lock-keyhole'
+                : key == 'access-recovery'
+                ? 'lock-keyhole'
+                : 'user-round',
+            suffix: secret
                 ? IconButton(
-                    tooltip: hidden ? '显示密码' : '隐藏密码',
-                    onPressed: () => setState(() => hidden = !hidden),
-                    icon: DSIcon(hidden ? 'eye-off' : 'eye', size: 18),
+                    tooltip: (key == 'access-repeat' ? repeatHidden : hidden)
+                        ? '显示密码'
+                        : '隐藏密码',
+                    onPressed: busy
+                        ? null
+                        : () => setState(() {
+                            if (key == 'access-repeat') {
+                              repeatHidden = !repeatHidden;
+                            } else {
+                              hidden = !hidden;
+                            }
+                          }),
+                    icon: DSIcon(
+                      (key == 'access-repeat' ? repeatHidden : hidden)
+                          ? 'eye-off'
+                          : 'eye',
+                      size: DS.navigationIcon,
+                      color: DSPalette.of(context).muted,
+                    ),
                   )
                 : null,
           ),

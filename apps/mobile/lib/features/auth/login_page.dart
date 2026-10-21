@@ -5,6 +5,7 @@ import '../../core/widgets.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import 'session.dart';
+import 'auth_widgets.dart';
 import 'account_access_page.dart';
 import '../experience/appearance_page.dart';
 
@@ -77,45 +78,50 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: Forest(
-      hero: true,
-      child: SafeArea(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            PageBody(
-              child: LayoutBuilder(
-                builder: (context, constraints) => Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: ListView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: const EdgeInsets.all(DS.space24),
+  Widget build(BuildContext context) {
+    final busy = widget.session?.busy ?? false;
+    return Scaffold(
+      body: Forest(
+        child: SafeArea(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: DS.space24,
+                          right: DS.space12,
+                        ),
+                        child: SizedBox(
+                          height: DS.toolbarHeight,
+                          child: Row(
+                            children: [
+                              const Expanded(child: Brand(ringsFirst: true)),
+                              IconTap(
+                                'sun',
+                                '切换外观',
+                                () => openPage(context, const AppearancePage()),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: AuthBody(
+                      filmstrip: true,
                       children: [
-                        // 键盘展开后根据可用高度收紧顶部留白，登录操作仍可滚动到达。
-                        SizedBox(
-                          height: (constraints.maxHeight * .12).clamp(
-                            DS.space16,
-                            80.0,
-                          ),
-                        ),
-                        const Center(
-                          child: Brand(size: DS.brandSize + DS.space8),
-                        ),
-                        const SizedBox(height: DS.space24),
-                        Text(
+                        const AuthIntro(
                           '下一场，一起开始。',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: DS.pageTitleSize,
-                            height: 1.4,
-                            color: DSPalette.of(context).ink,
-                          ),
+                          '登录，继续你的观影时光。',
+                          artwork: 'duo-tickets-glass',
                         ),
-                        const SizedBox(height: DS.space32),
                         AutofillGroup(
                           child: Form(
                             key: _form,
@@ -127,15 +133,15 @@ class _LoginPageState extends State<LoginPage> {
                                 Semantics(
                                   label: '账户',
                                   child: TextFormField(
-                                    controller: _username,
                                     key: const Key('username'),
-                                    enabled: !(widget.session?.busy ?? false),
-                                    decoration: _decoration(
-                                      '输入账户',
+                                    controller: _username,
+                                    enabled: !busy,
+                                    decoration: authInputDecoration(
+                                      context,
+                                      '请输入账户',
                                       'user-round',
                                     ),
                                     style: DS.body,
-                                    cursorColor: DSPalette.of(context).primary,
                                     keyboardType: TextInputType.text,
                                     autocorrect: false,
                                     enableSuggestions: false,
@@ -144,9 +150,9 @@ class _LoginPageState extends State<LoginPage> {
                                     ],
                                     textInputAction: TextInputAction.next,
                                     maxLength: 32,
-                                    validator: (value) =>
+                                    validator: (v) =>
                                         RegExp(r'^[A-Za-z0-9_]{3,32}$')
-                                            .hasMatch(value?.trim() ?? '')
+                                            .hasMatch(v?.trim() ?? '')
                                         ? null
                                         : '账户为 3–32 位字母、数字或下划线',
                                   ),
@@ -157,29 +163,28 @@ class _LoginPageState extends State<LoginPage> {
                                 Semantics(
                                   label: '密码',
                                   child: TextFormField(
-                                    controller: _password,
                                     key: const Key('password'),
-                                    enabled: !(widget.session?.busy ?? false),
-                                    decoration: _decoration(
-                                      '输入密码',
+                                    controller: _password,
+                                    enabled: !busy,
+                                    decoration: authInputDecoration(
+                                      context,
+                                      '请输入密码',
                                       'lock-keyhole',
                                       suffix: IconButton(
                                         tooltip: _hidden ? '显示密码' : '隐藏密码',
-                                        icon: DSIcon(
-                                          _hidden ? 'eye-off' : 'eye',
-                                          color: DSPalette.of(context).muted,
-                                          size: DS.navigationIcon,
-                                        ),
-                                        onPressed:
-                                            (widget.session?.busy ?? false)
+                                        onPressed: busy
                                             ? null
                                             : () => setState(
                                                 () => _hidden = !_hidden,
                                               ),
+                                        icon: DSIcon(
+                                          _hidden ? 'eye-off' : 'eye',
+                                          size: DS.navigationIcon,
+                                          color: DSPalette.of(context).muted,
+                                        ),
                                       ),
                                     ),
                                     style: DS.body,
-                                    cursorColor: DSPalette.of(context).primary,
                                     obscureText: _hidden,
                                     autocorrect: false,
                                     enableSuggestions: false,
@@ -189,42 +194,34 @@ class _LoginPageState extends State<LoginPage> {
                                     maxLength: 128,
                                     textInputAction: TextInputAction.done,
                                     onFieldSubmitted: (_) => _login(),
-                                    validator: (value) =>
-                                        value == null || value.isEmpty
-                                        ? '请输入密码'
-                                        : null,
+                                    validator: (v) =>
+                                        v == null || v.isEmpty ? '请输入密码' : null,
                                   ),
                                 ),
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
-                                    onPressed: (widget.session?.busy ?? false)
+                                    onPressed: busy
                                         ? null
                                         : () => _access(true),
                                     child: const Text('忘记密码？'),
                                   ),
                                 ),
+                                const SizedBox(height: DS.space12),
                                 FilledButton(
                                   style: FilledButton.styleFrom(
-                                    minimumSize: const Size.fromHeight(
-                                      DS.primaryButtonHeight,
+                                    textStyle: DS.title.copyWith(
+                                      fontSize: DS.itemTitleSize,
                                     ),
                                   ),
-                                  onPressed: (widget.session?.busy ?? false)
-                                      ? null
-                                      : _login,
-                                  child: Text(
-                                    (widget.session?.busy ?? false)
-                                        ? '正在登录…'
-                                        : '登录 Duoscene',
-                                  ),
+                                  onPressed: busy ? null : _login,
+                                  child: Text(busy ? '正在登录…' : '登录'),
                                 ),
-                                const SizedBox(height: 12),
-                                OutlinedButton(
-                                  onPressed: (widget.session?.busy ?? false)
-                                      ? null
-                                      : () => _access(false),
-                                  child: const Text('注册账号'),
+                                const SizedBox(height: DS.space12),
+                                AuthLink(
+                                  '注册账号',
+                                  busy ? null : () => _access(false),
+                                  prefix: '还没有账号？',
                                 ),
                               ],
                             ),
@@ -233,89 +230,25 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
-            ),
-            Positioned(
-              top: 0,
-              right: 8,
-              child: IconTap(
-                'sun',
-                '切换外观',
-                () => openPage(context, const AppearancePage()),
-              ),
-            ),
-            if (_error ?? widget.session?.notice case final String message)
-              Positioned(
-                top: DS.space12,
-                left: DS.space16,
-                right: DS.space16,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 400),
-                    child: ErrorNotice(message, floating: true),
+              if (_error ?? widget.session?.notice case final String message)
+                Positioned(
+                  top: DS.space12,
+                  left: DS.space16,
+                  right: DS.space16,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 400),
+                      child: ErrorNotice(message, floating: true),
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-  InputDecoration _decoration(String hint, String icon, {Widget? suffix}) {
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(DS.radiusMedium),
-      borderSide: BorderSide(color: DSPalette.of(context).outline),
-    );
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: DS.body.copyWith(color: DSPalette.of(context).muted),
-      counterText: '',
-      filled: true,
-      fillColor: DSPalette.of(context).panel,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: DS.space12,
-        vertical: 14,
-      ),
-      prefixIcon: Center(
-        widthFactor: 1,
-        heightFactor: 1,
-        child: DSIcon(
-          icon,
-          size: DS.navigationIcon,
-          color: DSPalette.of(context).muted,
-        ),
-      ),
-      prefixIconConstraints: const BoxConstraints(
-        minWidth: DS.primaryButtonHeight,
-        minHeight: DS.touchTarget,
-      ),
-      suffixIcon: suffix,
-      suffixIconConstraints: const BoxConstraints(
-        minWidth: DS.touchTarget,
-        minHeight: DS.touchTarget,
-      ),
-      border: border,
-      enabledBorder: border,
-      disabledBorder: border.copyWith(
-        borderSide: BorderSide(
-          color: DSPalette.of(context).line.withValues(alpha: .5),
-        ),
-      ),
-      focusedBorder: border.copyWith(
-        borderSide: BorderSide(color: DSPalette.of(context).primary),
-      ),
-      errorBorder: border.copyWith(
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
-      ),
-      focusedErrorBorder: border.copyWith(
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
-      ),
-      errorStyle: DS
-          .smallFor(context)
-          .copyWith(color: Theme.of(context).colorScheme.error),
-      errorMaxLines: 3,
     );
   }
 }
