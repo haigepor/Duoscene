@@ -74,7 +74,7 @@ void main() {
       await screenshot('login');
       await tester.enterText(find.byKey(const Key('username')), ownerName);
       await tester.enterText(find.byKey(const Key('password')), password);
-      await tapVisible(find.text('登录 Duoscene'));
+      await tapVisible(find.text('登录'));
       await waitFor(find.byKey(const Key('tab-3')));
       await tester.tap(find.byKey(const Key('tab-3')));
       await tester.pumpAndSettle();
@@ -140,7 +140,7 @@ void main() {
       await tapVisible(find.text('邀请与房间'));
       await waitFor(find.text('我们的房间'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('使用邀请码加入'));
+      await tester.tap(find.text('邀请加入'));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.byKey(const Key('invite-token')),

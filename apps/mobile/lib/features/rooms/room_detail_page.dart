@@ -9,6 +9,7 @@ import 'room_repository.dart';
 import '../realtime/room_watch_page.dart';
 import '../../design/tokens.dart';
 import '../../design/components.dart';
+import '../../design/illustrations.dart';
 
 class RoomDetailPage extends StatefulWidget {
   const RoomDetailPage({
@@ -64,85 +65,72 @@ class _RoomDetailPageState extends State<RoomDetailPage>
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('房间'),
-      actions: [
-        IconButton(
-          tooltip: '刷新成员',
-          onPressed: _loading ? null : _load,
-          icon: const DSIcon('refresh-cw'),
-        ),
-      ],
-    ),
-    body: SafeArea(
-      child: PageBody(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            if (!_loading) await _load();
-          },
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(DS.pageInset),
-            children: [
-              Text(
-                _room.isOpen ? '双人私密房间' : '房间已关闭',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+  Widget build(BuildContext context) => PageFrame(
+    title: '房间',
+    actions: [
+      IconButton(
+        tooltip: '刷新成员',
+        onPressed: _loading ? null : _load,
+        icon: const DSIcon('refresh-cw'),
+      ),
+    ],
+    child: PageBody(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          if (!_loading) await _load();
+        },
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(DS.pageInset),
+          children: [
+            DSIntro(
+              _room.name,
+              _room.isOpen ? '双人私密房间 · 仅受邀加入' : '房间已关闭',
+              artwork: 'duo-tickets-glass',
+            ),
+            const SizedBox(height: DS.space24),
+            FilledButton.icon(
+              icon: DSIcon(
+                'play',
+                size: DS.navigationIcon,
+                color: DSPalette.of(context).onPrimary,
               ),
-              const SizedBox(height: 12),
-              Text(
-                _room.name,
-                style: const TextStyle(
-                  fontSize: DS.pageTitleSize,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text('房间成员信息 · 下拉或点击右上角刷新', style: DS.smallFor(context)),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                icon: DSIcon(
-                  'play',
-                  size: DS.navigationIcon,
-                  color: DSPalette.of(context).onPrimary,
-                ),
-                label: const Text('打开播放器'),
-                onPressed: !_room.isOpen
-                    ? null
-                    : () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => RoomWatchPage(
-                            room: _room,
-                            auth: widget.rooms.session,
-                          ),
+              label: const Text('打开播放器'),
+              onPressed: !_room.isOpen
+                  ? null
+                  : () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => RoomWatchPage(
+                          room: _room,
+                          auth: widget.rooms.session,
                         ),
                       ),
+                    ),
+            ),
+            const SizedBox(height: 24),
+            if (_loading)
+              const LinearProgressIndicator(semanticsLabel: '正在更新成员'),
+            if (_error != null) ErrorNotice(_error!),
+            Text(
+              '${_room.members.length} / 2 席',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            for (var seat = 1; seat <= 2; seat++) _seat(seat),
+            const SizedBox(height: 24),
+            if (_room.isOpen &&
+                _room.ownerUserId == widget.userId &&
+                _room.members.length < 2)
+              InvitePanel(
+                key: ValueKey(_room.id),
+                rooms: widget.rooms,
+                roomId: _room.id,
+                enabled: !_loading && _error == null,
               ),
-              const SizedBox(height: 24),
-              if (_loading)
-                const LinearProgressIndicator(semanticsLabel: '正在更新成员'),
-              if (_error != null) ErrorNotice(_error!),
-              Text(
-                '${_room.members.length} / 2 席',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 16),
-              for (var seat = 1; seat <= 2; seat++) _seat(seat),
-              const SizedBox(height: 24),
-              if (_room.isOpen &&
-                  _room.ownerUserId == widget.userId &&
-                  _room.members.length < 2)
-                InvitePanel(
-                  key: ValueKey(_room.id),
-                  rooms: widget.rooms,
-                  roomId: _room.id,
-                  enabled: !_loading && _error == null,
-                ),
-              if (_room.isOpen && _room.members.length == 2)
-                const Text('两席已齐。', style: DS.secondarySection),
-              if (!_room.isOpen) const Text('这个房间已关闭，不能再邀请或加入。'),
-            ],
-          ),
+            if (_room.isOpen && _room.members.length == 2)
+              const Text('两席已齐。', style: DS.secondarySection),
+            if (!_room.isOpen) const Text('这个房间已关闭，不能再邀请或加入。'),
+          ],
         ),
       ),
     ),
@@ -155,7 +143,7 @@ class _RoomDetailPageState extends State<RoomDetailPage>
       padding: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        tileColor: Theme.of(context).colorScheme.surfaceContainer,
+        tileColor: DSPalette.of(context).panel,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: DS.space12,
           vertical: DS.space8,

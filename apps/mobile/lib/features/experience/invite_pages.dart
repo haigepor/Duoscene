@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/widgets.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/illustrations.dart';
 import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
 import '../catalog/posters.dart';
@@ -19,7 +20,7 @@ Future<void> showInvite(
   required LibraryState library,
   int episode = 1,
   int position = 0,
-}) => showModalBottomSheet<void>(
+}) => showDSSheet<void>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
@@ -61,8 +62,19 @@ class _InviteSheetState extends State<InviteSheet> {
         if (mounted) setState(() => busy = false);
       });
     }
-    timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted && invite != null) setState(() {});
+  }
+
+  // 倒计时只在显示的分钟数变化或到期时刷新，不再每秒重建整张弹层。
+  void _scheduleExpiry() {
+    timer?.cancel();
+    final value = invite;
+    if (value == null || value.expired) return;
+    final remaining = value.expiresAt.difference(DateTime.now());
+    final next = Duration(seconds: remaining.inSeconds % 60 + 1);
+    timer = Timer(next < remaining ? next : remaining, () {
+      if (!mounted) return;
+      setState(() {});
+      _scheduleExpiry();
     });
   }
 
@@ -89,6 +101,7 @@ class _InviteSheetState extends State<InviteSheet> {
       room ??= await rooms.create(widget.film.title);
       if (invite == null || invite!.expired)
         invite = await rooms.invite(room!.id);
+      _scheduleExpiry();
       final text =
           'Duoscene 私密观影邀请\n${invite!.token}\n15 分钟有效，仅限使用一次。加入后等待双方准备。';
       if (share) {
@@ -115,185 +128,212 @@ class _InviteSheetState extends State<InviteSheet> {
     final expired =
         invite?.expired == true ||
         widget.library.scenario == 'invite-expired-sender';
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                const Expanded(child: Text('邀请好友一起看', style: DS.heading)),
-                IconTap('x', '关闭邀请', () => Navigator.pop(context)),
-              ],
-            ),
-            Text(
-              '把这一刻，分享给想一起看的人。',
-              style: TextStyle(color: DSPalette.of(context).muted),
-            ),
-            const SizedBox(height: 20),
-            Panel(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.asset(
-                      widget.film.image,
-                      width: 90,
-                      height: 64,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.film.title,
-                          style: const TextStyle(
-                            fontSize: DS.sectionSize,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '${widget.film.episodes == 1 ? '完整正片' : '第 ${widget.episode} 集'} · 从 ${widget.position ~/ 60}:${(widget.position % 60).toString().padLeft(2, '0')} 开始',
-                          style: TextStyle(
-                            color: DSPalette.of(context).amber,
-                            fontSize: DS.labelSize,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+    final p = DSPalette.of(context);
+    return DSSheetContent(
+      title: '邀请好友一起看',
+      closeLabel: '关闭邀请',
+      subtitle: '把这一刻，分享给想一起看的人。',
+      children: [
+        Panel(
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(DS.radiusSmall),
+                child: Image.asset(
+                  homeArtwork(widget.film),
+                  width: 64,
+                  height: 48,
+                  cacheWidth: 192,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
+              const SizedBox(width: DS.space12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    MountainAvatar(
-                      initial: widget.library.initial,
-                      size: DS.avatarLarge,
+                    Text(widget.film.title, style: DS.title),
+                    const SizedBox(height: DS.space4),
+                    Text(
+                      '${widget.film.episodes == 1 ? '完整正片' : '第 ${widget.episode} 集'} · 从 ${widget.position ~/ 60}:${(widget.position % 60).toString().padLeft(2, '0')} 开始',
+                      style: DS.smallFor(context),
                     ),
-                    const SizedBox(height: 8),
-                    const Text('我'),
                   ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(22),
-                  child: SizedBox(width: 30, child: Divider()),
-                ),
-                Column(
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: DS.space12),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: p.subtle,
+            borderRadius: BorderRadius.circular(DS.radiusMedium),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(DS.space12),
+            child: Column(
+              children: [
+                Row(
                   children: [
-                    CircleAvatar(
-                      radius: 33,
-                      backgroundColor: DSPalette.of(context).bg,
-                      child: Text(
-                        '+',
-                        style: TextStyle(
-                          fontSize: 32,
-                          color: DSPalette.of(context).muted,
-                        ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          MountainAvatar(
+                            initial: widget.library.initial,
+                            size: DS.avatarSmall,
+                          ),
+                          const SizedBox(height: DS.space4),
+                          const Text('我', style: DS.label),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text('等待好友'),
+                    const DSIllustration(
+                      'duo-tickets-glass',
+                      width: 64,
+                      height: 48,
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: DS.avatarSmall / 2,
+                            backgroundColor: p.panel,
+                            child: DSIcon(
+                              'user-round',
+                              size: DS.iconSmall,
+                              color: p.muted,
+                            ),
+                          ),
+                          const SizedBox(height: DS.space4),
+                          const Text('等待好友', style: DS.label),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              expired ? '邀请已过期，请重新生成。' : '好友加入后，双方准备好再开始',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: DSPalette.of(context).muted),
-            ),
-            if (!widget.library.preview)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  '加入同一房间后，选择双方可访问的视频地址，即可同步播放、私聊和开启语音。',
-                  style: DS.smallFor(context),
-                ),
-              ),
-            if (error != null) ErrorNotice(error!),
-            if (invite != null && !expired)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  '剩余 ${invite!.expiresAt.difference(DateTime.now()).inMinutes + 1} 分钟 · 一次性邀请已生成',
+                const SizedBox(height: DS.space8),
+                Text(
+                  '好友加入后，双方准备好再开始',
                   textAlign: TextAlign.center,
                   style: DS.smallFor(context),
                 ),
-              ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: busy ? null : () => generate(share: true),
-              icon: DSIcon('share-2', color: DSPalette.of(context).bg),
-              label: Text(
-                busy
-                    ? '正在生成…'
-                    : expired
-                    ? '重新生成并分享'
-                    : '分享观影邀请',
-              ),
+              ],
             ),
-            if (room != null && !widget.library.preview)
-              TextButton.icon(
-                onPressed: busy
-                    ? null
-                    : () => openPage(
-                        context,
-                        RoomWatchPage(
-                          room: room!,
-                          auth: widget.library.session!,
-                        ),
-                      ),
-                icon: DSIcon('play', color: DSPalette.of(context).primary),
-                label: const Text('进入同看房间'),
-              ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: busy ? null : () => generate(),
-              icon: const DSIcon('copy'),
-              label: const Text('复制邀请'),
-            ),
-            if (invite != null && !expired)
-              TextButton(
-                onPressed: busy
-                    ? null
-                    : () async {
-                        setState(() => busy = true);
-                        try {
-                          await RoomRepository(widget.library.session!)
-                              .revoke(room!.id, invite!.id);
-                          if (mounted) setState(() => invite = null);
-                        } catch (e) {
-                          if (mounted) tell(context, friendlyError(e));
-                        } finally {
-                          if (mounted) setState(() => busy = false);
-                        }
-                      },
-                child: const Text('撤销这份邀请'),
-              ),
-            const SizedBox(height: 12),
-            Text(
-              '一次性邀请 · 15 分钟有效 · 私密交流',
-              style: DS.smallFor(context),
-              textAlign: TextAlign.center,
-            ),
-            if (widget.library.preview)
-              const PreviewLabel(text: '预览 · 不生成可分享的真实邀请'),
-          ],
+          ),
         ),
-      ),
+        const SizedBox(height: DS.space8),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: DS.touchTarget),
+          child: Row(
+            children: [
+              DSIcon('clock-3', size: DS.iconSmall, color: p.muted),
+              const SizedBox(width: DS.space8),
+              Expanded(
+                child: Text(
+                  expired
+                      ? '邀请已过期，请重新生成'
+                      : invite != null
+                      ? '剩余 ${invite!.expiresAt.difference(DateTime.now()).inMinutes + 1} 分钟 · 仅限一次'
+                      : '一次性邀请 · 15 分钟有效',
+                  style: DS.smallFor(context),
+                ),
+              ),
+              if (invite != null && !expired)
+                TextButton(
+                  style: TextButton.styleFrom(foregroundColor: p.muted),
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          setState(() => busy = true);
+                          try {
+                            await RoomRepository(widget.library.session!)
+                                .revoke(room!.id, invite!.id);
+                            timer?.cancel();
+                            if (mounted) setState(() => invite = null);
+                          } catch (e) {
+                            if (mounted) tell(context, friendlyError(e));
+                          } finally {
+                            if (mounted) setState(() => busy = false);
+                          }
+                        },
+                  child: const Text('撤销这份邀请'),
+                ),
+            ],
+          ),
+        ),
+        if (error != null) ErrorNotice(error!),
+        const SizedBox(height: DS.space12),
+        FilledButton.icon(
+          onPressed: busy ? null : () => generate(share: true),
+          icon: DSIcon('share-2', size: DS.iconSmall, color: p.onPrimary),
+          label: Text(
+            busy
+                ? '正在生成…'
+                : expired
+                ? '重新生成并分享'
+                : '分享观影邀请',
+          ),
+        ),
+        const SizedBox(height: DS.space8),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final copy = OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: p.ink,
+                side: BorderSide(color: p.line),
+              ),
+              onPressed: busy ? null : () => generate(),
+              icon: DSIcon('copy', size: DS.iconSmall, color: p.muted),
+              label: const Text('复制邀请'),
+            );
+            if (room == null || widget.library.preview) return copy;
+            final enter = FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                backgroundColor: p.tint,
+                foregroundColor: p.onTint,
+              ),
+              onPressed: busy
+                  ? null
+                  : () => openPage(
+                      context,
+                      RoomWatchPage(room: room!, auth: widget.library.session!),
+                    ),
+              icon: DSIcon('play', size: DS.iconSmall, color: p.onTint),
+              label: const Text('进入同看房间'),
+            );
+            // 大字号需要完整按钮宽度，不能为压缩弹层牺牲文字或触控区。
+            final stacked =
+                constraints.maxWidth < 320 ||
+                MediaQuery.textScalerOf(context).scale(DS.bodySize) > 18;
+            if (stacked) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  copy,
+                  const SizedBox(height: DS.space8),
+                  enter,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: copy),
+                const SizedBox(width: DS.space8),
+                Expanded(child: enter),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: DS.space12),
+        Text(
+          '仅房间成员可见 · 加入后选择双方可访问的视频',
+          textAlign: TextAlign.center,
+          style: DS.smallFor(context),
+        ),
+        if (widget.library.preview)
+          const PreviewLabel(text: '预览 · 不生成可分享的真实邀请'),
+      ],
     );
   }
 }
@@ -367,103 +407,58 @@ class _ReceivedInvitePageState extends State<ReceivedInvitePage> {
     return PageFrame(
       title: '观影邀请',
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(DS.pageInset),
         children: [
-          if (preview)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: FilmHero(films.first, height: 275),
+          const DSIntro(
+            '另一席，为你留着。',
+            '粘贴完整邀请码，加入好友的房间。',
+            artwork: 'duo-tickets-glass',
+          ),
+          const SizedBox(height: DS.space24),
+          const Text('邀请码', style: DS.secondarySection),
+          const SizedBox(height: DS.space12),
+          if (!preview)
+            TextField(
+              key: const Key('invite-token'),
+              controller: token,
+              minLines: 3,
+              maxLines: 4,
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: const InputDecoration(hintText: '粘贴完整的 43 位邀请码'),
+            )
+          else
+            const Panel(child: Text('预览身份不使用真实邀请码', style: DS.small)),
+          const SizedBox(height: DS.space12),
+          Text('加入前无法查询发送者和影片，请向邀请人核对。', style: DS.smallFor(context)),
+          if (error != null) ErrorNotice(error!),
+          if (blocked)
+            Padding(
+              padding: const EdgeInsets.only(top: DS.space16),
+              child: Text(
+                {
+                  'invite-expired-receiver': '邀请已过期，请联系邀请人重新发送。',
+                  'room-full': '房间已满，仅限两位成员。',
+                  'room-closed': '房间已关闭，请向好友索取新的邀请。',
+                  'invite-revoked': '邀请已被撤销，请联系邀请人。',
+                }[state]!,
+                style: TextStyle(color: DSPalette.of(context).error),
+              ),
             ),
-          const SizedBox(height: 12),
-          Panel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  preview ? '知夏邀请你一起看' : '接受私密观影邀请',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: DS.sectionSize),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  preview ? '山海之间' : '粘贴完整邀请码',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: DS.displaySize,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  preview ? '完整正片 · 从 36:20 开始 · 预览' : '加入前无法查询发送者和影片，请向邀请人核对。',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: DSPalette.of(context).amber),
-                ),
-                const SizedBox(height: 25),
-                Wrap(
-                  alignment: WrapAlignment.spaceAround,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    const Column(
-                      children: [
-                        const MountainAvatar(size: 65),
-                        const SizedBox(height: 10),
-                        const Text('邀请人'),
-                      ],
-                    ),
-                    DSIcon('users-round', color: DSPalette.of(context).muted),
-                    const Column(
-                      children: [
-                        const MountainAvatar(initial: '满', size: 65),
-                        const SizedBox(height: 10),
-                        const Text('我 · 准备加入'),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Panel(
-                  child: Text('麦克风默认关闭，可先用文字交流。', style: DS.smallFor(context)),
-                ),
-                if (!preview)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: TextField(
-                      key: const Key('invite-token'),
-                      controller: token,
-                      minLines: 2,
-                      maxLines: 3,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      decoration: const InputDecoration(labelText: '邀请码'),
-                    ),
-                  ),
-                if (error != null) ErrorNotice(error!),
-                const SizedBox(height: 20),
-                if (blocked)
-                  Text(
-                    {
-                      'invite-expired-receiver': '邀请已过期，请联系邀请人重新发送。',
-                      'room-full': '房间已满，仅限两位成员。',
-                      'room-closed': '房间已关闭，请向好友索取新的邀请。',
-                      'invite-revoked': '邀请已被撤销，请联系邀请人。',
-                    }[state]!,
-                    style: TextStyle(color: DSPalette.of(context).amber),
-                  ),
-                FilledButton(
-                  onPressed: busy || blocked ? null : join,
-                  child: Text(busy ? '正在加入…' : '加入并准备'),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '加入不代表同步完成。双方准备好后再开始。',
-                  style: DS.smallFor(context),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+          const SizedBox(height: DS.space24),
+          FilledButton(
+            onPressed: busy || blocked ? null : join,
+            child: Text(busy ? '正在加入…' : '加入并准备'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.maybePop(context),
+            child: const Text('稍后再说'),
+          ),
+          const SizedBox(height: DS.space16),
+          Text(
+            '一次性邀请 · 15 分钟有效\n加入后双方准备好再开始，麦克风默认关闭。',
+            textAlign: TextAlign.center,
+            style: DS.smallFor(context),
           ),
           if (preview) const PreviewLabel(text: '邀请接收界面预览 · 无真实邀请码'),
         ],

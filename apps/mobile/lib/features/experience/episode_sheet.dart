@@ -10,7 +10,7 @@ Future<int?> showEpisodes(
   Film film,
   int episode, {
   required bool shared,
-}) => showModalBottomSheet<int>(
+}) => showDSSheet<int>(
   context: context,
   isScrollControlled: true,
   useSafeArea: true,
@@ -38,7 +38,12 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
   Widget build(BuildContext context) {
     final f = widget.film;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.fromLTRB(
+        DS.pageInset,
+        0,
+        DS.pageInset,
+        DS.space16,
+      ),
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
@@ -48,15 +53,15 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
             children: [
               Row(
                 children: [
-                  const Expanded(child: Text('选集', style: DS.heading)),
+                  const Expanded(child: Text('选集', style: DS.section)),
                   IconTap('x', '关闭选集', () => Navigator.pop(context)),
                 ],
               ),
               Text(
                 '${f.title} · 第 ${widget.episode} 集 / 共 ${f.episodes} 集',
-                style: TextStyle(color: DSPalette.of(context).muted),
+                style: DS.smallFor(context),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: DS.space8),
               if (f.episodes > 20)
                 DSTabs(
                   labels: [
@@ -81,7 +86,12 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
                     )
                       SizedBox(
                         width: (c.maxWidth - 32) / 5,
-                        height: 44,
+                        height:
+                            (MediaQuery.textScalerOf(context)
+                                            .scale(DS.labelSize) *
+                                        1.4 +
+                                    DS.space24)
+                                .clamp(DS.touchTarget, double.infinity),
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             padding: EdgeInsets.zero,
@@ -92,7 +102,7 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
                                 ? DSPalette.of(context).primary
                                 : Colors.transparent,
                             foregroundColor: ep == widget.episode
-                                ? DSPalette.of(context).bg
+                                ? DSPalette.of(context).onPrimary
                                 : DSPalette.of(context).ink,
                             side: BorderSide(color: DSPalette.of(context).line),
                           ),
@@ -118,7 +128,10 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
                                     Navigator.pop(context, ep);
                                   }
                                 },
-                          child: Text(ep.toString().padLeft(2, '0')),
+                          child: Text(
+                            ep.toString().padLeft(2, '0'),
+                            style: DS.label,
+                          ),
                         ),
                       ),
                   ],

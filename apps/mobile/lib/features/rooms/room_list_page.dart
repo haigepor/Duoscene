@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/tokens.dart';
 import '../../design/components.dart';
+import '../../design/illustrations.dart';
 import '../../core/models.dart';
 import '../../core/widgets.dart';
 import '../auth/session.dart';
@@ -103,130 +104,144 @@ class _RoomListPageState extends State<RoomListPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        'DUOSCENE',
-        style: const TextStyle(fontSize: 16, letterSpacing: 3),
+  Widget build(BuildContext context) => PageFrame(
+    title: '我的房间',
+    actions: [
+      IconButton(
+        tooltip: '刷新房间',
+        onPressed: _loading ? null : _load,
+        icon: const DSIcon('refresh-cw'),
       ),
-      actions: [
-        IconButton(
-          tooltip: '刷新房间',
-          onPressed: _loading ? null : _load,
-          icon: const DSIcon('refresh-cw'),
-        ),
-        IconButton(
-          tooltip: '退出登录',
-          onPressed: _logout,
-          icon: const DSIcon('log-out', size: DS.navigationIcon),
-        ),
-      ],
-    ),
-    body: SafeArea(
-      child: PageBody(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            if (!_loading) await _load();
-          },
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(DS.pageInset),
-            children: [
-              Text(
-                '${widget.session.user!.displayName}，欢迎回来',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-              const SizedBox(height: 12),
-              const Text('我们的房间', style: DS.heading),
-              const SizedBox(height: 12),
-              Text(
-                '相隔再远，也有一个共同的地方。',
-                style: TextStyle(color: DSPalette.of(context).muted),
-              ),
-              const SizedBox(height: 28),
-              FilledButton.icon(
-                onPressed: () => _form(false),
-                icon: const Icon(Icons.add),
-                label: const Text('创建房间'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => _form(true),
-                icon: const DSIcon('ticket', size: DS.navigationIcon),
-                label: const Text('使用邀请码加入'),
-              ),
-              const SizedBox(height: 32),
-              if (_error != null) ...[
-                ErrorNotice(_error!),
-                TextButton(
-                  onPressed: _loading ? null : _load,
-                  child: const Text('重新加载房间'),
-                ),
-              ],
-              if (_loading)
-                const LinearProgressIndicator(semanticsLabel: '正在加载房间'),
-              if (!_loading && _error == null && _items.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Column(
+      IconButton(
+        tooltip: '退出登录',
+        onPressed: _logout,
+        icon: const DSIcon('log-out', size: DS.navigationIcon),
+      ),
+    ],
+    child: PageBody(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          if (!_loading) await _load();
+        },
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(DS.pageInset),
+          children: [
+            const DSIntro(
+              '我们的房间',
+              '相隔再远，也有共同的地方。',
+              artwork: 'duo-tickets-glass',
+            ),
+            const SizedBox(height: DS.space24),
+            LayoutBuilder(
+              builder: (context, c) {
+                final create = FilledButton.icon(
+                  onPressed: () => _form(false),
+                  icon: Icon(
+                    Icons.add_circle_outline_rounded,
+                    size: DS.iconSmall,
+                    color: DSPalette.of(context).onPrimary,
+                  ),
+                  label: const Text('创建房间'),
+                );
+                final join = OutlinedButton.icon(
+                  onPressed: () => _form(true),
+                  icon: const DSIcon('ticket', size: DS.iconSmall),
+                  label: const Text('邀请加入'),
+                );
+                if (c.maxWidth < 340 ||
+                    MediaQuery.textScalerOf(context).scale(12) > 18) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Icon(
-                        Icons.weekend_outlined,
-                        size: 32,
-                        color: DSPalette.of(context).muted,
-                      ),
-                      const SizedBox(height: 20),
-                      const Text('第一场，从这里开始。', style: DS.secondarySection),
-                      const SizedBox(height: 12),
-                      Text(
-                        '创建一个房间，或者使用对方的邀请加入。',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: DSPalette.of(context).muted),
-                      ),
+                      create,
+                      const SizedBox(height: DS.space12),
+                      join,
                     ],
-                  ),
-                ),
-              for (final room in _items)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    clipBehavior: Clip.antiAlias,
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: DS.space12,
-                        vertical: DS.space4,
-                      ),
-                      leading: Icon(
-                        room.isOpen
-                            ? Icons.meeting_room_outlined
-                            : Icons.door_back_door_outlined,
-                      ),
-                      title: Text(
-                        room.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        '${room.ownerUserId == widget.session.user!.id ? '你是房主' : '你是成员'} · ${room.isOpen ? '开放中' : '已关闭'}',
-                      ),
-                      trailing: DSIcon(
-                        'chevron-right',
-                        size: DS.chevronSize,
-                        color: DSPalette.of(context).muted,
-                      ),
-                      onTap: () => _open(room),
-                    ),
-                  ),
-                ),
-              if (_cursor != null)
-                TextButton(
-                  onPressed: _loading ? null : () => _load(more: true),
-                  child: const Text('加载更多房间'),
-                ),
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: create),
+                    const SizedBox(width: DS.space12),
+                    Expanded(child: join),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: DS.space24),
+            const Text('房间列表', style: DS.section),
+            const SizedBox(height: DS.space12),
+            if (_error != null) ...[
+              ErrorNotice(_error!),
+              TextButton(
+                onPressed: _loading ? null : _load,
+                child: const Text('重新加载房间'),
+              ),
             ],
-          ),
+            if (_loading)
+              const LinearProgressIndicator(semanticsLabel: '正在加载房间'),
+            if (!_loading && _error == null && _items.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Column(
+                  children: [
+                    const DSIllustration(
+                      'duo-tickets-glass',
+                      width: 104,
+                      height: 80,
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('第一场，从这里开始。', style: DS.secondarySection),
+                    const SizedBox(height: 12),
+                    Text(
+                      '创建一个房间，或者使用对方的邀请加入。',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: DSPalette.of(context).muted),
+                    ),
+                  ],
+                ),
+              ),
+            for (final room in _items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Material(
+                  color: DSPalette.of(context).panel,
+                  borderRadius: BorderRadius.circular(12),
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: DS.space12,
+                      vertical: DS.space4,
+                    ),
+                    leading: Icon(
+                      room.isOpen
+                          ? Icons.meeting_room_outlined
+                          : Icons.door_back_door_outlined,
+                    ),
+                    title: Text(
+                      room.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      '${room.ownerUserId == widget.session.user!.id ? '你是房主' : '你是成员'} · ${room.isOpen ? '开放中' : '已关闭'}',
+                    ),
+                    trailing: DSIcon(
+                      'chevron-right',
+                      size: DS.chevronSize,
+                      color: DSPalette.of(context).muted,
+                    ),
+                    onTap: () => _open(room),
+                  ),
+                ),
+              ),
+            if (_cursor != null)
+              TextButton(
+                onPressed: _loading ? null : () => _load(more: true),
+                child: const Text('加载更多房间'),
+              ),
+          ],
         ),
       ),
     ),
