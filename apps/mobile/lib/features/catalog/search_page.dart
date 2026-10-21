@@ -138,6 +138,7 @@ class _SearchPageState extends State<SearchPage> {
                                     f.image,
                                     width: 64,
                                     height: 90,
+                                    cacheWidth: 192,
                                     fit: BoxFit.cover,
                                   ),
                                 ),

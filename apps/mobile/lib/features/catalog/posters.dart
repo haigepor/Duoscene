@@ -4,6 +4,19 @@ import '../../design/components.dart';
 import '../../design/tokens.dart';
 import 'catalog.dart';
 
+/// 只使用确认稿的插画裁片；片名、徽标和操作由组件绘制。
+String homeArtwork(Film film, {bool landscape = false}) => switch (film.id) {
+  'mountains' =>
+    '${DS.media}home-v2-${landscape ? 'valley' : 'mountains'}.webp',
+  'summer' => '${DS.media}home-v2-summer.webp',
+  'stars' => '${DS.media}home-v2-stars.webp',
+  'river' => '${DS.media}home-v2-river.webp',
+  _ => film.image,
+};
+
+String homeMetadata(Film film) =>
+    '${film.genre} · ${film.episodes == 1 ? '${film.minutes} 分钟' : '${film.episodes} 集'}';
+
 class FilmPoster extends StatelessWidget {
   const FilmPoster(
     this.film, {
@@ -14,12 +27,14 @@ class FilmPoster extends StatelessWidget {
     this.showTitle = true,
     this.showMetadata = true,
     this.aspectRatio = .66,
+    this.editorial = false,
   });
   final Film film;
   final VoidCallback? onTap, onSelect;
   final bool? selected;
   final bool showTitle, showMetadata;
   final double aspectRatio;
+  final bool editorial;
   @override
   Widget build(BuildContext context) => InkWell(
     onTap: onSelect ?? onTap,
@@ -35,39 +50,40 @@ class FilmPoster extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.asset(
-                  film.image,
+                  editorial ? homeArtwork(film) : film.image,
                   fit: BoxFit.cover,
                   cacheWidth: 480,
                 ),
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(4, 30, 4, 12),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Color(0xDD06100F)],
+              if (!editorial)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(4, 30, 4, 12),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Color(0xDD06100F)],
+                      ),
                     ),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      film.title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: DS.posterTitleSize,
-                        fontFamily: 'DuosceneDisplay',
-                        color: DSPalette.onMedia,
-                        fontWeight: FontWeight.w500,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        film.title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: DS.posterTitleSize,
+                          fontFamily: 'DuosceneDisplay',
+                          color: DSPalette.onMedia,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
               if (selected != null)
                 Positioned(
                   top: 4,
@@ -92,12 +108,30 @@ class FilmPoster extends StatelessWidget {
             ],
           ),
         ),
-        if (showTitle || showMetadata) const SizedBox(height: 6),
+        if (showTitle || showMetadata) SizedBox(height: editorial ? 8 : 6),
         if (showTitle)
-          Text(film.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(
+            film.title,
+            style: editorial
+                ? const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  )
+                : null,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         if (showMetadata) ...[
-          const SizedBox(height: 3),
-          Text(film.meta, style: DS.smallFor(context), maxLines: 2),
+          SizedBox(height: editorial ? 4 : 3),
+          Text(
+            editorial ? homeMetadata(film) : film.meta,
+            style: DS
+                .smallFor(context)
+                .copyWith(fontSize: editorial ? 10 : null),
+            maxLines: editorial ? 1 : 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ],
     ),
@@ -124,6 +158,11 @@ class FilmHero extends StatelessWidget {
             ? '${DS.media}media-mountains-landscape.png'
             : film.image,
         fit: BoxFit.cover,
+        cacheWidth:
+            (MediaQuery.sizeOf(context).width *
+                    MediaQuery.devicePixelRatioOf(context))
+                .ceil()
+                .clamp(480, 1080),
       ),
       const DecoratedBox(
         decoration: const BoxDecoration(
@@ -147,25 +186,7 @@ class FilmHero extends StatelessWidget {
     child: Stack(
       fit: StackFit.expand,
       children: [
-        // 仅淡出照片与遮罩，让底层森林透出；标题和按钮保持清晰可点击。
-        if (blendBackground && DSPalette.of(context).forest)
-          ShaderMask(
-            blendMode: BlendMode.dstIn,
-            shaderCallback: (bounds) => const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0, .58, .82, 1],
-              colors: [
-                Colors.white,
-                Colors.white,
-                Color(0xAAFFFFFF),
-                Colors.transparent,
-              ],
-            ).createShader(bounds),
-            child: _backdrop(context),
-          )
-        else
-          _backdrop(context),
+        _backdrop(context),
         Positioned(
           left: 20,
           right: 20,

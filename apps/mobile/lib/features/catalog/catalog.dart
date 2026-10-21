@@ -18,7 +18,7 @@ class Film {
   final int minutes, episodes;
   bool get short => kind == '短剧';
   String get image =>
-      'assets/design/media/${art ?? (short ? 'frame-short-drama' : 'poster-$id')}.png';
+      'assets/design/media/${art ?? (short ? 'frame-short-drama' : 'poster-$id')}.webp';
   String get meta => '$kind · ${episodes == 1 ? '$minutes 分钟' : '$episodes 集'}';
   String get durationLabel => episodes == 1 ? '完整正片' : '每集 $minutes 分钟';
 }
