@@ -203,7 +203,8 @@ class _PreviewHostState extends State<PreviewHost> {
   }
 
   Widget _frame(Widget child) => Scaffold(
-    body: Forest(child: SafeArea(child: child)),
+    extendBody: true,
+    body: Forest(child: SafeArea(bottom: false, child: child)),
     bottomNavigationBar: DuosceneNavigation(
       index: widget.page,
       onSelect: (index) => openPage(context, PreviewHost(page: index)),
