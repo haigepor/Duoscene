@@ -4,11 +4,12 @@
 
 用户授权整理此前全部修改，完成测试后用中文提交信息推送到 `haigepor/Duoscene` 的现有 `main` 分支。不创建新分支、不强制推送、不上传安装包或私有设备数据，不修改只读参考项目 Playra。
 
-按依赖顺序整理为三个提交：
+主体按依赖顺序整理为三个提交；云端验证发现的问题另行修复提交，不重写已推送历史：
 
 1. **播放源协议与数据契约**：Dart codec/client/provider、分类/详情/线路/分页模型、图片请求策略、独立加密向量、对应回归、17 接口调研及接入契约；后台不承担源站解析。
 2. **原页面接线与短剧体验**：原首页/搜索/分类/详情/收藏/历史接入真实数据，真实远端筛选、过期响应隔离、封面有界重试、短剧搜索图标/底部信息/专用控制；保留原视觉基准。
 3. **LAN 与性能验收**：物理网卡选择、限域防火墙、精确私网 HTTP 开发许可、Debug/Profile 构建、APK 结构压紧、默认关闭的帧采集、原风格/性能报告与本说明。
+4. **CI 视觉测试平台修正**：首轮 Ubuntu 运行精确 Windows 图片基准失败，改为 Windows 固定 Flutter 版本运行 36 项原基准测试，Ubuntu 运行其余 343 项功能测试；两道门禁通过才构建 Android。原 36 张基准及 6 张短剧变体均不重生成，不设置像素容差，不使用 `skip` 或 `continue-on-error`。
 
 源码测试、设计基准和文档随对应功能入库；`.local/`、`output/`、构建缓存、数据库随机口令、鉴权 token、设备偏好备份和本机 IDE 私有映射不入库。
 
@@ -35,6 +36,12 @@ MySQL 预检第一次尝试使用现有实例管理员连接遭 `ER_ACCESS_DENIE
 
 本轮没有重新运行会覆盖安装并可能重置数据的原生 `integration_test`。封面、真实筛选、首集播放与原生截图沿用紧接本次提交前已记录的真机证据；这些检查与本次新跑的自动化测试分开列示，不把 379 项测试冒充全部原生或双设备测试。
 
+### 首轮云端失败与修复依据
+
+首次推送的 [Actions 39659325801](https://github.com/haigepor/Duoscene/actions/runs/39659325801) 中，API、依赖锁、Flutter analyze 均通过；Ubuntu 的 36 项精确视觉比较失败，例如 light-01 差异 5.69%、light-02 差异 1.69%，因此 Android 构建未执行。日志中没有将其掩盖成构建成功。
+
+[Flutter 官方 LocalFileComparator 说明](https://api.flutter.dev/flutter/flutter_test/LocalFileComparator-class.html) 明确默认逐像素比较，带自定义字体的 Windows 基准与另一操作系统渲染通常不同。此次修复将该已有 Windows 基准的严格比较放到 `windows-2025`，继续固定 Flutter 3.47.6 的同一提交；测试使用明确标签分流，Linux 不能代替 Windows 视觉门禁。失败图片会单独上传供定位。最终云端结果仍以最新提交的 Actions 记录为准。
+
 ## 安装包与体积结果
 
 普通 LAN Profile：`output/android/duoscene-lan-arm64-profile.apk`，SHA-256 `6f335a4a00412fb6276d53ed06c00879466537c89164a0ed2113c0014d155017`。这是使用调试证书的 AOT 性能测试包，不是生产 Release；只适用于当前可信 Wi-Fi 地址。APK 不随 Git 提交。
@@ -55,4 +62,4 @@ MySQL 预检第一次尝试使用现有实例管理员连接遭 `ER_ACCESS_DENIE
 
 新增构建检查修正仅涉及 `scripts/check-structure.mjs` 排除已忽略的 `output/`，不跳过受版本管理的源码、测试、JSON 或文档。README 汇总当前入口并区分历史记录与最新验收。
 
-本机逐片回滚快照在 `.local/rendering-refinement/before/`、`.local/rendering-refinement/lan-before/` 与 `.local/performance-study/before/`，不上传。推送后可按三个中文提交审阅或在先保存工作区的前提下逐片反向提交，禁止全仓 reset、强推或用卸载 App 代替同签名覆盖安装。
+本机逐片回滚快照在 `.local/rendering-refinement/before/`、`.local/rendering-refinement/lan-before/` 与 `.local/performance-study/before/`，不上传。推送后可按各个中文提交审阅或在先保存工作区的前提下逐片反向提交，禁止全仓 reset、强推或用卸载 App 代替同签名覆盖安装。

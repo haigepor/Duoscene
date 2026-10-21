@@ -1,3 +1,6 @@
+@Tags(['windows-golden'])
+library;
+
 import 'package:duoscene/app/theme.dart';
 import 'package:duoscene/design/palette.dart';
 import 'package:duoscene/features/experience/preview_gallery.dart';
