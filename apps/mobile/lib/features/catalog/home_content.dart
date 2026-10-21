@@ -183,10 +183,8 @@ class _HomeCarouselState extends State<HomeCarousel>
                     final action = HomePlayAction(
                       label: '选择视频',
                       compact: true,
-                      onTap: () => openPage(
-                        context,
-                        ExperiencePlayer(film: film, library: widget.library),
-                      ),
+                      onTap: () =>
+                          openCatalogPlayer(context, film, widget.library),
                     );
                     return Padding(
                       padding: const EdgeInsets.only(right: 9),
@@ -206,9 +204,10 @@ class _HomeCarouselState extends State<HomeCarousel>
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
-                                    Image.asset(
-                                      homeArtwork(film, landscape: true),
-                                      fit: BoxFit.cover,
+                                    FilmArtwork(
+                                      film,
+                                      asset: homeArtwork(film, landscape: true),
+                                      cacheWidth: null,
                                       excludeFromSemantics: true,
                                     ),
                                     Positioned(
@@ -348,7 +347,7 @@ class ContinueCard extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: library,
     builder: (context, _) {
-      final catalog = {for (final film in films) film.id: film};
+      final catalog = {for (final film in library.knownFilms) film.id: film};
       final items = [
         for (final entry in library.history)
           if (catalog[entry.filmId] case final film?) (entry, film),
@@ -407,23 +406,25 @@ class _ContinueItem extends StatelessWidget {
     return InkWell(
       onTap: () => openPage(
         context,
-        ExperiencePlayer(
-          film: film,
-          library: library,
-          resume: entry,
-          episode: entry.episode,
-        ),
+        film.remote
+            ? DetailPage(film: film, library: library, resume: entry)
+            : ExperiencePlayer(
+                film: film,
+                library: library,
+                resume: entry,
+                episode: entry.episode,
+              ),
       ),
       borderRadius: BorderRadius.circular(8),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: Image.asset(
-              homeArtwork(film),
+            child: FilmArtwork(
+              film,
+              asset: homeArtwork(film),
               width: 54,
               height: 68,
-              fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 9),
@@ -459,7 +460,9 @@ class _ContinueItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 LinearProgressIndicator(
-                  value: (entry.seconds / (film.minutes * 60)).clamp(0, 1),
+                  value: film.minutes > 0
+                      ? (entry.seconds / (film.minutes * 60)).clamp(0, 1)
+                      : 0,
                   minHeight: 3,
                   borderRadius: BorderRadius.circular(3),
                   color: DSPalette.of(context).primary,
@@ -473,12 +476,14 @@ class _ContinueItem extends StatelessWidget {
             label: '继续',
             onTap: () => openPage(
               context,
-              ExperiencePlayer(
-                film: film,
-                library: library,
-                resume: entry,
-                episode: entry.episode,
-              ),
+              film.remote
+                  ? DetailPage(film: film, library: library, resume: entry)
+                  : ExperiencePlayer(
+                      film: film,
+                      library: library,
+                      resume: entry,
+                      episode: entry.episode,
+                    ),
             ),
           ),
         ],
@@ -524,10 +529,10 @@ class CatalogSections extends StatelessWidget {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 18),
             scrollDirection: Axis.horizontal,
-            itemCount: films.where((f) => f.kind == category).length,
+            itemCount: library.catalog.category(category).items.length,
             separatorBuilder: (_, _) => const SizedBox(width: 9),
             itemBuilder: (context, i) {
-              final film = films.where((f) => f.kind == category).elementAt(i);
+              final film = library.catalog.category(category).items[i];
               return SizedBox(
                 width: 108,
                 child: FilmPoster(

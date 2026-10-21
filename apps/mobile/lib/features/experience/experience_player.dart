@@ -9,13 +9,53 @@ import '../playback/widgets/player_library_view.dart';
 import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
 import '../catalog/posters.dart';
+import '../catalog/media_provider.dart';
 import '../playback/player_page.dart';
+import '../playback/playback_source.dart';
 import 'chat_panel.dart';
 import 'episode_sheet.dart';
 import 'invite_pages.dart';
 import 'settings_pages.dart';
 import 'conversation.dart';
 import 'watch_controls.dart';
+
+Future<void> openCatalogPlayer(
+  BuildContext context,
+  Film film,
+  LibraryState library,
+) async {
+  if (!film.remote) {
+    await openPage(context, ExperiencePlayer(film: film, library: library));
+    return;
+  }
+  try {
+    final provider = library.provider!;
+    final detail = await provider.detail(film.id);
+    final line =
+        detail.lines.where((line) => line.direct).firstOrNull ??
+        detail.lines.firstOrNull;
+    if (line == null || line.episodes.isEmpty) throw StateError('暂无可用片源');
+    final source = await provider.resolve(
+      film.id,
+      episode: 1,
+      lineCode: line.code,
+    );
+    if (!context.mounted) return;
+    library.remember([detail.film]);
+    await openPage(
+      context,
+      ExperiencePlayer(
+        film: detail.film.withEpisodes(line.episodes.length),
+        library: library,
+        initialSource: source,
+        lineCode: line.code,
+        lines: detail.lines,
+      ),
+    );
+  } catch (_) {
+    if (context.mounted) tell(context, '片源解析失败，请进入详情重试。');
+  }
+}
 
 class ExperiencePlayer extends StatefulWidget {
   const ExperiencePlayer({
@@ -24,21 +64,36 @@ class ExperiencePlayer extends StatefulWidget {
     required this.library,
     this.episode = 1,
     this.resume,
+    this.initialSource,
+    this.lineCode,
+    this.lines = const [],
   });
   final Film? film;
   final LibraryState library;
   final int episode;
   final WatchEntry? resume;
+  final PlaybackSource? initialSource;
+  final String? lineCode;
+  final List<MediaLine> lines;
   @override
   State<ExperiencePlayer> createState() => _ExperiencePlayerState();
 }
 
 class _ExperiencePlayerState extends State<ExperiencePlayer> {
-  Film get film => widget.film!;
+  Film get film => widget.film!.withEpisodes(
+    widget.lines
+            .where((line) => line.code == lineCode)
+            .firstOrNull
+            ?.episodes
+            .length ??
+        widget.film!.episodes,
+  );
+  late String? lineCode = widget.lineCode;
   int tab = 0;
   late int episode = widget.episode;
   int? resumedGeneration;
   int? volumeGeneration;
+  bool applyResume = true, selectingEpisode = false;
   PlayerPresentation? player;
   final controlsKey = GlobalKey<WatchControlsState>();
   late final intent = WatchIntent()
@@ -61,6 +116,7 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                 film.id,
                 s.core.playerPosition.inSeconds,
                 episode,
+                lineCode: lineCode,
                 // 个人播放只更新个人进度；真实同看使用独立房间路由。
                 shared:
                     widget.library.preview && (widget.resume?.shared ?? false),
@@ -90,7 +146,7 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
       ? const PlayerPage(roomName: '个人观看')
       : PlayerPage(
           roomName: film.title,
-          initialSource: designSource(film),
+          initialSource: widget.initialSource ?? designSource(film),
           onManualPause: () {
             intent.pause();
             if (mounted)
@@ -121,7 +177,8 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                 s.core.mediaPlayer!.setVolume(widget.library.movieVolume * 100),
               );
             }
-            if (widget.resume != null &&
+            if (applyResume &&
+                widget.resume != null &&
                 !s.loading &&
                 s.source != null &&
                 s.core.playerDuration > Duration.zero &&
@@ -159,7 +216,11 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                                 ),
                                 const SizedBox(height: DS.space2),
                                 Text(
-                                  '${film.genre} · ${film.episodes > 1 ? '第 $episode 集 · 共 ${film.episodes} 集' : '${film.minutes} 分钟'}',
+                                  '${film.genre} · ${film.episodes > 1
+                                      ? '第 $episode 集 · 共 ${film.episodes} 集'
+                                      : film.remote
+                                      ? film.meta
+                                      : '${film.minutes} 分钟'}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: DS.smallFor(context),
@@ -226,6 +287,9 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                         shared: shared,
                         status: _status(),
                         onInvite: invite,
+                        lines: widget.lines,
+                        lineCode: lineCode,
+                        onLine: _selectLine,
                         onPeerReady: !intent.peerReady
                             ? () {
                                 intent.peer(true);
@@ -341,7 +405,9 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                                         ),
                                         const SizedBox(height: DS.space12),
                                         Text(
-                                          '片目为设计预览，选择的视频以实际文件为准。',
+                                          film.remote
+                                              ? '第一播放源 · 线路不可用时可返回详情换线。'
+                                              : '片目为设计预览，选择的视频以实际文件为准。',
                                           style: DS.smallFor(context),
                                         ),
                                         const SizedBox(height: DS.space12),
@@ -364,8 +430,56 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
         );
 
   Future<void> _selectEpisode() async {
+    if (selectingEpisode) return;
     final next = await showEpisodes(context, film, episode, shared: shared);
-    if (next != null && mounted) setState(() => episode = next);
+    if (next == null || !mounted || next == episode) return;
+    if (!film.remote) {
+      setState(() => episode = next);
+      return;
+    }
+    selectingEpisode = true;
+    try {
+      final source = await widget.library.provider!.resolve(
+        film.id,
+        episode: next,
+        lineCode: lineCode,
+      );
+      if (!mounted) return;
+      applyResume = false;
+      await player?.session.setPlaylist([source]);
+      if (mounted) setState(() => episode = next);
+    } catch (error) {
+      if (mounted) tell(context, error.toString());
+    } finally {
+      selectingEpisode = false;
+    }
+  }
+
+  Future<void> _selectLine(String code) async {
+    if (selectingEpisode || code == lineCode) return;
+    final line = widget.lines.where((line) => line.code == code).firstOrNull;
+    if (line == null || line.episodes.isEmpty) return;
+    selectingEpisode = true;
+    try {
+      final next = episode.clamp(1, line.episodes.length);
+      final source = await widget.library.provider!.resolve(
+        film.id,
+        episode: next,
+        lineCode: code,
+      );
+      if (!mounted) return;
+      applyResume = false;
+      await player?.session.setPlaylist([source]);
+      if (mounted)
+        setState(() {
+          lineCode = code;
+          episode = next;
+        });
+    } catch (_) {
+      if (mounted) tell(context, '切换片源失败，请重试。');
+    } finally {
+      selectingEpisode = false;
+    }
   }
 
   String _status() => switch (widget.library.scenario) {

@@ -55,7 +55,13 @@ void main() {
             expect(find.byKey(const Key('short-select-video')), findsNothing);
             expect(find.text('封面预览 · 选择自己的视频'), findsNothing);
             expect(rail.center.dy, greaterThan(760 / 2));
-            if (scale == 1) expect(details.height, lessThanOrEqualTo(96));
+            if (scale == 1) expect(details.height, lessThanOrEqualTo(160));
+            expect(find.text('推荐'), findsNothing);
+            expect(find.byTooltip('搜索短剧'), findsOneWidget);
+            expect(
+              t.getSize(find.byKey(const Key('short-episode-label'))).width,
+              lessThanOrEqualTo(details.width),
+            );
             expect(details.right, lessThan(rail.left));
             expect(details.bottom, lessThan(bar.top));
             expect(rail.bottom, lessThan(bar.top));

@@ -12,6 +12,7 @@
         android:label="Duoscene"
         android:allowBackup="false"
         android:fullBackupContent="false"
+        android:networkSecurityConfig="@xml/provider_network_security"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <!-- Playra 使用 SurfaceTexture 输出，该固定 fork 要求 Flutter Skia 后端。 -->

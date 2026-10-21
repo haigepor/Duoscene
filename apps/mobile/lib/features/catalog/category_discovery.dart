@@ -6,14 +6,24 @@ import 'catalog.dart';
 import 'detail_page.dart';
 import 'library_state.dart';
 import 'posters.dart';
+import 'media_provider.dart';
 
 /// 每个分类独立保留条件和片单顺序；数据仍由现有片库提供。
 class CatalogSelection {
   String? genre;
+  String? area, language, year;
   int length = 0, sort = 0, pickOffset = 0, limit = pageSize;
   bool expanded = false;
   static const pageSize = 12;
-  bool get filtered => genre != null || length != 0 || sort != 0;
+  bool get filtered =>
+      genre != null ||
+      area != null ||
+      language != null ||
+      year != null ||
+      length != 0 ||
+      sort != 0;
+  CatalogFilter get query =>
+      CatalogFilter(genre: genre, area: area, language: language, year: year);
 
   List<String> lengthLabels(String kind) => switch (kind) {
     '电影' => ['全部片长', '100 分钟以内', '101–120 分钟', '120 分钟以上'],
@@ -21,13 +31,23 @@ class CatalogSelection {
     _ => ['全部集数', '12 集以内', '13 集以上'],
   };
 
-  List<Film> results(Iterable<Film> source, String kind) {
+  List<Film> results(
+    Iterable<Film> source,
+    String kind, {
+    bool serverFiltered = false,
+  }) {
     final unique = <String, Film>{};
     for (final film in source) {
       if (film.kind == kind) unique.putIfAbsent(film.id, () => film);
     }
     final result = unique.values.where((film) {
+      if (serverFiltered) return true;
       if (genre != null && genre != film.genre) return false;
+      if (length != 0 &&
+          film.remote &&
+          film.minutes == 0 &&
+          (kind == '电影' || kind == '短剧'))
+        return false;
       return switch (length) {
         0 => true,
         1 =>
@@ -60,6 +80,7 @@ class CatalogSelection {
 
   void reset() {
     genre = null;
+    area = language = year = null;
     length = sort = 0;
     limit = pageSize;
   }
@@ -74,12 +95,30 @@ class CatalogDiscovery extends StatefulWidget {
     required this.selection,
     required this.header,
     this.items = films,
+    this.loading = false,
+    this.hasMore = false,
+    this.error,
+    this.onLoadMore,
+    this.onRetry,
+    this.remoteFilters = false,
+    this.filterOptions = const {},
+    this.navigationError,
+    this.onFilter,
+    this.onRetryFilters,
   });
   final LibraryState library;
   final String kind;
   final CatalogSelection selection;
   final Widget header;
   final List<Film> items;
+  final bool loading, hasMore;
+  final String? error;
+  final VoidCallback? onLoadMore, onRetry;
+  final bool remoteFilters;
+  final Map<String, List<String>> filterOptions;
+  final String? navigationError;
+  final ValueChanged<CatalogFilter>? onFilter;
+  final VoidCallback? onRetryFilters;
 
   @override
   State<CatalogDiscovery> createState() => _CatalogDiscoveryState();
@@ -109,22 +148,31 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
 
   void updateResults() {
     all = CatalogSelection().results(widget.items, widget.kind);
-    result = selection.results(all, widget.kind);
+    result = selection.results(
+      all,
+      widget.kind,
+      serverFiltered: widget.remoteFilters,
+    );
   }
 
   void changeFilter(VoidCallback change) {
+    final before = selection.query.parameters.toString();
     setState(() {
       change();
       selection.limit = CatalogSelection.pageSize;
       updateResults();
     });
+    if (widget.remoteFilters && before != selection.query.parameters.toString())
+      widget.onFilter?.call(selection.query);
   }
 
   void loadMore() {
-    if (!scroll.hasClients ||
-        scroll.position.extentAfter > 400 ||
-        selection.limit >= result.length)
+    if (!scroll.hasClients || scroll.position.extentAfter > 400) return;
+    if (selection.limit >= result.length) {
+      if (!widget.loading && widget.error == null && widget.hasMore)
+        widget.onLoadMore?.call();
       return;
+    }
     // 本地有限片库同步追加；不制造网络等待，也不重复片目伪装无限列表。
     setState(
       () => selection.limit = (selection.limit + CatalogSelection.pageSize)
@@ -165,6 +213,14 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
               children: [
                 const SizedBox(height: DS.space4),
                 _filterCard(),
+                if (widget.loading) const LinearProgressIndicator(),
+                if (widget.error != null)
+                  EmptyView(
+                    '暂时无法加载片库',
+                    widget.error!,
+                    action: '重试',
+                    onTap: widget.onRetry,
+                  ),
                 if (!selection.filtered && all.isNotEmpty) ...[
                   _DiscoveryCollection(
                     key: const Key('category-picks'),
@@ -202,7 +258,9 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
                   child: SectionHeading(
                     selection.filtered ? '筛选结果' : titles.$3,
                     action: Text(
-                      '${result.length} 部',
+                      widget.remoteFilters
+                          ? '已载 ${result.length} 部'
+                          : '${result.length} 部',
                       style: DS.smallFor(context),
                     ),
                   ),
@@ -212,7 +270,19 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
                     padding: const EdgeInsets.symmetric(vertical: DS.space24),
                     child: Column(
                       children: [
-                        Text('暂时没有符合条件的片目', style: DS.smallFor(context)),
+                        Text(
+                          widget.loading
+                              ? '正在加载…'
+                              : widget.hasMore
+                              ? '本页暂无片目，可继续加载'
+                              : '暂时没有符合条件的片目',
+                          style: DS.smallFor(context),
+                        ),
+                        if (widget.hasMore && !widget.loading)
+                          TextButton(
+                            onPressed: widget.onLoadMore,
+                            child: const Text('加载下一页'),
+                          ),
                         TextButton(
                           onPressed: () => changeFilter(selection.reset),
                           child: const Text('重置筛选'),
@@ -265,7 +335,11 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
               padding: const EdgeInsets.symmetric(vertical: DS.space24),
               child: Center(
                 child: Text(
-                  selection.limit >= result.length ? '已经到底了' : '继续上滑，查看更多',
+                  widget.loading
+                      ? '正在加载…'
+                      : selection.limit >= result.length && !widget.hasMore
+                      ? '已经到底了'
+                      : '继续上滑，查看更多',
                   key: const Key('category-page-status'),
                   style: DS.smallFor(context).copyWith(color: p.muted),
                 ),
@@ -310,10 +384,17 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
     final labels = selection.lengthLabels(widget.kind);
     final summary = [
       selection.genre ?? '全部题材',
-      labels[selection.length],
+      if (!widget.remoteFilters) labels[selection.length],
+      if (widget.remoteFilters) ...[
+        selection.area ?? '全部地区',
+        selection.year ?? '全部年份',
+        selection.language ?? '全部语言',
+      ],
       if (selection.sort != 0)
         selection.sort == 1
-            ? '片名排序'
+            ? widget.remoteFilters
+                  ? '本页片名'
+                  : '片名排序'
             : widget.kind == '电影' || widget.kind == '短剧'
             ? '时长优先'
             : '集数优先',
@@ -381,6 +462,7 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
   }
 
   Widget _filterPanel() {
+    if (widget.remoteFilters) return _remoteFilterPanel();
     final genres = all.map((f) => f.genre).toSet();
     final lengths = selection.lengthLabels(widget.kind);
     return Padding(
@@ -439,6 +521,61 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
       ),
     );
   }
+
+  Widget _remoteFilterPanel() => Padding(
+    key: const Key('category-filter-panel'),
+    padding: const EdgeInsets.symmetric(
+      horizontal: DS.space8,
+      vertical: DS.space4,
+    ),
+    child: Column(
+      children: [
+        if (widget.navigationError != null)
+          TextButton(
+            onPressed: widget.onRetryFilters,
+            child: Text('${widget.navigationError}，点击重试'),
+          ),
+        for (final field in [
+          ('class', '题材', selection.genre),
+          ('area', '地区', selection.area),
+          ('year', '年份', selection.year),
+          ('lang', '语言', selection.language),
+        ])
+          _filterRow(field.$2, [
+            for (final value in <String?>[
+              null,
+              ...?widget.filterOptions[field.$1],
+            ])
+              _choice(
+                value ?? '全部',
+                'category-${field.$1}-${value ?? 'all'}',
+                field.$3 == value,
+                () => changeFilter(() {
+                  switch (field.$1) {
+                    case 'class':
+                      selection.genre = value;
+                    case 'area':
+                      selection.area = value;
+                    case 'year':
+                      selection.year = value;
+                    case 'lang':
+                      selection.language = value;
+                  }
+                }),
+              ),
+          ]),
+        _filterRow('排序', [
+          for (var index = 0; index < 2; index++)
+            _choice(
+              ['源站默认', '本页片名'][index],
+              'category-sort-$index',
+              selection.sort == index,
+              () => changeFilter(() => selection.sort = index),
+            ),
+        ]),
+      ],
+    ),
+  );
 
   Widget _filterRow(String title, List<Widget> choices) => Row(
     children: [
@@ -607,11 +744,11 @@ class _CompactFilm extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
-                child: Image.asset(
-                  homeArtwork(film),
+                child: FilmArtwork(
+                  film,
+                  asset: homeArtwork(film),
                   width: 44,
                   height: 64,
-                  fit: BoxFit.cover,
                   cacheWidth: (44 * MediaQuery.devicePixelRatioOf(context))
                       .ceil(),
                 ),
@@ -666,9 +803,9 @@ class _DiscoveryPoster extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) => ClipRRect(
                 borderRadius: BorderRadius.circular(DS.radiusSmall),
-                child: Image.asset(
-                  homeArtwork(film),
-                  fit: BoxFit.cover,
+                child: FilmArtwork(
+                  film,
+                  asset: homeArtwork(film),
                   cacheWidth:
                       (constraints.maxWidth *
                               MediaQuery.devicePixelRatioOf(context))

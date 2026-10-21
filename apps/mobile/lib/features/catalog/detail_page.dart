@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
@@ -9,6 +11,7 @@ import '../experience/invite_pages.dart';
 import 'catalog.dart';
 import 'library_state.dart';
 import 'posters.dart';
+import 'media_provider.dart';
 
 class DetailPage extends StatefulWidget {
   const DetailPage({
@@ -26,10 +29,98 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   late int episode = widget.resume?.episode ?? 1;
+  MediaDetail? detail;
+  String? lineCode, loadError;
+  bool loading = false, resolving = false;
+  MediaLine? get line => detail?.lines
+      .where((line) => lineCode == null || line.code == lineCode)
+      .firstOrNull;
+  Film get film => (detail?.film ?? widget.film).withEpisodes(
+    line?.episodes.length ?? detail?.film.episodes ?? widget.film.episodes,
+  );
+  @override
+  void initState() {
+    super.initState();
+    widget.library.remember([widget.film]);
+    if (widget.film.remote) {
+      unawaited(load());
+      unawaited(widget.library.catalog.home.load().then((_) {
+        if (mounted) setState(() {});
+      }));
+    }
+  }
+
+  Future<void> load() async {
+    setState(() {
+      loading = true;
+      loadError = null;
+    });
+    try {
+      final provider = widget.library.provider;
+      if (provider == null) throw StateError('片源未启用');
+      final value = await provider.detail(widget.film.id);
+      if (!mounted) return;
+      widget.library.remember([value.film]);
+      setState(() {
+        detail = value;
+        final preferred =
+            value.lines
+                .where((line) => line.code == widget.resume?.lineCode)
+                .firstOrNull ??
+            value.lines.where((line) => line.direct).firstOrNull ??
+            value.lines.firstOrNull;
+        lineCode = preferred?.code;
+        episode = episode.clamp(
+          1,
+          preferred?.episodes.length ?? value.film.episodes,
+        );
+      });
+    } catch (_) {
+      if (mounted) setState(() => loadError = '无法加载真实详情，请重试。');
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> watch() async {
+    if (resolving) return;
+    setState(() => resolving = true);
+    try {
+      final f = film;
+      final source = f.remote
+          ? await widget.library.provider!.resolve(
+              f.id,
+              episode: episode,
+              lineCode: lineCode,
+            )
+          : designSource(f);
+      if (!mounted) return;
+      await openPage(
+        context,
+        ExperiencePlayer(
+          film: f,
+          library: widget.library,
+          episode: episode,
+          resume: widget.resume?.episode == episode ? widget.resume : null,
+          initialSource: source,
+          lineCode: lineCode,
+          lines: detail?.lines ?? const [],
+        ),
+      );
+    } catch (error) {
+      if (mounted) tell(context, error.toString());
+    } finally {
+      if (mounted) setState(() => resolving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final f = widget.film, l = widget.library;
-    final unavailable = l.scenario == 'media-unavailable';
+    final f = film, l = widget.library;
+    final unavailable =
+        l.scenario == 'media-unavailable' ||
+        resolving ||
+        (f.remote && (loading || loadError != null || line == null));
     final heroHeight = (MediaQuery.sizeOf(context).height * .36).clamp(
       240.0,
       320.0,
@@ -80,6 +171,19 @@ class _DetailPageState extends State<DetailPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 12),
+                        if (loading)
+                          const LinearProgressIndicator(
+                            semanticsLabel: '正在加载详情',
+                          ),
+                        if (loadError != null)
+                          EmptyView(
+                            '详情加载失败',
+                            loadError!,
+                            action: '重试',
+                            onTap: load,
+                          ),
+                        if (detail != null && detail!.lines.isEmpty)
+                          const Text('当前片目暂无可用播放线路'),
                         const Text(
                           '剧情简介',
                           style: TextStyle(
@@ -120,7 +224,7 @@ class _DetailPageState extends State<DetailPage> {
                               ),
                             ),
                           ),
-                        const PreviewLabel(),
+                        if (!f.remote) const PreviewLabel(),
                         const Divider(height: 36),
                         const Text(
                           '你可能也喜欢',
@@ -131,7 +235,9 @@ class _DetailPageState extends State<DetailPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             for (final other
-                                in films.where((v) => v.id != f.id).take(3))
+                                in (f.remote ? l.catalog.home.items : films)
+                                    .where((v) => v.id != f.id)
+                                    .take(3))
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.only(right: 10),
@@ -168,26 +274,20 @@ class _DetailPageState extends State<DetailPage> {
                       children: [
                         Expanded(
                           child: FilledButton.icon(
-                            onPressed: unavailable
-                                ? null
-                                : () => openPage(
-                                    context,
-                                    ExperiencePlayer(
-                                      film: f,
-                                      library: l,
-                                      episode: episode,
-                                      resume: widget.resume,
-                                    ),
-                                  ),
+                            onPressed: unavailable ? null : watch,
                             icon: DSIcon(
                               'play',
                               color: DSPalette.of(context).onPrimary,
                               size: 18,
                             ),
                             label: Text(
-                              unavailable
+                              resolving
+                                  ? '正在解析…'
+                                  : loading
+                                  ? '正在加载…'
+                                  : unavailable
                                   ? '片源暂不可用'
-                                  : designSource(f) == null
+                                  : !f.remote && designSource(f) == null
                                   ? '选择视频观看'
                                   : widget.resume != null
                                   ? '继续观看'

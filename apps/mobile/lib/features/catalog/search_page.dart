@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
@@ -6,6 +8,7 @@ import '../../design/motion.dart';
 import 'catalog.dart';
 import 'library_state.dart';
 import 'detail_page.dart';
+import 'posters.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({
@@ -32,16 +35,32 @@ class _SearchPageState extends State<SearchPage> {
     '短剧',
   ].indexOf(widget.initialKind).clamp(0, 4);
   late final input = TextEditingController(text: widget.initialQuery);
-  late final search = SearchState(widget.repository ?? DesignCatalog());
+  late final search = SearchState(
+    widget.repository ?? widget.library.provider ?? DesignCatalog(),
+  );
+  final scroll = ScrollController();
+  Timer? debounce;
+  Future<void> submit(String value) {
+    debounce?.cancel();
+    search.kind = kind == 0 ? null : ['全部', '电影', '电视剧', '动漫', '短剧'][kind];
+    return search.search(value);
+  }
+
   @override
   void initState() {
     super.initState();
-    search.search(input.text);
+    submit(input.text);
+    scroll.addListener(() {
+      if (scroll.position.extentAfter < 400)
+        search.search(input.text, next: true);
+    });
   }
 
   @override
   void dispose() {
     input.dispose();
+    debounce?.cancel();
+    scroll.dispose();
     search.dispose();
     super.dispose();
   }
@@ -57,10 +76,15 @@ class _SearchPageState extends State<SearchPage> {
             key: const Key('search-input'),
             controller: input,
             onChanged: (value) {
-              search.search(value);
+              search.invalidate();
+              debounce?.cancel();
+              debounce = Timer(
+                const Duration(milliseconds: 350),
+                () => submit(value),
+              );
               setState(() {});
             },
-            onSubmitted: search.search,
+            onSubmitted: submit,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               hintText: '搜索影片、剧集',
@@ -72,7 +96,7 @@ class _SearchPageState extends State<SearchPage> {
                   ? null
                   : IconTap('x', '清空搜索', () {
                       input.clear();
-                      search.search('');
+                      submit('');
                       setState(() {});
                     }),
             ),
@@ -83,7 +107,10 @@ class _SearchPageState extends State<SearchPage> {
           child: DSTabs(
             labels: const ['全部', '电影', '电视剧', '动漫', '短剧'],
             index: kind,
-            onChanged: (i) => setState(() => kind = i),
+            onChanged: (i) {
+              setState(() => kind = i);
+              submit(input.text);
+            },
           ),
         ),
         Expanded(
@@ -98,6 +125,7 @@ class _SearchPageState extends State<SearchPage> {
                   )
                   .toList();
               return ListView(
+                controller: scroll,
                 padding: const EdgeInsets.all(16),
                 children: [
                   Text(input.text.isEmpty ? '发现故事' : '搜索结果', style: DS.section),
@@ -109,7 +137,15 @@ class _SearchPageState extends State<SearchPage> {
                       '搜索暂时不可用',
                       search.error!,
                       action: '重试',
-                      onTap: () => search.search(input.text),
+                      onTap: () => submit(input.text),
+                    )
+                  else if (results.isEmpty && search.hasMore)
+                    EmptyView(
+                      '当前页暂无此类内容',
+                      '尚有后续结果可继续查找。',
+                      icon: 'search',
+                      action: '继续查找',
+                      onTap: () => search.search(input.text, next: true),
                     )
                   else if (results.isEmpty)
                     const EmptyView('没有找到相关内容', '换个片名或分类试试。', icon: 'search')
@@ -134,12 +170,11 @@ class _SearchPageState extends State<SearchPage> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                  child: Image.asset(
-                                    f.image,
+                                  child: FilmArtwork(
+                                    f,
                                     width: 64,
                                     height: 90,
                                     cacheWidth: 192,
-                                    fit: BoxFit.cover,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -170,7 +205,11 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                       ),
                   ],
-                  const PreviewLabel(),
+                  PreviewLabel(
+                    text: widget.library.provider == null
+                        ? '设计预览 · 虚构片目，无在线片源'
+                        : '片库内容由播放源提供',
+                  ),
                 ],
               );
             },

@@ -113,28 +113,7 @@ class ProfilePage extends StatelessWidget {
                   child: Text('还没有收藏，去发现喜欢的影片。', style: DS.smallFor(context)),
                 )
               else
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final f in _favoriteCovers)
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: FilmPoster(
-                            f,
-                            editorial: true,
-                            showTitle: false,
-                            showMetadata: false,
-                            aspectRatio: .85,
-                            onTap: () => openPage(
-                              context,
-                              DetailPage(film: f, library: library),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                _favoriteStrip(context),
             ],
           ),
         ),
@@ -279,9 +258,40 @@ class ProfilePage extends StatelessWidget {
     _ => 3,
   };
 
+  Widget _favoriteStrip(BuildContext context) {
+    final covers = _favoriteCovers.toList();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var index = 0; index < 3; index++)
+          Expanded(
+            child: index >= covers.length
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: FilmPoster(
+                      covers[index],
+                      editorial: true,
+                      showTitle: false,
+                      showMetadata: false,
+                      aspectRatio: .85,
+                      onTap: () => openPage(
+                        context,
+                        DetailPage(film: covers[index], library: library),
+                      ),
+                    ),
+                  ),
+          ),
+      ],
+    );
+  }
+
   Iterable<Film> get _favoriteCovers {
-    final items = films.where((f) => library.favorites.contains(f.id)).toList()
-      ..sort((a, b) => _coverOrder(a).compareTo(_coverOrder(b)));
+    final items =
+        library.knownFilms
+            .where((f) => library.favorites.contains(f.id))
+            .toList()
+          ..sort((a, b) => _coverOrder(a).compareTo(_coverOrder(b)));
     return items.take(3);
   }
 

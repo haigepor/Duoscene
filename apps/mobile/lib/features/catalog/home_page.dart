@@ -5,11 +5,11 @@ import '../../design/tokens.dart';
 import '../../design/scroll_chrome.dart';
 import '../../design/motion.dart';
 import '../../core/models.dart';
-import 'catalog.dart';
 import 'library_state.dart';
 import 'search_page.dart';
 import 'home_content.dart';
 import 'category_discovery.dart';
+import 'catalog_data.dart';
 import '../rooms/room_form_page.dart';
 import '../rooms/room_detail_page.dart';
 import '../rooms/room_repository.dart';
@@ -32,6 +32,12 @@ class _WatchHomeState extends State<WatchHome> {
   int category = 0;
   final selections = <int, CatalogSelection>{};
   final categoryNavigationKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.library.catalog.load();
+  }
 
   Widget discoveryHeader() => Column(
     children: [
@@ -100,6 +106,11 @@ class _WatchHomeState extends State<WatchHome> {
               ticket: true,
               onChanged: (i) {
                 if (category != i) setState(() => category = i);
+                if (i > 0) {
+                  widget.library.catalog
+                      .category(['推荐', '电影', '电视剧', '动漫', '短剧'][i])
+                      .load();
+                }
               },
             ),
           ),
@@ -128,28 +139,16 @@ class _WatchHomeState extends State<WatchHome> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: widget.library.catalog,
+    builder: (context, _) => content(context),
+  );
+
+  Widget content(BuildContext context) {
     final l = widget.library;
     final kind = ['推荐', '电影', '电视剧', '动漫', '短剧'][category];
-    final selected = films
-        .where(
-          (f) => category == 0
-              ? !f.short &&
-                    const [
-                      'mountains',
-                      'summer',
-                      'stars',
-                      'clouds',
-                    ].contains(f.id)
-              : f.kind == ['推荐', '电影', '电视剧', '动漫', '短剧'][category],
-        )
-        .toList();
-    if (category == 0) {
-      const order = ['mountains', 'stars', 'summer', 'clouds'];
-      selected.sort(
-        (a, b) => order.indexOf(a.id).compareTo(order.indexOf(b.id)),
-      );
-    }
+    final feed = category == 0 ? l.catalog.home : l.catalog.category(kind);
+    final selected = feed.items.take(4).toList();
     return ScrollChrome(
       key: ValueKey('watch-chrome-$category'),
       header: Padding(
@@ -189,13 +188,26 @@ class _WatchHomeState extends State<WatchHome> {
               kind: kind,
               selection: selections.putIfAbsent(category, CatalogSelection.new),
               header: discoveryHeader(),
+              items: feed.items,
+              loading: feed.loading,
+              error: feed.error,
+              hasMore: feed.hasMore,
+              onLoadMore: () => feed.load(next: true),
+              onRetry: () => feed.load(refresh: true),
+              remoteFilters: l.catalog.remoteFilters,
+              filterOptions:
+                  l.catalog.filterOptions[categoryIds[kind]] ?? const {},
+              navigationError: l.catalog.navigationError,
+              onRetryFilters: l.catalog.loadFilters,
+              onFilter: (filter) => l.catalog.filter(kind, filter),
             )
           : ListView(
               key: const PageStorageKey('watch-home'),
               padding: EdgeInsets.zero,
               children: [
                 discoveryHeader(),
-                if (l.scenario == 'home-loading')
+                if (l.scenario == 'home-loading' ||
+                    feed.loading && feed.items.isEmpty)
                   const Padding(
                     padding: EdgeInsets.all(18),
                     child: Panel(
@@ -205,7 +217,8 @@ class _WatchHomeState extends State<WatchHome> {
                       ),
                     ),
                   )
-                else if (l.scenario == 'home-source-error')
+                else if (l.scenario == 'home-source-error' ||
+                    feed.error != null && feed.items.isEmpty)
                   EmptyView(
                     '暂时无法加载片库',
                     '检查网络后重试',
@@ -214,6 +227,7 @@ class _WatchHomeState extends State<WatchHome> {
                     onTap: () {
                       l.scenario = 'normal';
                       l.changed();
+                      l.catalog.load();
                     },
                   )
                 else if (category == 0) ...[
@@ -236,7 +250,9 @@ class _WatchHomeState extends State<WatchHome> {
                   ),
                   CatalogSections(library: l),
                 ],
-                const PreviewLabel(),
+                PreviewLabel(
+                  text: l.provider == null ? '设计预览 · 虚构片目，无在线片源' : '片库内容由播放源提供',
+                ),
                 SizedBox(height: 16 + MediaQuery.paddingOf(context).bottom),
               ],
             ),

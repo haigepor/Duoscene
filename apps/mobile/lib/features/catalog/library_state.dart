@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth/session.dart';
 import 'catalog.dart';
+import 'catalog_data.dart';
+import 'media_provider.dart';
+import 'providers/whisklet_provider.dart';
 
 class WatchEntry {
   const WatchEntry(
@@ -13,21 +16,31 @@ class WatchEntry {
     this.seconds,
     this.episode, {
     this.shared = false,
+    this.lineCode,
   });
   final String filmId;
   final int seconds, episode;
   final bool shared;
+  final String? lineCode;
   String get key => '$filmId:${shared ? 'shared' : 'personal'}';
   Map<String, Object> toJson() => {
     'film': filmId,
     'seconds': seconds,
     'episode': episode,
     'shared': shared,
+    if (lineCode != null) 'line': lineCode!,
   };
 }
 
 class LibraryState extends ChangeNotifier {
-  LibraryState({required this.accountId, this.session, this.preview = false}) {
+  LibraryState({
+    required this.accountId,
+    this.session,
+    this.preview = false,
+    MediaProvider? provider,
+  }) : provider = preview
+           ? null
+           : provider ?? (session == null ? null : WhiskletProvider()) {
     if (preview) {
       favorites.addAll(films.take(5).map((f) => f.id));
       history.addAll([
@@ -40,6 +53,27 @@ class LibraryState extends ChangeNotifier {
   final String accountId;
   final Session? session;
   final bool preview;
+  final MediaProvider? provider;
+  late final catalog = CatalogData(provider, remember);
+  final Map<String, Film> snapshots = {};
+  Iterable<Film> get knownFilms => {
+    for (final id in {
+      ...films.map((film) => film.id),
+      ...snapshots.keys,
+      ...favorites,
+    })
+      id: filmById(id),
+  }.values;
+  Film filmById(String id) =>
+      snapshots[id] ??
+      films.where((film) => film.id == id).firstOrNull ??
+      Film(id, '片目暂不可用', '影片', '', 0);
+  void remember(Iterable<Film> items) {
+    for (final film in items) {
+      snapshots[film.id] = film;
+    }
+  }
+
   final Set<String> favorites = {};
   final List<WatchEntry> history = [];
   bool loaded = false, _disposed = false;
@@ -62,6 +96,12 @@ class LibraryState extends ChangeNotifier {
         );
         if (raw != null) {
           final data = jsonDecode(raw) as Map<String, dynamic>;
+          for (final row in (data['snapshots'] as List? ?? const [])) {
+            try {
+              final film = Film.fromJson(Map<String, dynamic>.from(row as Map));
+              snapshots[film.id] = film;
+            } catch (_) {}
+          }
           favorites.addAll((data['favorites'] as List).cast<String>());
           for (final row in (data['history'] as List)) {
             history.add(
@@ -70,6 +110,7 @@ class LibraryState extends ChangeNotifier {
                 row['seconds'] as int,
                 row['episode'] as int,
                 shared: row['shared'] as bool,
+                lineCode: row['line'] as String?,
               ),
             );
           }
@@ -91,6 +132,12 @@ class LibraryState extends ChangeNotifier {
     final value = jsonEncode({
       'favorites': favorites.toList(),
       'history': history.map((e) => e.toJson()).toList(),
+      'snapshots': [
+        for (final film in snapshots.values)
+          if (favorites.contains(film.id) ||
+              history.any((entry) => entry.filmId == film.id))
+            film.toJson(),
+      ],
     });
     // 串行存储防止较早的清理或进度写入覆盖较新的用户操作。
     final operation = _writes.catchError((Object _) {}).then((_) async {
@@ -103,6 +150,7 @@ class LibraryState extends ChangeNotifier {
   }
 
   Future<void> toggleFavorite(Film film) async {
+    remember([film]);
     if (!favorites.remove(film.id)) favorites.add(film.id);
     changed();
     await persist();
@@ -124,6 +172,8 @@ class LibraryState extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    catalog.dispose();
+    provider?.close();
     super.dispose();
   }
 }
@@ -137,16 +187,44 @@ class SearchState extends ChangeNotifier {
   String query = '';
   String? error;
   List<Film> results = [];
-  Future<void> search(String value) async {
+  int page = 0;
+  bool hasMore = false;
+  String? kind;
+  void invalidate() {
+    ++_generation;
+  }
+
+  Future<void> search(String value, {bool next = false}) async {
+    if (next && (loading || !hasMore)) return;
     query = value;
     final current = ++_generation;
     loading = true;
     error = null;
     notifyListeners();
     try {
-      final items = await repository.search(value);
+      final repo = repository;
+      final CatalogPage? response;
+      if (repo is MediaProvider) {
+        response = value.trim().isEmpty
+            ? kind == null
+                  ? CatalogPage(await repo.recommendations(), page: 1, pages: 1)
+                  : await repo.browse(
+                      categoryIds[kind]!,
+                      page: next ? page + 1 : 1,
+                    )
+            : await repo.searchPage(value, page: next ? page + 1 : 1);
+      } else {
+        response = null;
+      }
+      final items = response?.items ?? await repository.search(value);
       if (_disposed || current != _generation) return;
-      results = items;
+      results = {
+        if (next)
+          for (final film in results) film.id: film,
+        for (final film in items) film.id: film,
+      }.values.toList();
+      page = response?.page ?? 1;
+      hasMore = response?.hasMore ?? false;
     } catch (_) {
       if (_disposed || current != _generation) return;
       error = '搜索暂时不可用，请重试';

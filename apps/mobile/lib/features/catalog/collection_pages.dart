@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import 'search_page.dart';
-import 'catalog.dart';
 import 'library_state.dart';
 import 'posters.dart';
 import 'detail_page.dart';
@@ -55,7 +54,7 @@ class _HistoryPageState extends State<HistoryPage> {
         : l.history.where((e) {
             if (widget.sharedScope != null && e.shared != widget.sharedScope)
               return false;
-            final f = films.firstWhere((f) => f.id == e.filmId);
+            final f = l.filmById(e.filmId);
             return filter == 0 ||
                 filter == 1 && !f.short ||
                 filter == 2 && f.short ||
@@ -143,7 +142,7 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Widget _historyRow(WatchEntry entry) {
-    final film = films.firstWhere((film) => film.id == entry.filmId);
+    final film = widget.library.filmById(entry.filmId);
     final p = DSPalette.of(context);
     void toggle() => setState(() {
       if (!selected.remove(entry.key)) selected.add(entry.key);
@@ -178,11 +177,11 @@ class _HistoryPageState extends State<HistoryPage> {
                   ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
-                    homeArtwork(film),
+                  child: FilmArtwork(
+                    film,
+                    asset: homeArtwork(film),
                     width: 60,
                     height: 84,
-                    fit: BoxFit.cover,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -220,10 +219,12 @@ class _HistoryPageState extends State<HistoryPage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(2),
                         child: LinearProgressIndicator(
-                          value: (entry.seconds / (film.minutes * 60)).clamp(
-                            0,
-                            1,
-                          ),
+                          value: film.minutes > 0
+                              ? (entry.seconds / (film.minutes * 60)).clamp(
+                                  0,
+                                  1,
+                                )
+                              : 0,
                           minHeight: 2,
                           color: p.primary,
                           backgroundColor: p.subtle,
@@ -239,12 +240,18 @@ class _HistoryPageState extends State<HistoryPage> {
                     tooltip: '继续观看${film.title}',
                     onPressed: () => openPage(
                       context,
-                      ExperiencePlayer(
-                        film: film,
-                        library: widget.library,
-                        resume: entry,
-                        episode: entry.episode,
-                      ),
+                      film.remote
+                          ? DetailPage(
+                              film: film,
+                              library: widget.library,
+                              resume: entry,
+                            )
+                          : ExperiencePlayer(
+                              film: film,
+                              library: widget.library,
+                              resume: entry,
+                              episode: entry.episode,
+                            ),
                     ),
                     icon: Container(
                       width: 30,
@@ -603,9 +610,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
       for (final id in selected.toList()) {
         // 已完成的项立即退出选择；失败重试不会把已删除的收藏重新加入。
         if (widget.library.favorites.contains(id)) {
-          await widget.library.toggleFavorite(
-            films.firstWhere((f) => f.id == id),
-          );
+          await widget.library.toggleFavorite(widget.library.filmById(id));
         } else {
           await widget.library.persist();
         }
@@ -627,7 +632,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
       final p = DSPalette.of(context);
       final hasFavorites =
           library.scenario != 'favorites-empty' && library.favorites.isNotEmpty;
-      final items = films
+      final items = library.knownFilms
           .where(
             (film) =>
                 hasFavorites &&

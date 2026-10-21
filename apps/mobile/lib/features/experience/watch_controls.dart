@@ -5,6 +5,7 @@ import 'package:media_kit/media_kit.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import '../catalog/library_state.dart';
+import '../catalog/media_provider.dart';
 import '../playback/player_page.dart';
 
 /// 观看页的三个紧凑入口；具体状态和操作收进对应弹层。
@@ -18,6 +19,9 @@ class WatchControls extends StatefulWidget {
     required this.onInvite,
     this.onPeerReady,
     this.onEndPreview,
+    this.lines = const [],
+    this.lineCode,
+    this.onLine,
   });
   final PlayerPresentation player;
   final LibraryState library;
@@ -25,6 +29,9 @@ class WatchControls extends StatefulWidget {
   final bool shared;
   final Future<void> Function() onInvite;
   final VoidCallback? onPeerReady, onEndPreview;
+  final List<MediaLine> lines;
+  final String? lineCode;
+  final Future<void> Function(String)? onLine;
 
   @override
   State<WatchControls> createState() => WatchControlsState();
@@ -52,6 +59,10 @@ class WatchControlsState extends State<WatchControls> {
     );
     if (!mounted) return;
     setState(() => active = null);
+    if (action != null && action.startsWith('line:')) {
+      await widget.onLine?.call(action.substring(5));
+      return;
+    }
     // 先关闭选择层再进入现有流程，避免多层表单同时占用焦点。
     switch (action) {
       case 'network':
@@ -142,6 +153,13 @@ class WatchControlsState extends State<WatchControls> {
         ? '当前未选择视频'
         : '当前片源：${widget.player.session.source!.title}',
     children: [
+      for (final line in widget.lines)
+        MenuRow(
+          line.code == widget.lineCode ? 'check' : 'link',
+          line.name,
+          subtitle: '${line.episodes.length} 集',
+          onTap: () => Navigator.pop(c, 'line:${line.code}'),
+        ),
       MenuRow(
         'link',
         '视频地址',
