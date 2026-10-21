@@ -11,15 +11,57 @@ class Film {
     this.minutes, {
     this.episodes = 1,
     this.art,
+    this.posterUrl,
+    this.remarks = '',
     this.synopsis = '越过山海，恰好遇见你。沿着记忆中的路，寻找那些值得一起留下的瞬间。',
   });
   final String id, title, kind, genre, synopsis;
-  final String? art;
+  final String? art, posterUrl;
+  final String remarks;
   final int minutes, episodes;
   bool get short => kind == '短剧';
+  bool get remote => id.startsWith('whisklet:');
+  Film withEpisodes(int count) => Film(
+    id,
+    title,
+    kind,
+    genre,
+    minutes,
+    episodes: count,
+    art: art,
+    posterUrl: posterUrl,
+    remarks: remarks,
+    synopsis: synopsis,
+  );
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'kind': kind,
+    'genre': genre,
+    'minutes': minutes,
+    'episodes': episodes,
+    'art': art,
+    'posterUrl': posterUrl,
+    'remarks': remarks,
+    'synopsis': synopsis,
+  };
+  factory Film.fromJson(Map<String, dynamic> row) => Film(
+    row['id'] as String,
+    row['title'] as String,
+    row['kind'] as String,
+    row['genre'] as String,
+    row['minutes'] as int,
+    episodes: row['episodes'] as int,
+    art: row['art'] as String?,
+    posterUrl: row['posterUrl'] as String?,
+    remarks: row['remarks'] as String? ?? '',
+    synopsis: row['synopsis'] as String? ?? '',
+  );
   String get image =>
       'assets/design/media/${art ?? (short ? 'frame-short-drama' : 'poster-$id')}.webp';
-  String get meta => '$kind · ${episodes == 1 ? '$minutes 分钟' : '$episodes 集'}';
+  String get meta => remote
+      ? '$kind${remarks.isEmpty ? '' : ' · $remarks'}'
+      : '$kind · ${episodes == 1 ? '$minutes 分钟' : '$episodes 集'}';
   String get durationLabel => episodes == 1 ? '完整正片' : '每集 $minutes 分钟';
 }
 
