@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
-import '../../design/motion.dart';
 import '../../design/scroll_chrome.dart';
+import '../../design/motion.dart';
+import '../../core/models.dart';
 import 'catalog.dart';
 import 'library_state.dart';
 import 'search_page.dart';
 import 'home_content.dart';
-import '../rooms/room_list_page.dart';
+import 'category_discovery.dart';
+import '../rooms/room_form_page.dart';
+import '../rooms/room_detail_page.dart';
 import '../rooms/room_repository.dart';
 
 class WatchHome extends StatefulWidget {
@@ -27,9 +30,107 @@ class WatchHome extends StatefulWidget {
 
 class _WatchHomeState extends State<WatchHome> {
   int category = 0;
+  final selections = <int, CatalogSelection>{};
+  final categoryNavigationKey = GlobalKey();
+
+  Widget discoveryHeader() => Column(
+    children: [
+      const SizedBox(height: 51),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+        child: InkWell(
+          key: const Key('home-search'),
+          onTap: () => openPage(
+            context,
+            SearchPage(
+              library: widget.library,
+              initialKind: category == 0
+                  ? null
+                  : ['推荐', '电影', '电视剧', '动漫', '短剧'][category],
+            ),
+          ),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 38),
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+            decoration: BoxDecoration(
+              color: DSPalette.of(context).panel,
+              border: Border.all(color: DSPalette.of(context).line),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                DSIcon('search', size: 20, color: DSPalette.of(context).muted),
+                const SizedBox(width: 10),
+                Text(
+                  '搜索影片、剧集',
+                  style: TextStyle(
+                    color: DSPalette.of(context).muted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      categoryTabs(),
+    ],
+  );
+
+  Widget categoryTabs() => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final minWidth =
+            (MediaQuery.textScalerOf(context).scale(14) * 3 + DS.space24) * 5;
+        return SingleChildScrollView(
+          // 分类内容替换时保留票签动画和横向浏览位置。
+          key: categoryNavigationKey,
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: constraints.maxWidth < minWidth
+                ? minWidth
+                : constraints.maxWidth,
+            child: DSTabs(
+              key: const Key('home-categories'),
+              labels: const ['推荐', '电影', '电视剧', '动漫', '短剧'],
+              index: category,
+              pill: true,
+              ticket: true,
+              onChanged: (i) {
+                if (category != i) setState(() => category = i);
+              },
+            ),
+          ),
+        );
+      },
+    ),
+  );
+
+  Future<void> openRoom(bool join) async {
+    final session = widget.library.session;
+    if (session == null || widget.library.preview) {
+      tell(context, '登录后即可创建或加入真实房间。');
+      return;
+    }
+    final rooms = RoomRepository(session);
+    final room = await Navigator.of(context).push<Room>(
+      MaterialPageRoute(
+        builder: (_) => RoomFormPage(rooms: rooms, join: join),
+      ),
+    );
+    if (!mounted || room == null) return;
+    await openPage(
+      context,
+      RoomDetailPage(initialRoom: room, rooms: rooms, userId: session.user!.id),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = widget.library;
+    final kind = ['推荐', '电影', '电视剧', '动漫', '短剧'][category];
     final selected = films
         .where(
           (f) => category == 0
@@ -43,137 +144,236 @@ class _WatchHomeState extends State<WatchHome> {
               : f.kind == ['推荐', '电影', '电视剧', '动漫', '短剧'][category],
         )
         .toList();
+    if (category == 0) {
+      const order = ['mountains', 'stars', 'summer', 'clouds'];
+      selected.sort(
+        (a, b) => order.indexOf(a.id).compareTo(order.indexOf(b.id)),
+      );
+    }
     return ScrollChrome(
+      key: ValueKey('watch-chrome-$category'),
       header: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 0, 12, 0),
+        padding: const EdgeInsets.fromLTRB(18, 9, 12, 0),
         child: SizedBox(
           height: 44,
           child: Row(
             children: [
-              const Expanded(child: Brand()),
+              const Expanded(child: Brand(size: 23, ringsFirst: true)),
               IconButton(
                 onPressed: widget.onProfile,
                 tooltip: '我的账户',
-                icon: MountainAvatar(initial: l.initial, size: 28),
+                icon: CircleAvatar(
+                  radius: 14,
+                  backgroundColor: DSPalette.of(context).tint,
+                  child: Text(
+                    l.initial,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: DSPalette.of(context).primary,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
-      child: ListView(
-        key: const PageStorageKey('watch-home'),
-        padding: EdgeInsets.zero,
-        children: [
-          const SizedBox(height: DS.toolbarHeight),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-            child: InkWell(
-              onTap: () => openPage(context, SearchPage(library: l)),
-              borderRadius: BorderRadius.circular(28),
-              child: Panel(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 13,
-                  vertical: 8,
+      child:
+          category != 0 &&
+              l.scenario != 'home-loading' &&
+              l.scenario != 'home-source-error'
+          ? CatalogDiscovery(
+              key: ValueKey(kind),
+              library: l,
+              kind: kind,
+              selection: selections.putIfAbsent(category, CatalogSelection.new),
+              header: discoveryHeader(),
+            )
+          : ListView(
+              key: const PageStorageKey('watch-home'),
+              padding: EdgeInsets.zero,
+              children: [
+                discoveryHeader(),
+                if (l.scenario == 'home-loading')
+                  const Padding(
+                    padding: EdgeInsets.all(18),
+                    child: Panel(
+                      child: SizedBox(
+                        height: 290,
+                        child: Center(child: Text('正在加载片库…')),
+                      ),
+                    ),
+                  )
+                else if (l.scenario == 'home-source-error')
+                  EmptyView(
+                    '暂时无法加载片库',
+                    '检查网络后重试',
+                    icon: 'wifi-off',
+                    action: '重试',
+                    onTap: () {
+                      l.scenario = 'normal';
+                      l.changed();
+                    },
+                  )
+                else if (category == 0) ...[
+                  HomeCarousel(
+                    items: selected,
+                    library: l,
+                    active: widget.active,
+                  ),
+                  if (l.history.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, DS.space12, 18, 0),
+                      child: ContinueCard(library: l),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(18, DS.space12, 18, 0),
+                    child: WatchTogetherPanel(
+                      onCreate: () => openRoom(false),
+                      onJoin: () => openRoom(true),
+                    ),
+                  ),
+                  CatalogSections(library: l),
+                ],
+                const PreviewLabel(),
+                SizedBox(height: 16 + MediaQuery.paddingOf(context).bottom),
+              ],
+            ),
+    );
+  }
+}
+
+class WatchTogetherPanel extends StatelessWidget {
+  const WatchTogetherPanel({
+    super.key,
+    required this.onCreate,
+    required this.onJoin,
+  });
+  final VoidCallback onCreate, onJoin;
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+    decoration: BoxDecoration(
+      color: DSPalette.roomSurface,
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: DSPalette.roomAction.withValues(alpha: .10),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Center(
+                child: DSIcon(
+                  'users-round',
+                  size: 20,
+                  color: DSPalette.roomAction,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '一起看',
+                    style: TextStyle(
+                      fontSize: 14,
+                      height: 1.3,
+                      fontWeight: FontWeight.w600,
+                      color: DSPalette.onMedia,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    '创建房间，或加入好友的邀请',
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.4,
+                      color: DSPalette.roomMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final stacked =
+                MediaQuery.textScalerOf(context).scale(14) * 10 + 100 >
+                constraints.maxWidth;
+            Widget action(bool join) => TextButton(
+              key: Key(join ? 'home-join-room' : 'home-create-room'),
+              onPressed: join ? onJoin : onCreate,
+              style: TextButton.styleFrom(
+                minimumSize: const Size(48, 48),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: EdgeInsets.zero,
+                overlayColor: Colors.transparent,
+                splashFactory: NoSplash.splashFactory,
+                foregroundColor: join
+                    ? DSPalette.onMedia
+                    : DSPalette.roomSurface,
+              ),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                decoration: BoxDecoration(
+                  color: join ? Colors.transparent : DSPalette.roomAction,
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(
+                    color: DSPalette.roomAction.withValues(alpha: .7),
+                  ),
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    DSIcon(
-                      'search',
-                      size: 20,
-                      color: DSPalette.of(context).muted,
-                    ),
-                    const SizedBox(width: 10),
+                    if (join)
+                      const DSIcon('link', size: 15, color: DSPalette.onMedia)
+                    else
+                      const Icon(
+                        Icons.add_circle,
+                        size: 15,
+                        color: DSPalette.roomSurface,
+                      ),
+                    const SizedBox(width: 6),
                     Text(
-                      '搜索影片、剧集',
-                      style: TextStyle(color: DSPalette.of(context).muted),
+                      join ? '加入邀请' : '创建房间',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        height: 1.3,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ),
-          DSTabs(
-            labels: const ['推荐', '电影', '电视剧', '动漫', '短剧'],
-            index: category,
-            onChanged: (i) => setState(() => category = i),
-          ),
-          if (l.scenario == 'home-loading')
-            const Padding(
-              padding: EdgeInsets.all(18),
-              child: Panel(
-                child: SizedBox(
-                  height: 290,
-                  child: Center(child: Text('正在加载片库…')),
-                ),
-              ),
-            )
-          else if (l.scenario == 'home-source-error')
-            EmptyView(
-              '暂时无法加载片库',
-              '检查网络后重试',
-              icon: 'wifi-off',
-              action: '重试',
-              onTap: () {
-                l.scenario = 'normal';
-                l.changed();
-              },
-            )
-          else ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(DS.panelRadius),
-                child: HomeCarousel(
-                  items: selected,
-                  library: l,
-                  active: widget.active,
-                ),
-              ),
-            ),
-            if (l.history.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  16,
-                  DS.carouselContentGap,
-                  16,
-                  0,
-                ),
-                child: ContinueCard(library: l),
-              ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Panel(
-                child: MenuRow(
-                  'users-round',
-                  '一起看',
-                  subtitle: '创建房间，或加入好友的邀请',
-                  onTap: () {
-                    if (l.session == null) {
-                      tell(context, '登录后即可创建或加入真实房间。');
-                    } else {
-                      openPage(
-                        context,
-                        RoomListPage(
-                          session: l.session!,
-                          rooms: RoomRepository(l.session!),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-            ),
-            CatalogSections(
-              library: l,
-              kind: category == 0
-                  ? null
-                  : ['推荐', '电影', '电视剧', '动漫', '短剧'][category],
-            ),
-          ],
-          const PreviewLabel(),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
+            );
+            return stacked
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [action(false), action(true)],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: action(false)),
+                      const SizedBox(width: 8),
+                      Expanded(child: action(true)),
+                    ],
+                  );
+          },
+        ),
+      ],
+    ),
+  );
 }
