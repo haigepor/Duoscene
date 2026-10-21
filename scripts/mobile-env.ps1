@@ -1,10 +1,22 @@
 param(
-    [string]$FlutterSdk = 'D:\fluttersdk\versions\3.47.6',
-    [string]$AndroidSdk = 'D:\Android\Sdk',
-    [string]$Jdk = 'D:\tools\jdk-21.0.12.1+1'
+    [string]$FlutterSdk = $env:FLUTTER_ROOT,
+    [string]$AndroidSdk = $env:ANDROID_HOME,
+    [string]$Jdk = $env:JAVA_HOME
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $FlutterSdk) {
+    $flutterCommand = Get-Command flutter.bat -ErrorAction SilentlyContinue
+    if ($flutterCommand) { $FlutterSdk = Split-Path (Split-Path $flutterCommand.Source -Parent) -Parent }
+}
+if (-not $AndroidSdk) { $AndroidSdk = $env:ANDROID_SDK_ROOT }
+if (-not $Jdk) {
+    $javaCommand = Get-Command java.exe -ErrorAction SilentlyContinue
+    if ($javaCommand) { $Jdk = Split-Path (Split-Path $javaCommand.Source -Parent) -Parent }
+}
+if (-not $FlutterSdk -or -not $AndroidSdk -or -not $Jdk) {
+    throw 'Set FLUTTER_ROOT, ANDROID_HOME and JAVA_HOME, or pass -FlutterSdk, -AndroidSdk and -Jdk.'
+}
 foreach ($requiredPath in @("$FlutterSdk\bin\flutter.bat", "$AndroidSdk\platform-tools\adb.exe", "$Jdk\bin\java.exe")) {
     if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
         throw "Development tool missing: $requiredPath"
@@ -13,10 +25,17 @@ foreach ($requiredPath in @("$FlutterSdk\bin\flutter.bat", "$AndroidSdk\platform
 
 # Dot-source this script to use the project's bundled Dart and JDK in this terminal.
 $env:FLUTTER_BIN = Join-Path $FlutterSdk 'bin\flutter.bat'
+$env:FLUTTER_ROOT = $FlutterSdk
 $env:JAVA_HOME = $Jdk
 $env:ANDROID_HOME = $AndroidSdk
 $env:ANDROID_SDK_ROOT = $AndroidSdk
-$env:Path = "$FlutterSdk\bin;$AndroidSdk\platform-tools;$AndroidSdk\cmdline-tools\19.0\bin;$Jdk\bin;" + $env:Path
+$env:Path = "$FlutterSdk\bin;$AndroidSdk\platform-tools;$Jdk\bin;" + $env:Path
+$sdkManager = Join-Path $AndroidSdk 'cmdline-tools\latest\bin\sdkmanager.bat'
+if (-not (Test-Path -LiteralPath $sdkManager)) {
+    $sdkManager = Get-ChildItem -LiteralPath (Join-Path $AndroidSdk 'cmdline-tools') -Filter sdkmanager.bat -Recurse -File |
+        Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+}
+if ($sdkManager) { $env:Path = (Split-Path $sdkManager -Parent) + ';' + $env:Path }
 # native_toolchain_c 0.19.5 在中文 Windows 下使用系统代码页解码 vswhere 的 UTF-8 JSON。
 # 项目内包装器仅转义 JSON Unicode；不替换系统安装器，也不改变查找到的 VS 实例。
 $playerTools = Join-Path (Split-Path $PSScriptRoot -Parent) '.local\windows-tools'

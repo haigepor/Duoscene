@@ -1,0 +1,95 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: API origin (USB debug uses adb reverse tcp:3000 tcp:3000)
+        required: true
+        default: http://127.0.0.1:3000
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/android-apk.yml
+      - apps/mobile/**
+      - apps/api/**
+      - packages/contracts/**
+      - scripts/**
+      - package.json
+      - package-lock.json
+      - .node-version
+      - .npmrc
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  api-checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run check:structure
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  android:
+    needs: api-checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      API_BASE_URL: ${{ inputs.api_base_url || 'http://127.0.0.1:3000' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Check out Flutter 3.47.6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: flutter/flutter
+          ref: 5fc346839b5d0eef006ed8404392afb4dfae428d
+          path: .local/flutter-sdk
+          persist-credentials: false
+      - name: Configure Flutter and Android SDK
+        run: |
+          echo "$GITHUB_WORKSPACE/.local/flutter-sdk/bin" >> "$GITHUB_PATH"
+          sdkmanager "platforms;android-36" "build-tools;35.0.0" "ndk;28.2.13676358"
+      - run: flutter --version
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter analyze --no-pub
+      - run: flutter test --no-pub --concurrency=2 --reporter expanded
+      - name: Build arm64 debug APK
+        run: flutter build apk --debug --no-pub --target-platform android-arm64 --dart-define="API_BASE_URL=$API_BASE_URL"
+      - name: Record artifact provenance
+        run: |
+          mkdir -p build/delivery
+          cp build/app/outputs/flutter-apk/app-debug.apk build/delivery/duoscene-arm64-debug.apk
+          cd build/delivery
+          sha256sum duoscene-arm64-debug.apk > SHA256SUMS.txt
+          printf 'commit=%s\nflutter=3.47.6\nabi=arm64-v8a\nmode=debug\napi=%s\n' "$GITHUB_SHA" "$API_BASE_URL" > build-info.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: duoscene-arm64-debug-${{ github.run_number }}
+          path: apps/mobile/build/delivery/
+          if-no-files-found: error
+          retention-days: 14

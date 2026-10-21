@@ -5,7 +5,9 @@ Flutter + Dart，Android/iOS 优先。已实现登录、会话恢复、房间列
 
 ## 本机开发
 
-本机复用 Flutter 3.47.6 / Dart 3.13.5、D:\Android\Sdk，并安装独立 JDK 21。
+需要 Flutter 3.47.6 / Dart 3.13.5、Android SDK 36、NDK 28.2.13676358 和 JDK 21。
+环境脚本优先读取 FLUTTER_ROOT、ANDROID_HOME、JAVA_HOME；Flutter 也可从 PATH 发现。
+目录不在这些位置时，显式传入 `-FlutterSdk`、`-AndroidSdk`、`-Jdk`，不再依赖旧机器的 D 盘路径。
 从仓库根目录打开 PowerShell：
 
 ```powershell
@@ -19,6 +21,27 @@ flutter test
 flutter emulators --launch duoscene_player_api28
 flutter run -d emulator-5554
 ```
+
+## GitHub Actions 安卓测试包
+
+仓库 Actions 的 `Android APK` 工作流在相关文件推送到 main 时运行，也支持手动执行。
+固定 Flutter 源码提交、Node 版本和 Action 提交，使用锁文件安装，先执行后端与移动端检查，
+再构建正常 `lib/main.dart` 入口的 arm64 debug APK。产物包含 APK、SHA256 和构建来源。
+这不是集成测试专用入口，也不是正式发行签名包。
+
+默认 API origin 为 `http://127.0.0.1:3000`，适合 USB 联调；下载 artifact 后执行：
+
+```powershell
+adb -s <adb-device-id> reverse tcp:3000 tcp:3000
+adb -s <adb-device-id> install -r .\duoscene-arm64-debug.apk
+adb -s <adb-device-id> shell am start -n com.example.duoscene/.MainActivity
+```
+
+手机需要 Android 9/API 28 及以上、arm64-v8a。电脑必须另行启动真实 API/MySQL 才能登录和使用房间；
+端口转发不会自动启动后端。已有不同签名的同包名 App 时不要直接卸载，以免丢失数据。
+云端调试密钥不是稳定发行身份，后续跨构建覆盖安装仍需核对签名。
+手动工作流可传入自己的 HTTPS API origin；不要包含路径、查询、凭据或账户密码。
+完整源码分析与本次验证见 [Android 构建分析](../../docs/android-build-analysis-20261021.zh.md)。
 
 Android/iOS 工程已由 `flutter create --project-name duoscene --platforms android,ios --no-pub .`
 生成，不要重复覆盖。Android 最低 API 28（固定 Playra 原生 libmpv 的实际符号要求），iOS 最低 13。
