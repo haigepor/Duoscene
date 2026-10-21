@@ -66,7 +66,7 @@ class _RoomWatchPageState extends State<RoomWatchPage>
     super.dispose();
   }
 
-  void audio() => showModalBottomSheet<void>(
+  void audio() => showDSSheet<void>(
     context: context,
     showDragHandle: true,
     builder: (c) => AnimatedBuilder(

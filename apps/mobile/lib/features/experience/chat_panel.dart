@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/illustrations.dart';
 import '../catalog/library_state.dart';
 import 'conversation.dart';
 import '../rooms/room_list_page.dart';
@@ -15,9 +16,14 @@ class ChatPanel extends StatefulWidget {
     this.subtitle = '私密交流',
     this.onInvite,
     this.onVolumeChanged,
+    this.compact = false,
+    this.composerHeader,
   });
   final LibraryState library;
   final bool sheet;
+  // 观看页在标签栏显示隐私说明，音频统一收进状态栏弹层。
+  final bool compact;
+  final Widget? composerHeader;
   final String subtitle;
   final VoidCallback? onInvite;
   final ValueChanged<double>? onVolumeChanged;
@@ -89,224 +95,351 @@ class _ChatPanelState extends State<ChatPanel> {
     onPopInvokedWithResult: (popped, _) {
       if (!popped) focus.unfocus();
     },
-    child: LayoutBuilder(builder: (context, constraints) => Column(
-      children: [
-        if (widget.sheet)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 6, 4),
-            child: Row(
-              children: [
-                const Expanded(child: Text('一起聊聊', style: DS.heading)),
-                IconTap('x', '关闭私聊', () {
-                  if (focus.hasFocus)
-                    focus.unfocus();
-                  else
-                    Navigator.pop(context);
-                }),
-              ],
+    child: LayoutBuilder(
+      builder: (context, constraints) => Column(
+        children: [
+          if (widget.sheet)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 6, 4),
+              child: Row(
+                children: [
+                  const Expanded(child: Text('一起聊聊', style: DS.heading)),
+                  IconTap('x', '关闭私聊', () {
+                    if (focus.hasFocus)
+                      focus.unfocus();
+                    else
+                      Navigator.pop(context);
+                  }),
+                ],
+              ),
             ),
-          ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-          child: Row(
-            children: [
-              DSIcon(
-                'lock-keyhole',
-                size: 14,
-                color: DSPalette.of(context).primary,
+          if (!widget.compact)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              child: Row(
+                children: [
+                  DSIcon(
+                    'lock-keyhole',
+                    size: 14,
+                    color: DSPalette.of(context).primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      enabled
+                          ? '${widget.subtitle} · 仅你和小满可见 · 预览'
+                          : '邀请好友后开始交流',
+                      style: DS.smallFor(context),
+                      maxLines: constraints.maxHeight < 300 ? 1 : null,
+                      overflow: constraints.maxHeight < 300
+                          ? TextOverflow.ellipsis
+                          : null,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  enabled ? '${widget.subtitle} · 仅你和小满可见 · 预览' : '邀请好友后开始交流',
-                  style: DS.smallFor(context),
-                  maxLines: constraints.maxHeight < 300 ? 1 : null,
-                  overflow: constraints.maxHeight < 300 ? TextOverflow.ellipsis : null,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: enabled
-              ? ListenableBuilder(
-                  listenable: chat,
-                  builder: (context, _) => ListView(
-                    controller: scroll,
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      for (final m in chat.messages)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: m.mine
-                                ? MainAxisAlignment.end
-                                : MainAxisAlignment.start,
-                            children: [
-                              if (!m.mine) ...[
-                                const MountainAvatar(
-                                  initial: '满',
-                                  size: DS.avatarSmall,
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: m.mine
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 9,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: m.mine
-                                            ? DSPalette.of(context).tint
-                                            : DSPalette.of(context).line
-                                                  .withValues(alpha: .5),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        m.text,
-                                        style: TextStyle(
+            ),
+          Expanded(
+            child: enabled
+                ? ListenableBuilder(
+                    listenable: chat,
+                    builder: (context, _) => ListView(
+                      controller: scroll,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: widget.composerHeader == null
+                            ? DS.space16
+                            : DS.pageInset * 2,
+                        vertical: DS.space16,
+                      ),
+                      children: [
+                        for (final m in chat.messages)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: m.mine
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                              children: [
+                                if (!m.mine) ...[
+                                  const MountainAvatar(
+                                    initial: '满',
+                                    size: DS.avatarSmall,
+                                  ),
+                                  const SizedBox(width: 10),
+                                ],
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment: m.mine
+                                        ? CrossAxisAlignment.end
+                                        : CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 9,
+                                        ),
+                                        decoration: BoxDecoration(
                                           color: m.mine
-                                              ? DSPalette.of(context).onTint
-                                              : DSPalette.of(context).ink,
+                                              ? DSPalette.of(context).tint
+                                              : DSPalette.of(context).line
+                                                    .withValues(alpha: .5),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          m.text,
+                                          style: TextStyle(
+                                            color: m.mine
+                                                ? DSPalette.of(context).onTint
+                                                : DSPalette.of(context).ink,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    if (m.mine)
-                                      m.delivery == Delivery.failed
-                                          ? TextButton(
-                                              onPressed: () {
-                                                adapter.fail = false;
-                                                chat.retry(m);
-                                              },
-                                              child: Text(
-                                                '发送失败，点击重试',
-                                                style: TextStyle(
-                                                  color: DSPalette.of(context)
-                                                      .amber,
-                                                  fontSize: DS.captionSize,
+                                      if (m.mine)
+                                        m.delivery == Delivery.failed
+                                            ? TextButton(
+                                                onPressed: () {
+                                                  adapter.fail = false;
+                                                  chat.retry(m);
+                                                },
+                                                child: Text(
+                                                  '发送失败，点击重试',
+                                                  style: TextStyle(
+                                                    color: DSPalette.of(context)
+                                                        .amber,
+                                                    fontSize: DS.captionSize,
+                                                  ),
                                                 ),
+                                              )
+                                            : Text(
+                                                m.delivery == Delivery.pending
+                                                    ? '发送中…'
+                                                    : '已发送 · 预览',
+                                                style: DS.smallFor(context),
                                               ),
-                                            )
-                                          : Text(
-                                              m.delivery == Delivery.pending
-                                                  ? '发送中…'
-                                                  : '已发送 · 预览',
-                                              style: DS.smallFor(context),
-                                            ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              if (m.mine) ...[
-                                const SizedBox(width: 10),
-                                MountainAvatar(
-                                  initial: widget.library.initial,
-                                  size: DS.avatarSmall,
-                                ),
+                                if (m.mine) ...[
+                                  const SizedBox(width: 10),
+                                  MountainAvatar(
+                                    initial: widget.library.initial,
+                                    size: DS.avatarSmall,
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  )
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(DS.space16),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: DS.space12),
+                        const DSIllustration(
+                          'conversation-glass',
+                          width: 112,
+                          height: 84,
+                        ),
+                        const SizedBox(height: DS.space16),
+                        const Text(
+                          '好看的，想和你聊聊',
+                          style: DS.section,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: DS.space8),
+                        Text(
+                          widget.library.preview
+                              ? '邀请好友后开始交流'
+                              : '进入同看房间后，可与好友实时交流。',
+                          textAlign: TextAlign.center,
+                          style: DS.smallFor(context),
+                        ),
+                        const SizedBox(height: DS.space16),
+                        FilledButton(
+                          onPressed: widget.onInvite,
+                          child: const Text('邀请一起看'),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+          if (widget.library.preview || widget.composerHeader != null)
+            Padding(
+              padding: widget.composerHeader == null
+                  ? const EdgeInsets.fromLTRB(12, 4, 12, 10)
+                  : const EdgeInsets.only(top: DS.space4, bottom: DS.space8),
+              child: _composerSurface(
+                context,
+                Row(
+                  crossAxisAlignment: widget.composerHeader == null
+                      ? CrossAxisAlignment.center
+                      : CrossAxisAlignment.end,
+                  children: [
+                    if (widget.sheet)
+                      IconTap(
+                        'mic-off',
+                        '麦克风已关闭',
+                        () => tell(
+                          context,
+                          widget.library.scenario == 'mic-denied'
+                              ? '麦克风权限被拒，仍可观看和发送文字。'
+                              : '请在同看房间内开启语音，麦克风默认关闭。',
+                        ),
+                      ),
+                    Expanded(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          // 输入区最多占用消息区的一部分，键盘和大字号下仍留出消息空间。
+                          maxHeight: widget.composerHeader == null
+                              ? double.infinity
+                              : (constraints.maxHeight * .45).clamp(
+                                  DS.inputHeight,
+                                  DS.inputHeight * 3,
+                                ),
+                        ),
+                        child: TextField(
+                          key: const Key('chat-input'),
+                          controller: input,
+                          focusNode: focus,
+                          enabled: enabled,
+                          minLines: 1,
+                          maxLines: widget.composerHeader == null ? 3 : 5,
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: widget.composerHeader == null
+                              ? TextInputAction.send
+                              : TextInputAction.newline,
+                          onSubmitted: widget.composerHeader == null
+                              ? (_) => send()
+                              : null,
+                          decoration: InputDecoration(
+                            hintText: enabled ? '和小满说点什么…' : '邀请好友后开始交流',
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(28),
+                              ),
+                            ),
+                            filled: widget.composerHeader == null,
+                            enabledBorder: widget.composerHeader == null
+                                ? null
+                                : InputBorder.none,
+                            disabledBorder: widget.composerHeader == null
+                                ? null
+                                : InputBorder.none,
+                            focusedBorder: widget.composerHeader == null
+                                ? null
+                                : InputBorder.none,
                           ),
                         ),
-                    ],
-                  ),
-                )
-              : SingleChildScrollView(
-                  child: EmptyView(
-                    '好看的，想和你聊聊',
-                    widget.library.preview ? '邀请好友后开始交流' : '进入同看房间后，可与好友实时交流。',
-                    icon: 'message-circle',
-                    action: '邀请一起看',
-                    onTap: widget.onInvite,
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filled(
+                      key: const Key('chat-send'),
+                      tooltip: '发送消息',
+                      style: widget.composerHeader == null
+                          ? null
+                          : IconButton.styleFrom(
+                              fixedSize: const Size.square(DS.buttonHeight),
+                              minimumSize: const Size.square(DS.buttonHeight),
+                              maximumSize: const Size.square(DS.buttonHeight),
+                              padding: const EdgeInsets.all(DS.space8),
+                              tapTargetSize: MaterialTapTargetSize.padded,
+                            ),
+                      onPressed: enabled && input.text.trim().isNotEmpty
+                          ? send
+                          : null,
+                      icon: DSIcon(
+                        'arrow-up',
+                        size: widget.composerHeader == null
+                            ? DS.iconSize
+                            : DS.iconSmall,
+                        color: DSPalette.of(context).onPrimary,
+                      ),
+                    ),
+                  ],
                 ),
-        ),
-        if (widget.library.preview)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
-            child: Row(
-              children: [
-                if (widget.sheet)
+              ),
+            ),
+          if (!widget.compact &&
+              widget.library.preview &&
+              !widget.sheet &&
+              !focus.hasFocus &&
+              constraints.maxHeight >= 300)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 14, 4),
+              child: Row(
+                children: [
                   IconTap(
                     'mic-off',
                     '麦克风已关闭',
-                    () => tell(
-                      context,
-                      widget.library.scenario == 'mic-denied'
-                          ? '麦克风权限被拒，仍可观看和发送文字。'
-                          : '请在同看房间内开启语音，麦克风默认关闭。',
+                    () => tell(context, '预览麦克风保持关闭；登录并进入同看房间可开启语音。'),
+                  ),
+                  Expanded(child: Text('麦克风已关闭', style: DS.smallFor(context))),
+                  const DSIcon('volume-2', size: 18),
+                  SizedBox(
+                    width: 100,
+                    child: Slider(
+                      value: widget.library.movieVolume,
+                      onChanged: (v) {
+                        setState(() => widget.library.movieVolume = v);
+                        widget.onVolumeChanged?.call(v);
+                      },
                     ),
                   ),
-                Expanded(
-                  child: TextField(
-                    key: const Key('chat-input'),
-                    controller: input,
-                    focusNode: focus,
-                    enabled: enabled,
-                    minLines: 1,
-                    maxLines: 3,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => send(),
-                    decoration: InputDecoration(
-                      hintText: enabled ? '和小满说点什么…' : '邀请好友后开始交流',
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(28)),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton.filled(
-                  key: const Key('chat-send'),
-                  tooltip: '发送消息',
-                  onPressed: enabled && input.text.trim().isNotEmpty
-                      ? send
-                      : null,
-                  icon: DSIcon('arrow-up', color: DSPalette.of(context).onPrimary),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        if (widget.library.preview && !widget.sheet && !focus.hasFocus && constraints.maxHeight >= 300)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 14, 4),
-            child: Row(
-              children: [
-                IconTap(
-                  'mic-off',
-                  '麦克风已关闭',
-                  () => tell(context, '预览麦克风保持关闭；登录并进入同看房间可开启语音。'),
-                ),
-                Expanded(child: Text('麦克风已关闭', style: DS.smallFor(context))),
-                const DSIcon('volume-2', size: 18),
-                SizedBox(
-                  width: 100,
-                  child: Slider(
-                    value: widget.library.movieVolume,
-                    onChanged: (v) {
-                      setState(() => widget.library.movieVolume = v);
-                      widget.onVolumeChanged?.call(v);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    )),
+        ],
+      ),
+    ),
   );
+
+  Widget _composerSurface(BuildContext context, Widget inputRow) {
+    if (widget.composerHeader == null) return inputRow;
+    final p = DSPalette.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: DS.space12),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: p.subtle,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(DS.panelRadius),
+              ),
+            ),
+            child: widget.composerHeader,
+          ),
+        ),
+        DecoratedBox(
+          key: const Key('watch-composer-input-surface'),
+          decoration: BoxDecoration(
+            color: p.panel,
+            border: Border.all(color: p.line),
+            borderRadius: BorderRadius.circular(DS.panelRadius),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(DS.space4),
+            child: inputRow,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 Future<void> showPrivateChat(BuildContext context, LibraryState library) {
@@ -321,7 +454,7 @@ Future<void> showPrivateChat(BuildContext context, LibraryState library) {
       ),
     );
   }
-  return showModalBottomSheet<void>(
+  return showDSSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,

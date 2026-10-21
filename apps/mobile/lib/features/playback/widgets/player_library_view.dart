@@ -14,7 +14,13 @@ class PlayerEmptySurface extends StatelessWidget {
     fit: StackFit.expand,
     children: [
       if (cover != null)
-        Image.asset(cover!, fit: BoxFit.cover, excludeFromSemantics: true),
+        Image.asset(
+          cover!,
+          fit: BoxFit.cover,
+          cacheWidth: 1080,
+          excludeFromSemantics: true,
+          errorBuilder: (_, _, _) => const ColoredBox(color: DSPalette.media),
+        ),
       ColoredBox(
         color: cover == null
             ? DSPalette.media

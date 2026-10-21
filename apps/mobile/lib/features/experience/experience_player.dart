@@ -8,12 +8,14 @@ import '../../design/motion.dart';
 import '../playback/widgets/player_library_view.dart';
 import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
+import '../catalog/posters.dart';
 import '../playback/player_page.dart';
 import 'chat_panel.dart';
 import 'episode_sheet.dart';
 import 'invite_pages.dart';
 import 'settings_pages.dart';
 import 'conversation.dart';
+import 'watch_controls.dart';
 
 class ExperiencePlayer extends StatefulWidget {
   const ExperiencePlayer({
@@ -38,6 +40,7 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
   int? resumedGeneration;
   int? volumeGeneration;
   PlayerPresentation? player;
+  final controlsKey = GlobalKey<WatchControlsState>();
   late final intent = WatchIntent()
     ..manuallyPaused = widget.library.scenario == 'manual-pause'
     ..peerReady = ![
@@ -103,7 +106,10 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
           },
           presentation: (context, controls, surface) {
             // 输入法展开时收起媒体区，为输入框和消息列表保留可用高度。
-            final composing = MediaQuery.viewInsetsOf(context).bottom > 0;
+            // Scaffold 的内容区可能已消费 MediaQuery 键盘内边距，同时检查原始视图。
+            final composing =
+                MediaQuery.viewInsetsOf(context).bottom > 0 ||
+                View.of(context).viewInsets.bottom > 0;
             player = controls;
             final s = controls.session;
             if (!s.loading &&
@@ -123,219 +129,252 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
               resumedGeneration = s.generation;
               unawaited(s.seek(Duration(seconds: widget.resume!.seconds)));
             }
+            final p = DSPalette.of(context);
             return Forest(
-              child: Column(
-                children: [
-                  if (!intent.peerReady)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            intent.peer(true);
-                            setState(
-                              () => widget.library.scenario =
-                                  intent.manuallyPaused
-                                  ? 'manual-pause'
-                                  : 'normal',
-                            );
-                          },
-                          child: const Text('模拟好友恢复 · 保持暂停'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            intent.peer(true);
-                            setState(
-                              () => widget.library.scenario =
-                                  'private-chat-empty',
-                            );
-                          },
-                          child: const Text('结束同看'),
-                        ),
-                      ],
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 2, 4, 4),
-                    child: Row(
-                      children: [
-                        IconTap(
-                          'arrow-left',
-                          '返回',
-                          () => Navigator.pop(context),
-                        ),
-                        const Expanded(child: Text('正在观看', style: DS.toolbar)),
-                        IconTap('ellipsis', '播放器更多功能', () => _more(controls)),
-                      ],
-                    ),
-                  ),
-                  if (!composing)
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: s.source == null
-                          ? PlayerEmptySurface(
-                              player: controls,
-                              cover: film.id == 'mountains'
-                                  ? 'assets/design/media/media-mountains-landscape.png'
-                                  : film.image,
-                            )
-                          : surface,
-                    ),
-                  if (controls.error != null)
-                    Text(
-                      controls.error!,
-                      style: TextStyle(color: DSPalette.of(context).amber),
-                    ),
-                  if (!composing)
+              child: LayoutBuilder(
+                builder: (context, bounds) => Column(
+                  children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+                        horizontal: DS.space4,
+                        vertical: DS.space4,
                       ),
                       child: Row(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Image.asset(
-                              film.image,
-                              width: 52,
-                              height: 40,
-                              fit: BoxFit.cover,
-                            ),
+                          IconTap(
+                            'arrow-left',
+                            '返回',
+                            () => Navigator.pop(context),
                           ),
-                          const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   s.source?.title ?? film.title,
-                                  style: const TextStyle(
-                                    fontSize: DS.sectionSize,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  key: const Key('watch-header-title'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: DS.toolbar,
                                 ),
+                                const SizedBox(height: DS.space2),
                                 Text(
-                                  '${film.genre} · 2026${film.episodes > 1 ? ' · 第 $episode 集' : ''}',
+                                  '${film.genre} · ${film.episodes > 1 ? '第 $episode 集 · 共 ${film.episodes} 集' : '${film.minutes} 分钟'}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: DS.smallFor(context),
                                 ),
                               ],
                             ),
                           ),
-                          OutlinedButton(
-                            onPressed:
-                                s.source == null && !widget.library.preview
-                                ? null
-                                : invite,
-                            child: const Text('邀请一起看'),
-                          ),
+                          IconTap('ellipsis', '播放器更多功能', () => _more(controls)),
                         ],
                       ),
                     ),
-                  if (!composing && shared)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        children: [
-                          const MountainAvatar(initial: '满', size: 24),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(_status(), style: DS.smallFor(context)),
-                          ),
-                          Text('同步预览', style: DS.smallFor(context)),
-                        ],
-                      ),
-                    ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DSTabs(
-                          labels: const ['交流', '简介'],
-                          index: tab,
-                          onChanged: (i) {
-                            FocusScope.of(context).unfocus();
-                            setState(() => tab = i);
-                          },
+                    if (!composing && bounds.maxHeight >= 400)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DS.pageInset,
                         ),
-                      ),
-                      if (film.episodes > 1)
-                        TextButton(
-                          onPressed: () async {
-                            final next = await showEpisodes(
-                              context,
-                              film,
-                              episode,
-                              shared: shared,
-                            );
-                            if (next != null && mounted)
-                              setState(() => episode = next);
-                          },
-                          child: Text('选集 · $episode'),
-                        ),
-                      IconTap(
-                        'sliders-horizontal',
-                        '播放与音频',
-                        () => openPage(
-                          context,
-                          AudioSettingsPage(
-                            library: widget.library,
-                            player: controls,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 1),
-                  Expanded(
-                    child: MotionTabs(
-                      index: tab,
-                      children: [
-                        ChatPanel(
-                          library: widget.library,
-                          onInvite: invite,
-                          onVolumeChanged: (v) =>
-                              s.core.mediaPlayer?.setVolume(v * 100),
-                        ),
-                        ListView(
-                          padding: const EdgeInsets.all(DS.pageInset),
-                          children: [
-                            Text(
-                              s.source?.title ?? film.title,
-                              style: DS.section,
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: bounds.maxHeight * .4,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              film.synopsis,
-                              style: DS.body.copyWith(
-                                color: DSPalette.of(context).muted,
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  DS.panelRadius,
+                                ),
+                                child: s.source == null
+                                    ? WatchCover(
+                                        cover: homeArtwork(
+                                          film,
+                                          landscape: true,
+                                        ),
+                                        onChoose: () => controlsKey.currentState
+                                            ?.chooseSource(),
+                                      )
+                                    : surface,
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '片目为设计预览，选择的视频以实际文件为准。',
-                              style: DS.smallFor(context),
-                            ),
-                            const SizedBox(height: 12),
-                            PlayerQuickActions(player: controls),
-                          ],
+                          ),
                         ),
-                      ],
+                      ),
+                    if (controls.error != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DS.pageInset,
+                        ),
+                        child: Text(
+                          controls.error!,
+                          style: DS.small.copyWith(color: p.amber),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        DS.pageInset,
+                        DS.space4,
+                        DS.pageInset,
+                        DS.space12,
+                      ),
+                      child: WatchControls(
+                        key: controlsKey,
+                        player: controls,
+                        library: widget.library,
+                        shared: shared,
+                        status: _status(),
+                        onInvite: invite,
+                        onPeerReady: !intent.peerReady
+                            ? () {
+                                intent.peer(true);
+                                setState(
+                                  () => widget.library.scenario =
+                                      intent.manuallyPaused
+                                      ? 'manual-pause'
+                                      : 'normal',
+                                );
+                              }
+                            : null,
+                        onEndPreview: shared
+                            ? () {
+                                intent.peer(true);
+                                setState(
+                                  () => widget.library.scenario =
+                                      'private-chat-empty',
+                                );
+                              }
+                            : null,
+                      ),
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, DS.space12),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: DS.pageInset + DS.space12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: DSTabs(
+                                        labels: const ['交流', '简介'],
+                                        index: tab,
+                                        onChanged: (i) {
+                                          FocusScope.of(context).unfocus();
+                                          setState(() => tab = i);
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: DS.space8),
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          DSIcon(
+                                            'lock-keyhole',
+                                            size: DS.chevronSize,
+                                            color: p.muted,
+                                          ),
+                                          const SizedBox(width: DS.space4),
+                                          Flexible(
+                                            child: Text(
+                                              '私密交流',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: DS.smallFor(context),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: DS.pageInset + DS.space12,
+                                ),
+                                child: Divider(height: 1),
+                              ),
+                              Expanded(
+                                child: MotionTabs(
+                                  index: tab,
+                                  children: [
+                                    ChatPanel(
+                                      library: widget.library,
+                                      compact: true,
+                                      onInvite: invite,
+                                      composerHeader: WatchComposerBar(
+                                        player: controls,
+                                        shared: shared,
+                                        episode: film.episodes > 1
+                                            ? episode
+                                            : null,
+                                        onTogether: () => controlsKey
+                                            .currentState
+                                            ?.showTogether(),
+                                        onEpisode: _selectEpisode,
+                                        onQuality: () => controlsKey
+                                            .currentState
+                                            ?.chooseQuality(),
+                                      ),
+                                    ),
+                                    ListView(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal:
+                                            DS.pageInset + DS.panelPadding,
+                                        vertical: DS.panelPadding,
+                                      ),
+                                      children: [
+                                        Text(
+                                          film.synopsis,
+                                          style: DS.body.copyWith(
+                                            color: p.muted,
+                                          ),
+                                        ),
+                                        const SizedBox(height: DS.space12),
+                                        Text(
+                                          '片目为设计预览，选择的视频以实际文件为准。',
+                                          style: DS.smallFor(context),
+                                        ),
+                                        const SizedBox(height: DS.space12),
+                                        PlayerQuickActions(player: controls),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
         );
+
+  Future<void> _selectEpisode() async {
+    final next = await showEpisodes(context, film, episode, shared: shared);
+    if (next != null && mounted) setState(() => episode = next);
+  }
+
   String _status() => switch (widget.library.scenario) {
     'peer-buffering' => '小满正在缓冲 · 等待准备',
     'peer-offline' => '小满已断线 · 等待重连',
     'manual-pause' => '已手动暂停 · 等待你点击播放',
-    _ => shared ? '你和小满 · 预览同看状态' : '好看的，想和你聊聊',
+    _ => shared ? '你和小满 · 预览同看状态' : '个人观看 · 尚未加入房间',
   };
-  Future<void> _more(PlayerPresentation p) => showModalBottomSheet<void>(
+  Future<void> _more(PlayerPresentation p) => showDSSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (c) => SafeArea(
