@@ -3,9 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'app/duoscene_app.dart';
+import 'core/performance_capture.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  if (!kReleaseMode && const bool.fromEnvironment('PERF_CAPTURE'))
+    startPerformanceCapture();
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks([
       'Lucide icons',

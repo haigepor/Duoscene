@@ -1,6 +1,7 @@
 # Duoscene 架构分析与 Android 构建交付
 
 日期：2026-10-21。分析基线：`4d43b176cf1be724ab3b97972814dee296f600ef`。
+后续验证：本机隔离 MySQL/API 和固定测试账号已配置并通过真机登录，见 [测试账号记录](test-account-20261021.zh.md)；本页未配置后端等状态保留为打包当时的记录。
 本次采用 L 级 Research → Design → Implement → Verify → Review；实现范围仅为构建环境、工作流和文档。
 结论以本次读取的源码和命令结果为准；旧文档中的模拟器验收属于历史证据。
 

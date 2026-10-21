@@ -4,7 +4,7 @@ import { extname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const ignored = new Set(['.git', '.local', '.gradle', '.idea', '.playwright-mcp', 'Pods', '.symlinks', 'node_modules', '.dart_tool', 'dist', 'build', 'coverage', 'secrets', 'backups']);
+const ignored = new Set(['.git', '.local', '.gradle', '.idea', '.playwright-mcp', 'Pods', '.symlinks', 'node_modules', '.dart_tool', 'dist', 'build', 'output', 'coverage', 'secrets', 'backups']);
 const extensions = new Set(['.md', '.json', '.yaml', '.yml', '.ts', '.mjs', '.dart', '.sql']);
 const plainFiles = new Set(['.gitignore', '.gitattributes', '.editorconfig', '.env.example', '.node-version', '.npmrc']);
 const decoder = new TextDecoder('utf-8', { fatal: true });

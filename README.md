@@ -3,9 +3,19 @@
 两个人共享一间私密观影室：Flutter 手机端同步观影、文字聊天和双人语音。
 视频由两台手机分别从视频源/CDN 拉取；API 只负责账户、房间、状态和信令。
 
-**当前阶段：私有账户/房间后端及 Flutter 登录、建房、邀请加入及 Playra 播放内核、功能与页面已集成，并通过官方/雷电模拟器 MP4/HLS 验收。**
-Docker Desktop、WSL2 和 MySQL 开发环境已就绪；数据库迁移已执行。
-移动端已通过真实后端 HTTP 联调；Android 构建/设备证据见下方验证记录。未部署生产或创建远程资源。
+**当前阶段：已接入首个前端播放源，恢复原页面样式，完善图片、真实筛选与短剧控制，并完成本机 LAN/Profile 首轮验证；尚非生产交付。**
+后端仅负责账户、房间、通讯与信令，不代理媒体或处理播放源协议。Playra 播放核心已集成，本轮没有重复替换播放器内核。
+Compose 开发环境与手机测试环境分别记录；当前手机测试使用独立本机 MySQL/API，不覆盖既有 `.env` 或数据库。
+
+## 最新整理与验证（2026-10-22）
+
+- [本轮提交说明、测试矩阵与已知限制](docs/git-delivery-20261022.zh.md)
+- [全页面原样式恢复](docs/style-restoration-20261022.zh.md)、[图片/真实筛选/短剧播放器](docs/provider-rendering-refinement-20261022.zh.md)
+- [播放源协议与接口分析](docs/whisklet-provider-analysis-20261022.zh.md)
+- [同一 Wi-Fi 启动与 Profile 打包](docs/lan-development-20261022.zh.md)、[测试账号](docs/test-account-20261021.zh.md)
+- [Playra 性能、播放链路与 APK 体积对照](docs/playra-performance-study-20261022.zh.md)
+
+已完成的研究/构建切片与未完成的绘制、播放编排优化分别列在 OpenSpec tasks；不把 Debug→Profile 模式差异当作全部性能问题已解决。历史验证文档保留当时状态，以最新报告的边界为准。
 
 ```text
 apps/mobile/       Flutter 登录/房间/Playra 播放器、会话与 HTTP 客户端、Android/iOS 工程与测试
@@ -36,7 +46,7 @@ npm run build
 
 ## 后续开发命令
 
-当前 MySQL 位于 `127.0.0.1:3307`，避开本机已有3306服务；凭据在被忽略的 `.env`。
+Compose 开发 MySQL 使用 `127.0.0.1:3307`；本机手机专用测试实例使用 `127.0.0.1:33307`。前者凭据在被忽略的 `.env`，后者在 `.local/test-account/`，均不提交。
 Docker Desktop启动后，可用以下命令启动开发数据库；管理员账户需按实际需要手动创建：
 
 ```sh
@@ -54,8 +64,8 @@ npm run dev:api
 ```
 
 - `GET /health/live`：进程存活。
-- `GET /health/ready`：数据库连通且六个预期迁移 APPLIED 才成功，否则503。
-- `/api/v1/auth/*`、`/api/v1/rooms/*` 已有实现；WS、片源解析和语音尚未实现；单机播放器已接入。
+- `GET /health/ready`：数据库连通且九个预期迁移 APPLIED 才成功，否则503。
+- `/api/v1/auth/*`、`/api/v1/rooms/*` 与 WebSocket 通讯已有实现；播放源解码和播放解析在 Flutter 前端进行。
 - `DATABASE_MODE=disabled` 仅供骨架开发，生产模式会拒绝该配置。
 
 Flutter 的环境加载、API 地址、USB 手机连接与测试说明见 [apps/mobile](apps/mobile/README.md)。
@@ -76,13 +86,13 @@ npm run test:mysql
 ## 已确认约束
 
 - App：Flutter/Dart；播放器固定为 Playra 当前 media-kit 分支，语音使用 flutter_webrtc。
-- 服务：单 API 进程、Fastify、标准 WebSocket（未来 @fastify/websocket）。
+- 服务：单 API 进程、Fastify、标准 WebSocket（@fastify/websocket）。
 - 存储：MySQL 8.4 LTS、mysql2 连接池、参数化 SQL 与显式事务。
 - 语音：WebRTC P2P + coturn；WS 不传电影或语音媒体。
 - 运维：单 Linux VPS + Docker Compose + HTTPS/WSS；首版无需 Redis。
 - 私有两账户、关闭公开注册、最多两名持久房间成员。
 
 版本核验与官方资料见 [versions.md](docs/versions.md)，实际验证状态见
-[verification.md](docs/verification.md)。播放同步、语音和正式平台签名尚未实现，尚非生产就绪交付。
+[verification.md](docs/verification.md)。同步/语音已有基础实现，但两设备跨网、长时间运行与性能仍需专项验收；正式平台签名未交付，尚非生产就绪。
 
 播放器安装包、雷电 OpenGL 兼容设置、实际截图和平台限制见 [player-verification.md](docs/player-verification.md)。

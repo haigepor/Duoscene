@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/api_client.dart';
+import '../core/api_endpoint.dart';
 import '../features/auth/login_page.dart';
 import '../features/auth/session.dart';
 import '../features/auth/token_store.dart';
@@ -32,15 +33,12 @@ class _DuosceneAppState extends State<DuosceneApp> {
       final fallback = defaultTargetPlatform == TargetPlatform.android
           ? 'http://10.0.2.2:3000'
           : 'http://127.0.0.1:3000';
-      final origin = Uri.tryParse(
+      final origin = apiEndpoint(
         configured.isEmpty && kDebugMode ? fallback : configured,
+        debug: !kReleaseMode,
+        allowLanHttp: const bool.fromEnvironment('ALLOW_LAN_HTTP'),
       );
-      final local =
-          origin != null &&
-          ['127.0.0.1', 'localhost', '10.0.2.2', '::1'].contains(origin.host);
-      if (origin != null &&
-          (origin.scheme == 'https' ||
-              (kDebugMode && local && origin.scheme == 'http'))) {
+      if (origin != null) {
         try {
           _session = Session(ApiClient(origin), SecureTokenStore(origin));
         } on ArgumentError {

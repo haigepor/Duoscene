@@ -34,3 +34,4 @@ build/
 *.iml
 .DS_Store
 Thumbs.db
+.vscode/private-folder-alias.json
