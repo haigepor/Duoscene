@@ -108,6 +108,97 @@ void main() {
       expect(t.hasRunningAnimations, false);
     },
   );
+  testWidgets('hidden tabs defer parent updates until they become visible', (
+    t,
+  ) async {
+    var index = 0;
+    var revision = 0;
+    final builds = [0, 0, 0];
+    late StateSetter update;
+    await t.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            update = setState;
+            final currentRevision = revision;
+            return Scaffold(
+              body: MotionTabs(
+                index: index,
+                children: [
+                  for (var i = 0; i < 3; i++)
+                    Builder(
+                      builder: (_) {
+                        builds[i]++;
+                        return Text('page $i revision $currentRevision');
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+    for (final next in [1, 2]) {
+      update(() => index = next);
+      await t.pumpAndSettle();
+    }
+    builds.fillRange(0, builds.length, 0);
+    update(() => revision++);
+    await t.pumpAndSettle();
+    expect(builds[0], 0, reason: 'hidden home must not rebuild on another tab');
+    expect(
+      builds[1],
+      0,
+      reason: 'hidden history must not rebuild on another tab',
+    );
+    expect(builds[2], greaterThan(0));
+    update(() => index = 0);
+    await t.pumpAndSettle();
+    expect(find.text('page 0 revision 1'), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
+  testWidgets('covered shell pauses tickers and restores the same tab state', (
+    t,
+  ) async {
+    var covered = false;
+    late StateSetter update;
+    await t.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            update = setState;
+            return Scaffold(
+              body: MotionTabs(
+                index: 0,
+                isCovered: covered,
+                children: const [_CounterPage()],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+    await t.tap(find.text('count 0'));
+    await t.pumpAndSettle();
+    final original = t.element(find.text('count 1'));
+    update(() => covered = true);
+    await t.pumpAndSettle();
+    expect(
+      TickerMode.valuesOf(t.element(find.text('count 1'))).enabled,
+      isFalse,
+    );
+    expect(find.text('count 1').hitTestable(), findsNothing);
+    update(() => covered = false);
+    await t.pumpAndSettle();
+    expect(
+      TickerMode.valuesOf(t.element(find.text('count 1'))).enabled,
+      isTrue,
+    );
+    expect(identical(original, t.element(find.text('count 1'))), isTrue);
+    expect(find.text('count 1').hitTestable(), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
   testWidgets(
     'scroll header fades continuously and stays pinned while content scrolls',
     (t) async {
@@ -152,6 +243,53 @@ void main() {
       controller.dispose();
     },
   );
+  testWidgets('route reversal preserves the covered page and input', (t) async {
+    final input = TextEditingController();
+    for (final reducedMotion in [false, true]) {
+      final navigator = GlobalKey<NavigatorState>();
+      await t.pumpWidget(
+        MaterialApp(
+          key: UniqueKey(),
+          navigatorKey: navigator,
+          theme: duosceneTheme,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(disableAnimations: reducedMotion),
+            child: child!,
+          ),
+          home: Scaffold(
+            body: Column(
+              children: [
+                TextField(controller: input),
+                const _CounterPage(),
+              ],
+            ),
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField), '保留输入');
+      await t.tap(find.text('count 0'));
+      await t.pumpAndSettle();
+      final original = t.element(find.byType(TextField));
+      navigator.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              const Scaffold(body: Center(child: Text('secondary page'))),
+        ),
+      );
+      await t.pump();
+      await t.pump(const Duration(milliseconds: 80));
+      navigator.currentState!.pop();
+      await t.pumpAndSettle();
+      expect(input.text, '保留输入');
+      expect(identical(original, t.element(find.byType(TextField))), isTrue);
+      expect(find.text('count 1'), findsOneWidget);
+      expect(t.takeException(), isNull);
+      await t.pumpWidget(const SizedBox());
+    }
+    input.dispose();
+  });
   testWidgets('short scroll extents complete the header fade at the end', (
     t,
   ) async {

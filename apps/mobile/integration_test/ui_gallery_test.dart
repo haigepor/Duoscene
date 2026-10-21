@@ -1,3 +1,21 @@
+import 'package:duoscene/design/theme_preferences.dart';
+import 'package:duoscene/features/experience/appearance_page.dart';
+import 'package:duoscene/features/catalog/collection_pages.dart';
+import 'package:duoscene/features/auth/account_access_page.dart';
+
+import 'dart:convert';
+import 'dart:ui' as ui;
+
+import 'package:flutter/services.dart';
+import 'package:duoscene/core/api_client.dart';
+import 'package:duoscene/core/models.dart';
+import 'package:duoscene/features/auth/session.dart';
+import 'package:duoscene/features/auth/token_store.dart';
+import 'package:duoscene/features/rooms/room_repository.dart';
+import 'package:duoscene/features/rooms/room_form_page.dart';
+import 'package:duoscene/features/rooms/room_list_page.dart';
+import 'package:duoscene/features/rooms/room_detail_page.dart';
+import 'package:http/testing.dart';
 import 'package:duoscene/app/theme.dart';
 import 'package:duoscene/design/palette.dart';
 import 'package:duoscene/features/experience/preview_gallery.dart';
@@ -23,6 +41,36 @@ void main() {
       addTearDown(() => binding.shouldPropagateDevicePointerEvents = propagate);
       const base = String.fromEnvironment('UI_CAPTURE_BASE');
       expect(base, isNotEmpty, reason: 'Run tool/ui-native.mjs');
+      final decodeResults = <Map<String, Object>>[];
+      final bytes = await rootBundle.load(
+        'assets/design/media/media-mountains-landscape.png',
+      );
+      for (var trial = 0; trial < 5; trial++) {
+        for (final width in [null, 1080]) {
+          final stopwatch = Stopwatch()..start();
+          final codec = await ui.instantiateImageCodec(
+            bytes.buffer.asUint8List(),
+            targetWidth: width,
+          );
+          final frame = await codec.getNextFrame();
+          stopwatch.stop();
+          decodeResults.add({
+            'trial': trial,
+            'targetWidth': width ?? 0,
+            'width': frame.image.width,
+            'height': frame.image.height,
+            'rgbaBytes': frame.image.width * frame.image.height * 4,
+            'microseconds': stopwatch.elapsedMicroseconds,
+          });
+          frame.image.dispose();
+          codec.dispose();
+        }
+      }
+      binding.reportData = {'mediaDecode': decodeResults};
+      debugPrint(
+        'MEDIA_DECODE_BENCHMARK ${jsonEncode(decodeResults)}',
+        wrapWidth: null,
+      );
       var converted = false;
       final cases = <({int page, String state, String name})>[
         for (var i = 0; i < 18; i++)
@@ -145,10 +193,7 @@ void main() {
           await tester.pump(const Duration(milliseconds: 100));
         }
       }
-      for (final theme in {
-        'dark': DSPalette.dark,
-        'forest': DSPalette.woodland,
-      }.entries) {
+      for (final theme in {'dark': DSPalette.dark}.entries) {
         for (var page = 0; page < 18; page++) {
           final name = 'state-${theme.key}-${page + 1}';
           await tester.pumpWidget(
@@ -190,11 +235,112 @@ void main() {
         );
       }
 
+      // 真实原生组件 + 隔离的 HTTP fixture，不写入用户账户或创建真实房间。
+      final roomData = <String, Object>{
+        'id': 'gallery-room',
+        'name': '周末放映室',
+        'ownerUserId': 'gallery-user',
+        'status': 'OPEN',
+        'members': [
+          {
+            'userId': 'gallery-user',
+            'displayName': 'Local Tester',
+            'seatNo': 1,
+          },
+        ],
+      };
+      final auth = Session(
+        ApiClient(
+          Uri.parse('http://127.0.0.1:3000'),
+          client: MockClient((request) async {
+            final Object data = request.url.path.endsWith('/auth/login')
+                ? {
+                    'accessToken': 'gallery-access',
+                    'refreshToken': 'gallery-refresh',
+                    'user': {
+                      'id': 'gallery-user',
+                      'username': 'localtest',
+                      'displayName': 'Local Tester',
+                    },
+                  }
+                : request.url.path.endsWith('/rooms')
+                ? {
+                    'items': [roomData],
+                    'nextCursor': null,
+                  }
+                : roomData;
+            return http.Response(
+              jsonEncode({'data': data}),
+              200,
+              headers: {'content-type': 'application/json; charset=utf-8'},
+            );
+          }),
+        ),
+        _GalleryTokenStore(),
+      );
+      await auth.login('gallery-fixture', 'fixture-only');
+      final rooms = RoomRepository(auth);
+      for (final theme in {
+        'light': DSPalette.light,
+        'dark': DSPalette.dark,
+      }.entries) {
+        final preferences = ThemePreferences()
+          ..mode = theme.key == 'dark' ? ThemeMode.dark : ThemeMode.light;
+        final secondaryLibrary = LibraryState(
+          accountId: 'secondary-history',
+          preview: true,
+        );
+        for (final item in <String, Widget>{
+          'appearance': ThemePreferencesScope(
+            preferences: preferences,
+            child: const AppearancePage(),
+          ),
+          'history-personal': HistoryPage(
+            library: secondaryLibrary,
+            onBrowse: () {},
+            sharedScope: false,
+            secondary: true,
+          ),
+          'history-shared': HistoryPage(
+            library: secondaryLibrary,
+            onBrowse: () {},
+            sharedScope: true,
+            secondary: true,
+          ),
+          'register': AccountAccessPage(session: auth),
+          'recovery': AccountAccessPage(session: auth, recover: true),
+          'create': RoomFormPage(rooms: rooms, join: false),
+          'join': RoomFormPage(rooms: rooms, join: true),
+          'list': RoomListPage(session: auth, rooms: rooms),
+          'detail': RoomDetailPage(
+            initialRoom: Room.fromJson(roomData),
+            rooms: rooms,
+            userId: auth.user!.id,
+          ),
+        }.entries) {
+          await tester.pumpWidget(
+            MaterialApp(
+              key: UniqueKey(),
+              theme: buildDuosceneTheme(theme.value),
+              builder: themeSystemBars,
+              debugShowCheckedModeBanner: false,
+              home: item.value,
+            ),
+          );
+          await capture('state-room-${item.key}-${theme.key}');
+          await tester.pumpWidget(const SizedBox());
+          await settle();
+        }
+        preferences.dispose();
+        secondaryLibrary.dispose();
+      }
+      auth.dispose();
+
       final library = LibraryState(accountId: 'motion-preview', preview: true);
       await tester.pumpWidget(
         MaterialApp(
           theme: duosceneTheme,
-            builder: themeSystemBars,
+          builder: themeSystemBars,
           debugShowCheckedModeBanner: false,
           home: AppShell(preview: true, library: library),
         ),
@@ -237,7 +383,7 @@ void main() {
         MaterialApp(
           key: const ValueKey('stars-composition'),
           theme: duosceneTheme,
-            builder: themeSystemBars,
+          builder: themeSystemBars,
           debugShowCheckedModeBanner: false,
           home: ExperiencePlayer(film: films[2], library: library),
         ),
@@ -245,9 +391,13 @@ void main() {
       await capture('state-player-stars');
       final assetNames = tester
           .widgetList<Image>(find.byType(Image))
-          .map((i) => i.image)
+          .map(
+            (image) => image.image is ResizeImage
+                ? (image.image as ResizeImage).imageProvider
+                : image.image,
+          )
           .whereType<AssetImage>()
-          .map((i) => i.assetName);
+          .map((image) => image.assetName);
       expect(assetNames, contains(films[2].image));
       await tester.tap(find.text('简介'));
       await settle();
@@ -262,4 +412,19 @@ void main() {
     },
     timeout: const Timeout(Duration(minutes: 9)),
   );
+}
+
+class _GalleryTokenStore implements TokenStore {
+  String? value;
+  @override
+  Future<String?> read() async => value;
+  @override
+  Future<void> write(String next) async {
+    value = next;
+  }
+
+  @override
+  Future<void> clear() async {
+    value = null;
+  }
 }

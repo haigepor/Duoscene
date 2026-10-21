@@ -139,20 +139,22 @@ void main() {
       await tap(find.text('返回登录'));
       await report('register-recover');
       await tap(find.byTooltip('切换外观'));
-      await tap(find.text('晴空'));
       await tap(find.text('深色'));
-      expect(Theme.of(tester.element(find.byType(AppearancePage))).brightness,
-        Brightness.dark);
-      await tap(find.text('森林'));
-      await tap(find.text('晴空'));
+      expect(
+        Theme.of(tester.element(find.byType(AppearancePage))).brightness,
+        Brightness.dark,
+      );
+      await tap(find.text('跟随系统'));
       await tap(find.text('浅色'));
-      expect(Theme.of(tester.element(find.byType(AppearancePage))).brightness,
-        Brightness.light);
+      expect(
+        Theme.of(tester.element(find.byType(AppearancePage))).brightness,
+        Brightness.light,
+      );
       await tap(find.byTooltip('返回'));
       await report('appearance-controls');
       await tester.enterText(find.byKey(const Key('username')), username);
       await tester.enterText(find.byKey(const Key('password')), password);
-      await tap(find.text('登录 Duoscene'));
+      await tap(find.text('登录'));
       await until(
         () => find.byKey(const Key('tab-3')).evaluate().isNotEmpty,
         'real login',
@@ -190,7 +192,7 @@ void main() {
           await pump(3);
         }
         expect(invitation['token'], isNotNull);
-        await tap(find.text('使用邀请码加入'));
+        await tap(find.text('邀请加入'));
         await tester.enterText(
           find.byKey(const Key('invite-token')),
           invitation['token'] as String,
@@ -269,7 +271,7 @@ void main() {
         tester.element(find.byType(RoomWatchPage)),
       )!;
       final nativePlayer = player.core.mediaPlayer;
-      for (final theme in [DSTheme.forest, DSTheme.sky]) {
+      for (final theme in DSTheme.values) {
         await appearance.change(theme: theme, brightness: ThemeMode.light);
         await pump(5);
         expect(identical(page.room, room), isTrue);
@@ -311,8 +313,11 @@ void main() {
       );
       await pump(8);
       expect(find.byType(PlayerPage), findsOneWidget);
-      expect(identical(player.core.mediaPlayer, nativePlayer), isTrue,
-        reason: 'opening the keyboard must retain the native player');
+      expect(
+        identical(player.core.mediaPlayer, nativePlayer),
+        isTrue,
+        reason: 'opening the keyboard must retain the native player',
+      );
       await tap(find.byKey(const Key('live-chat-send')));
       await until(
         () => room.messages.any(

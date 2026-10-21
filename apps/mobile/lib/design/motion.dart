@@ -1,13 +1,24 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'tokens.dart';
 
 /// 借鉴 Playra MobileTabView：缓存 Element，反向切换从当前绘制位置继续。
-/// children 仍随父级更新，避免缓存旧闭包导致账户、收藏或播放 active 状态过期。
+/// 前台同步父级更新，后台延迟到重新可见时更新，保留输入与滚动状态。
 class MotionTabs extends StatefulWidget {
-  const MotionTabs({super.key, required this.index, required this.children});
+  const MotionTabs({
+    super.key,
+    required this.index,
+    required this.children,
+    this.isCovered = false,
+    this.preparingIndex,
+  });
   final int index;
   final List<Widget> children;
+  final bool isCovered;
+
+  /// 只预布局用户已点击的目标页；保持不可见，由 index 提交后统一启动过渡。
+  final int? preparingIndex;
   @override
   State<MotionTabs> createState() => _MotionTabsState();
 }
@@ -25,7 +36,21 @@ class _MotionTabsState extends State<MotionTabs>
           }
         });
   late final visited = <int>{widget.index};
+  final pages = <int, Widget>{};
   late Map<int, double> from = {widget.index: 0}, to = {widget.index: 0};
+  @override
+  void initState() {
+    super.initState();
+    prepare();
+  }
+
+  void prepare() {
+    final index = widget.preparingIndex;
+    if (index == null) return;
+    assert(index >= 0 && index < widget.children.length);
+    visited.add(index);
+  }
+
   double offset(int i) =>
       (from[i] ?? 0) +
       ((to[i] ?? 0) - (from[i] ?? 0)) *
@@ -33,7 +58,10 @@ class _MotionTabsState extends State<MotionTabs>
   @override
   void didUpdateWidget(covariant MotionTabs oldWidget) {
     super.didUpdateWidget(oldWidget);
+    prepare();
     if (oldWidget.index == widget.index) return;
+    // 离开的页面仍需接收 active=false，让轮播和短剧及时停止。
+    pages[oldWidget.index] = widget.children[oldWidget.index];
     final direction = widget.index > oldWidget.index ? 1.0 : -1.0;
     final positions = {for (final i in from.keys) i: offset(i)};
     controller.stop();
@@ -58,10 +86,16 @@ class _MotionTabsState extends State<MotionTabs>
   }
 
   @override
-  Widget build(BuildContext context) => ClipRect(
-    child: AnimatedBuilder(
-      animation: controller,
-      builder: (context, _) => Stack(
+  Widget build(BuildContext context) {
+    for (final i in visited) {
+      if (from.containsKey(i) ||
+          i == widget.preparingIndex ||
+          !pages.containsKey(i)) {
+        pages[i] = widget.children[i];
+      }
+    }
+    return ClipRect(
+      child: Stack(
         fit: StackFit.expand,
         children: [
           for (final i in [
@@ -72,35 +106,45 @@ class _MotionTabsState extends State<MotionTabs>
               key: ValueKey(i),
               child: Offstage(
                 offstage: !from.containsKey(i),
-                child: FractionalTranslation(
-                  translation: Offset(offset(i) * .035, 0),
-                  child: Opacity(
-                    opacity: (1 - offset(i).abs()).clamp(0.0, 1.0),
-                    child: TickerMode(
-                      enabled: i == widget.index,
-                      child: ExcludeFocus(
-                        excluding: i != widget.index,
-                        child: ExcludeSemantics(
-                          excluding: i != widget.index,
-                          child: IgnorePointer(
-                            ignoring: i != widget.index,
-                            child: RepaintBoundary(child: widget.children[i]),
-                          ),
+                child: AnimatedBuilder(
+                  // 逐帧仅移动可见页面，不重建整棵分页布局。
+                  animation: from.containsKey(i)
+                      ? controller
+                      : kAlwaysDismissedAnimation,
+                  child: TickerMode(
+                    enabled: !widget.isCovered && i == widget.index,
+                    child: ExcludeFocus(
+                      excluding: widget.isCovered || i != widget.index,
+                      child: ExcludeSemantics(
+                        excluding: widget.isCovered || i != widget.index,
+                        child: IgnorePointer(
+                          ignoring: widget.isCovered || i != widget.index,
+                          child: RepaintBoundary(child: pages[i]),
                         ),
                       ),
                     ),
+                  ),
+                  builder: (context, child) => FractionalTranslation(
+                    translation: Offset(offset(i), 0),
+                    child: child,
                   ),
                 ),
               ),
             ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 class DSPageTransitions extends PageTransitionsBuilder {
   const DSPageTransitions();
+
+  @override
+  Duration get transitionDuration => DSMotion.navigation;
+  @override
+  Duration get reverseTransitionDuration => DSMotion.standard;
+
   @override
   Widget buildTransitions<T>(
     PageRoute<T> route,
@@ -110,13 +154,19 @@ class DSPageTransitions extends PageTransitionsBuilder {
     Widget child,
   ) {
     if (MediaQuery.disableAnimationsOf(context)) return child;
-    final enter = animation.drive(CurveTween(curve: DSMotion.curve));
-    return SlideTransition(
-      position: Tween(
-        begin: const Offset(.08, 0),
-        end: Offset.zero,
-      ).animate(enter),
-      child: FadeTransition(opacity: enter, child: child),
+    // 与 Playra 的统一平台路由一致：移动端侧滑，桌面端轻量上移。
+    final transitions = switch (Theme.of(context).platform) {
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => const CupertinoPageTransitionsBuilder(),
+      _ => const FadeUpwardsPageTransitionsBuilder(),
+    };
+    return transitions.buildTransitions(
+      route,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
     );
   }
 }
@@ -129,40 +179,56 @@ class DSTabs extends StatelessWidget {
     required this.index,
     required this.onChanged,
     this.pill = false,
-  });
+    this.ticket = false,
+  }) : assert(!ticket || pill);
   final List<String> labels;
   final int index;
   final ValueChanged<int> onChanged;
   final bool pill;
+  final bool ticket;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, c) {
       final height =
           (MediaQuery.textScalerOf(context).scale(DS.bodySize) * 1.4 + 24)
               .clamp(DS.touchTarget, 80.0);
+      final pillHeight =
+          (MediaQuery.textScalerOf(context).scale(DS.bodySize) * 1.4 +
+                  (ticket ? 8 : 10))
+              .clamp(28.0, height - 8);
       return SizedBox(
         height: height,
         child: Stack(
           children: [
-            AnimatedPositioned(
-              duration: DSMotion.duration(context),
-              curve: DSMotion.curve,
-              left:
-                  c.maxWidth / labels.length * index +
-                  (pill ? 3 : (c.maxWidth / labels.length - 24) / 2),
-              bottom: pill ? 4 : 3,
-              width: pill ? c.maxWidth / labels.length - 6 : 24,
-              height: pill ? height - 8 : 2,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: pill
-                      ? DSPalette.of(context).primary.withValues(alpha: .14)
-                      : DSPalette.of(context).primary,
-                  borderRadius: BorderRadius.circular(
-                    pill ? DS.radiusSmall : 2,
-                  ),
-                ),
+            AnimatedPositionedDirectional(
+              duration: DSMotion.duration(
+                context,
+                pill ? DSMotion.navigation : DSMotion.standard,
               ),
+              curve: DSMotion.curve,
+              start:
+                  c.maxWidth / labels.length * index +
+                  (pill ? 4 : (c.maxWidth / labels.length - 24) / 2),
+              bottom: pill ? (height - pillHeight) / 2 : DS.space8,
+              width: pill ? c.maxWidth / labels.length - 8 : 24,
+              height: pill ? pillHeight : DS.space2,
+              child: ticket
+                  ? RepaintBoundary(
+                      key: const Key('tabs-pill-indicator'),
+                      child: CustomPaint(
+                        key: const Key('tabs-ticket-paint'),
+                        painter: _TicketIndicator(DSPalette.of(context)),
+                      ),
+                    )
+                  : DecoratedBox(
+                      key: Key(
+                        pill ? 'tabs-pill-indicator' : 'tabs-line-indicator',
+                      ),
+                      decoration: BoxDecoration(
+                        color: DSPalette.of(context).primary,
+                        borderRadius: BorderRadius.circular(pill ? 20 : 2),
+                      ),
+                    ),
             ),
             Row(
               children: [
@@ -181,9 +247,16 @@ class DSTabs extends StatelessWidget {
                         onPressed: () => onChanged(i),
                         child: AnimatedDefaultTextStyle(
                           duration: DSMotion.duration(context, DSMotion.fast),
-                          style: DS.label.copyWith(
+                          style: (pill ? DS.body : DS.label).copyWith(
+                            fontWeight: pill
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                             color: index == i
-                                ? DSPalette.of(context).primary
+                                ? pill
+                                      ? ticket
+                                            ? DSPalette.of(context).onTint
+                                            : DSPalette.of(context).onPrimary
+                                      : DSPalette.of(context).primary
                                 : DSPalette.of(context).muted,
                           ),
                           child: Text(labels[i], maxLines: 1),
@@ -198,4 +271,60 @@ class DSTabs extends StatelessWidget {
       );
     },
   );
+}
+
+/// 票签与切口一次绘制；无需位图、背景遮盖或实时模糊，移动时只合成这一层。
+class _TicketIndicator extends CustomPainter {
+  _TicketIndicator(this.palette);
+  final DSPalette palette;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = (Offset.zero & size).deflate(.5);
+    final outline = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(DS.radiusSmall)),
+      );
+    final cuts = Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(0, size.height / 2), radius: DS.space4),
+      )
+      ..addOval(
+        Rect.fromCircle(
+          center: Offset(size.width, size.height / 2),
+          radius: DS.space4,
+        ),
+      );
+    final ticket = Path.combine(PathOperation.difference, outline, cuts);
+    canvas.drawShadow(ticket, palette.primary.withValues(alpha: .12), 1, false);
+    canvas.drawPath(
+      ticket,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [palette.panel.withValues(alpha: .85), palette.tint],
+        ).createShader(rect),
+    );
+    canvas.drawPath(
+      ticket,
+      Paint()
+        ..color = palette.primary.withValues(alpha: .6)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = .75,
+    );
+    final perforation = Paint()
+      ..color = palette.primary.withValues(alpha: .18)
+      ..strokeWidth = .75
+      ..strokeCap = StrokeCap.round;
+    for (final x in [DS.space8, size.width - DS.space8]) {
+      for (double y = DS.space4; y < size.height - DS.space4; y += DS.space4) {
+        canvas.drawLine(Offset(x, y), Offset(x, y + DS.space2), perforation);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _TicketIndicator oldDelegate) =>
+      oldDelegate.palette != palette;
 }

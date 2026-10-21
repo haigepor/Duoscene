@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
-const directory = join(root, '.local/screenshots/ui');
+const directory = join(root, '.local/screenshots/ui-unified-20261021');
 await mkdir(directory, { recursive: true });
 const captures = new Set();
 const server = createServer(async (req, res) => {
@@ -36,7 +36,7 @@ try {
   const child = spawn(command, ['/d', '/s', '/c', `"${[flutter, ...args].map(arg => `"${arg}"`).join(' ')}"`], { cwd: join(root, 'apps/mobile'), stdio: 'inherit', windowsVerbatimArguments: true, windowsHide: true });
   const exit = await new Promise((resolve, reject) => { child.once('error', reject); child.once('exit', resolve); });
   assert.equal(exit, 0, 'Android UI verification failed');
-  assert.equal(captures.size, 82, '54 themed pages, 24 preview states and 4 navigation/scroll/player checks must be captured');
+  assert.equal(captures.size, 82, '54 light/dark routes including rooms/auth/appearance/history, 24 preview states and 4 interaction checks must be captured');
   await writeFile(join(root, '.local/ui-native-result.json'), JSON.stringify({
     status: 'PASS', testedAt: new Date().toISOString(), device,
     captures: [...captures], directory,

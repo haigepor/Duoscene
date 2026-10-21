@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'tokens.dart';
 
@@ -19,6 +20,25 @@ class ScrollChrome extends StatefulWidget {
 
 class _ScrollChromeState extends State<ScrollChrome> {
   final progress = ValueNotifier(0.0);
+  double? pendingProgress;
+
+  void updateProgress(double value) {
+    if (SchedulerBinding.instance.schedulerPhase !=
+        SchedulerPhase.persistentCallbacks) {
+      progress.value = value;
+      return;
+    }
+    // 筛选后列表缩短会在布局中校正滚动位置；此时不能同步要求顶部重建。
+    final scheduled = pendingProgress != null;
+    pendingProgress = value;
+    if (scheduled) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final next = pendingProgress;
+      pendingProgress = null;
+      if (mounted && next != null) progress.value = next;
+    });
+  }
+
   @override
   void dispose() {
     progress.dispose();
@@ -35,8 +55,9 @@ class _ScrollChromeState extends State<ScrollChrome> {
             final extent = available > 0
                 ? available.clamp(1.0, widget.fadeExtent)
                 : widget.fadeExtent;
-            progress.value = ((n.metrics.pixels - widget.fadeStart) / extent)
-                .clamp(0, 1);
+            updateProgress(
+              ((n.metrics.pixels - widget.fadeStart) / extent).clamp(0, 1),
+            );
           }
           return false;
         },

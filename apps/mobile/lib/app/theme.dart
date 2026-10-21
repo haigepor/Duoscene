@@ -5,6 +5,7 @@ import '../design/tokens.dart';
 import '../design/motion.dart';
 
 final duosceneTheme = buildDuosceneTheme(DSPalette.light);
+final duosceneDarkTheme = buildDuosceneTheme(DSPalette.dark);
 
 Widget themeSystemBars(BuildContext context, Widget? child) {
   final p = DSPalette.of(context);
@@ -15,7 +16,9 @@ Widget themeSystemBars(BuildContext context, Widget? child) {
       statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
       statusBarBrightness: light ? Brightness.light : Brightness.dark,
       systemNavigationBarColor: p.bg,
-      systemNavigationBarIconBrightness: light ? Brightness.dark : Brightness.light,
+      systemNavigationBarIconBrightness: light
+          ? Brightness.dark
+          : Brightness.light,
       systemStatusBarContrastEnforced: false,
       systemNavigationBarContrastEnforced: false,
     ),
@@ -29,6 +32,12 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   brightness: p == DSPalette.light ? Brightness.light : Brightness.dark,
   visualDensity: VisualDensity.standard,
   materialTapTargetSize: MaterialTapTargetSize.padded,
+  // 统一关闭点击、悬停和聚焦的墨水背景；选中图标与文字颜色仍表达状态。
+  splashFactory: NoSplash.splashFactory,
+  splashColor: Colors.transparent,
+  highlightColor: Colors.transparent,
+  hoverColor: Colors.transparent,
+  focusColor: Colors.transparent,
   colorScheme: ColorScheme.fromSeed(
     seedColor: p.primary,
     brightness: p == DSPalette.light ? Brightness.light : Brightness.dark,
@@ -66,8 +75,9 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
     titleMedium: TextStyle(fontSize: 15, height: 1.4),
     titleSmall: TextStyle(fontSize: 13, height: 1.4),
     labelLarge: TextStyle(fontSize: 13, height: 1.2),
-  ),
+  ).apply(bodyColor: p.ink, displayColor: p.ink),
   dividerColor: p.line,
+  dividerTheme: DividerThemeData(color: p.line, thickness: .7, space: 1),
   bottomSheetTheme: BottomSheetThemeData(
     backgroundColor: p.panel,
     modalBackgroundColor: p.panel,
@@ -79,6 +89,7 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
     ),
   ),
   sliderTheme: SliderThemeData(
+    overlayColor: Colors.transparent,
     activeTrackColor: p.primary,
     thumbColor: p.primary,
     inactiveTrackColor: p.line,
@@ -89,7 +100,7 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   appBarTheme: AppBarTheme(
     backgroundColor: p.bg,
     centerTitle: false,
-    titleTextStyle: DS.toolbar,
+    titleTextStyle: DS.toolbar.copyWith(color: p.ink),
     toolbarHeight: DS.toolbarHeight,
     surfaceTintColor: Colors.transparent,
     foregroundColor: p.ink,
@@ -101,9 +112,32 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   ),
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
+      overlayColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
       textStyle: DS.label,
       minimumSize: const Size(48, 48),
     ),
+  ),
+  iconButtonTheme: const IconButtonThemeData(
+    style: ButtonStyle(
+      overlayColor: WidgetStatePropertyAll(Colors.transparent),
+      splashFactory: NoSplash.splashFactory,
+    ),
+  ),
+  elevatedButtonTheme: const ElevatedButtonThemeData(
+    style: ButtonStyle(
+      overlayColor: WidgetStatePropertyAll(Colors.transparent),
+      splashFactory: NoSplash.splashFactory,
+    ),
+  ),
+  switchTheme: const SwitchThemeData(
+    overlayColor: WidgetStatePropertyAll(Colors.transparent),
+  ),
+  checkboxTheme: const CheckboxThemeData(
+    overlayColor: WidgetStatePropertyAll(Colors.transparent),
+  ),
+  radioTheme: const RadioThemeData(
+    overlayColor: WidgetStatePropertyAll(Colors.transparent),
   ),
   expansionTileTheme: const ExpansionTileThemeData(
     tilePadding: EdgeInsets.symmetric(horizontal: 12),
@@ -111,15 +145,25 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: p.subtle,
+    fillColor: p.panel,
     border: OutlineInputBorder(
       borderRadius: const BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(color: p.outline),
+      borderSide: BorderSide(color: p.line),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(DS.radiusMedium),
+      borderSide: BorderSide(color: p.line),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(DS.radiusMedium),
+      borderSide: BorderSide(color: p.primary),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
   ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
+      overlayColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
       minimumSize: const Size(48, 48),
       padding: const EdgeInsets.symmetric(horizontal: 18),
       textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -130,6 +174,8 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
+      overlayColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
       minimumSize: const Size(48, 48),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       textStyle: const TextStyle(fontSize: 13),

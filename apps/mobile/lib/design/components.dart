@@ -4,6 +4,80 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'tokens.dart';
 import 'scroll_chrome.dart';
 
+/// 业务弹层显式恢复语义前景色，避免继承播放器的白色媒体文字。
+Future<T?> showDSSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool isScrollControlled = true,
+  bool useSafeArea = true,
+  bool showDragHandle = true,
+  Color? backgroundColor,
+}) => showModalBottomSheet<T>(
+  context: context,
+  isScrollControlled: isScrollControlled,
+  useSafeArea: useSafeArea,
+  backgroundColor: backgroundColor ?? DSPalette.of(context).panel,
+  showDragHandle: showDragHandle,
+  sheetAnimationStyle: AnimationStyle(
+    duration: DSMotion.duration(context, DSMotion.navigation),
+    reverseDuration: DSMotion.duration(context),
+  ),
+  builder: (context) => DefaultTextStyle(
+    style: DS.body.copyWith(color: DSPalette.of(context).ink),
+    child: IconTheme(
+      data: IconThemeData(color: DSPalette.of(context).ink, size: DS.iconSize),
+      child: builder(context),
+    ),
+  ),
+);
+
+class DSSheetContent extends StatelessWidget {
+  const DSSheetContent({
+    super.key,
+    required this.title,
+    required this.children,
+    required this.closeLabel,
+    this.subtitle,
+  });
+  final String title, closeLabel;
+  final String? subtitle;
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.sizeOf(context).height * .88,
+    ),
+    child: SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          DS.pageInset,
+          0,
+          DS.pageInset,
+          DS.space16 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text(title, style: DS.section)),
+                IconTap('x', closeLabel, () => Navigator.pop(context)),
+              ],
+            ),
+            if (subtitle != null) ...[
+              Text(subtitle!, style: DS.smallFor(context)),
+              const SizedBox(height: DS.space16),
+            ],
+            ...children,
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 class DSIcon extends StatelessWidget {
   const DSIcon(this.name, {super.key, this.size = DS.iconSize, this.color});
   final String name;
@@ -35,8 +109,9 @@ class IconTap extends StatelessWidget {
 }
 
 class Brand extends StatelessWidget {
-  const Brand({super.key, this.size = 24});
+  const Brand({super.key, this.size = 24, this.ringsFirst = false});
   final double size;
+  final bool ringsFirst;
   @override
   Widget build(BuildContext context) => Semantics(
     label: 'Duoscene，两只相交圆环',
@@ -47,6 +122,13 @@ class Brand extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (ringsFirst) ...[
+              CustomPaint(
+                size: Size(size * 1.3, size * .86),
+                painter: _Rings(DSPalette.of(context).primary),
+              ),
+              SizedBox(width: size * .3),
+            ],
             Text(
               'duoscene',
               style: TextStyle(
@@ -57,11 +139,13 @@ class Brand extends StatelessWidget {
                 letterSpacing: -.8,
               ),
             ),
-            SizedBox(width: size * .22),
-            CustomPaint(
-              size: Size(size * .92, size * .65),
-              painter: _Rings(DSPalette.of(context).primary),
-            ),
+            if (!ringsFirst) ...[
+              SizedBox(width: size * .22),
+              CustomPaint(
+                size: Size(size * .92, size * .65),
+                painter: _Rings(DSPalette.of(context).primary),
+              ),
+            ],
           ],
         ),
       ),
@@ -88,54 +172,15 @@ class _Rings extends CustomPainter {
       oldDelegate.color != color;
 }
 
+/// 保留旧背景组件名称供现有调用方使用，材质统一由蓝色主题 token 提供。
 class Forest extends StatelessWidget {
   const Forest({super.key, required this.child, this.hero = false});
   final Widget child;
   final bool hero;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(color: DSPalette.of(context).bg),
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        if (DSPalette.of(context).forest)
-          Positioned.fill(
-            child: Opacity(
-              opacity: hero ? .85 : .5,
-              child: Image.asset(
-                '${DS.media}forest-atmosphere-v2.png',
-                fit: BoxFit.cover,
-                cacheWidth: 1080,
-                excludeFromSemantics: true,
-              ),
-            ),
-          ),
-        if (DSPalette.of(context).forest)
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: hero
-                      ? [
-                          Colors.transparent,
-                          DSPalette.of(context).bg.withValues(alpha: .75),
-                          DSPalette.of(context).bg,
-                        ]
-                      : [
-                          DSPalette.of(context).bg.withValues(alpha: .4),
-                          Colors.transparent,
-                          DSPalette.of(context).bg.withValues(alpha: .8),
-                        ],
-                ),
-              ),
-            ),
-          ),
-        // 背景图之上的控件需要直接 Material 承载墨水反馈，避免被装饰层遮挡。
-        Material(type: MaterialType.transparency, child: child),
-      ],
-    ),
+  Widget build(BuildContext context) => ColoredBox(
+    color: DSPalette.of(context).bg,
+    child: Material(type: MaterialType.transparency, child: child),
   );
 }
 
@@ -176,16 +221,6 @@ class MountainAvatar extends StatelessWidget {
         color: DSPalette.of(context).primary.withValues(alpha: .65),
       ),
       color: DSPalette.of(context).tint,
-      image: DSPalette.of(context).forest
-          ? const DecorationImage(
-              image: AssetImage('${DS.media}media-mountains-landscape.png'),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                Color(0x77457669),
-                BlendMode.srcATop,
-              ),
-            )
-          : null,
     ),
     child: Text(
       initial,
@@ -205,12 +240,14 @@ class PageFrame extends StatelessWidget {
     this.actions,
     this.bottom,
     this.hero = false,
+    this.centerTitle = false,
   });
   final String title;
   final Widget child;
   final List<Widget>? actions;
   final Widget? bottom;
   final bool hero;
+  final bool centerTitle;
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: DSPalette.of(context).bg,
@@ -228,9 +265,23 @@ class PageFrame extends StatelessWidget {
                     'arrow-left',
                     '返回',
                     () => Navigator.maybePop(context),
+                    // 外观页切换主题时，返回图标与页面前景色同步更新。
+                    color: DSPalette.of(context).ink,
                   ),
-                  Expanded(child: Text(title, style: DS.toolbar)),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: DS.toolbar.copyWith(
+                        color: DSPalette.of(context).ink,
+                      ),
+                      textAlign: centerTitle
+                          ? TextAlign.center
+                          : TextAlign.start,
+                    ),
+                  ),
                   ...?actions,
+                  if (centerTitle && actions == null)
+                    const SizedBox(width: DS.touchTarget),
                 ],
               ),
             ),
@@ -262,24 +313,26 @@ class MenuRow extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.trailing,
+    this.compact = false,
   });
   final String icon, title;
   final String? subtitle;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final bool compact;
   @override
   Widget build(BuildContext context) => Material(
-    // 菜单也可独立出现在山景背景上，给墨水与列表背景提供直接的 Material。
+    // 菜单独立承载交互反馈，与页面背景共用语义色。
     type: MaterialType.transparency,
     child: ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 2),
-      minVerticalPadding: 8,
+      minVerticalPadding: compact ? DS.space4 : DS.space8,
       minTileHeight: DS.touchTarget,
       dense: true,
-      minLeadingWidth: DS.navigationIcon,
-      horizontalTitleGap: DS.space12,
-      leading: DSIcon(icon, size: DS.navigationIcon),
-      title: Text(title, style: DS.menuLabel),
+      minLeadingWidth: compact ? DS.iconSmall : DS.navigationIcon,
+      horizontalTitleGap: compact ? DS.space8 : DS.space12,
+      leading: DSIcon(icon, size: compact ? DS.iconSmall : DS.navigationIcon),
+      title: Text(title, style: compact ? DS.label : DS.menuLabel),
       subtitle: subtitle == null
           ? null
           : Text(subtitle!, style: DS.smallFor(context)),
@@ -308,16 +361,18 @@ class ArrowAction extends StatelessWidget {
       padding: const EdgeInsets.only(left: DS.space8),
       minimumSize: const Size(DS.touchTarget, DS.touchTarget),
       textStyle: DS.label,
+      overlayColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
     ),
     onPressed: onTap,
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(label),
-        const SizedBox(width: DS.space2),
+        const SizedBox(width: DS.space4),
         DSIcon(
-          'chevron-right',
-          size: DS.chevronSize,
+          'arrow-right',
+          size: DS.iconSmall,
           color: DSPalette.of(context).primary,
         ),
       ],
@@ -326,14 +381,54 @@ class ArrowAction extends StatelessWidget {
 }
 
 class SectionHeading extends StatelessWidget {
-  const SectionHeading(this.title, {super.key, required this.action});
+  const SectionHeading(
+    this.title, {
+    super.key,
+    required this.action,
+    this.subtitle,
+  });
   final String title;
+  final String? subtitle;
   final Widget action;
   @override
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
-      Expanded(child: Text(title, style: DS.title)),
+      Expanded(
+        child: subtitle == null
+            ? Text(title, style: DS.title)
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  final stacked =
+                      MediaQuery.textScalerOf(context).scale(12) > 16;
+                  final label = Text(title, style: DS.section);
+                  final caption = Text(
+                    subtitle!,
+                    style: DS.smallFor(context).copyWith(height: 1.4),
+                    maxLines: stacked ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                  // 大字号独立成行，分类名不与副标题挤在一起。
+                  return stacked
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            label,
+                            const SizedBox(height: DS.space4),
+                            caption,
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            label,
+                            const SizedBox(width: DS.space8),
+                            Expanded(child: caption),
+                          ],
+                        );
+                },
+              ),
+      ),
       const SizedBox(width: DS.space8),
       action,
     ],

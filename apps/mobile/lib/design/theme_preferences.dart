@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum DSTheme { sky, forest }
+enum DSTheme { sky }
 
 class ThemePreferences extends ChangeNotifier {
   DSTheme selected = DSTheme.sky;
@@ -15,20 +15,16 @@ class ThemePreferences extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString(key);
-      // 旧版有片库数据的设备保留森林；新安装默认晴空并跟随系统明暗。
-      selected =
-          stored?.startsWith('forest:') == true ||
-              (stored == null &&
-                  prefs.getKeys().any(
-                    (k) => k.startsWith('duoscene.library.v1.'),
-                  ))
-          ? DSTheme.forest
-          : DSTheme.sky;
+      // 旧森林偏好迁移到统一蓝色，保留用户原有明暗选择与账户数据。
+      selected = DSTheme.sky;
       mode =
           ThemeMode.values
               .where((v) => v.name == stored?.split(':').last)
               .firstOrNull ??
           ThemeMode.system;
+      if (stored?.startsWith('forest:') == true) {
+        await prefs.setString(key, 'sky:${mode.name}');
+      }
     } catch (_) {
       // 偏好损坏不阻止登录与媒体初始化，继续使用默认外观。
     }

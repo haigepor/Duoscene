@@ -9,12 +9,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   test(
-    'preferences persist, migrate forest and serialize rapid changes',
+    'preferences migrate legacy themes and serialize rapid brightness changes',
     () async {
-      SharedPreferences.setMockInitialValues({'duoscene.library.v1.old': '{}'});
+      SharedPreferences.setMockInitialValues({
+        ThemePreferences.key: 'forest:dark',
+        'duoscene.library.v1.old': '{}',
+      });
       final preferences = ThemePreferences();
       await preferences.restore();
-      expect(preferences.selected, DSTheme.forest);
+      expect(preferences.selected, DSTheme.sky);
+      expect(preferences.mode, ThemeMode.dark);
+      expect(
+        (await SharedPreferences.getInstance()).getString(ThemePreferences.key),
+        'sky:dark',
+      );
       final first = preferences.change(theme: DSTheme.sky);
       final second = preferences.change(brightness: ThemeMode.dark);
       await Future.wait([first, second]);
@@ -58,7 +66,7 @@ void main() {
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextField), '保留输入');
     final original = t.element(find.byType(TextField));
-    for (final theme in [DSPalette.dark, DSPalette.woodland, DSPalette.light]) {
+    for (final theme in [DSPalette.dark, DSPalette.light]) {
       change(() => palette = theme);
       await t.pumpAndSettle();
       expect(identical(t.element(find.byType(TextField)), original), isTrue);
@@ -68,7 +76,7 @@ void main() {
     await t.pumpWidget(const SizedBox());
     controller.dispose();
   });
-  testWidgets('all 18 pages support sky light dark and forest at 200 percent', (
+  testWidgets('all 18 pages support unified light and dark at 200 percent', (
     t,
   ) async {
     t.view.physicalSize = const Size(390, 844);
@@ -78,35 +86,34 @@ void main() {
       t.view.resetDevicePixelRatio();
     });
     for (final viewport in [
-      (width: 320.0, scale: 2.0), (width: 390.0, scale: 2.0), (width: 430.0, scale: 1.6),
+      (width: 320.0, scale: 2.0),
+      (width: 390.0, scale: 2.0),
+      (width: 430.0, scale: 1.6),
     ]) {
-    t.view.physicalSize = Size(viewport.width, 844);
-    for (final palette in [
-      DSPalette.light,
-      DSPalette.dark,
-      DSPalette.woodland,
-    ]) {
-      for (var page = 0; page < 18; page++) {
-        await t.pumpWidget(
-          MaterialApp(
-            key: UniqueKey(),
-            theme: buildDuosceneTheme(palette),
-            builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: TextScaler.linear(viewport.scale)),
-              child: child!,
+      t.view.physicalSize = Size(viewport.width, 844);
+      for (final palette in [DSPalette.light, DSPalette.dark]) {
+        for (var page = 0; page < 18; page++) {
+          await t.pumpWidget(
+            MaterialApp(
+              key: UniqueKey(),
+              theme: buildDuosceneTheme(palette),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(viewport.scale)),
+                child: child!,
+              ),
+              home: PreviewHost(page: page),
             ),
-            home: PreviewHost(page: page),
-          ),
-        );
-        await t.pumpAndSettle();
-        expect(
-          t.takeException(),
-          isNull,
-          reason: '${viewport.width}/${viewport.scale} ${palette.forest}/${palette.bg} page ${page + 1}',
-        );
+          );
+          await t.pumpAndSettle();
+          expect(
+            t.takeException(),
+            isNull,
+            reason:
+                '${viewport.width}/${viewport.scale} ${palette.bg} page ${page + 1}',
+          );
+        }
       }
-    }
     }
     await t.pumpWidget(const SizedBox());
   });

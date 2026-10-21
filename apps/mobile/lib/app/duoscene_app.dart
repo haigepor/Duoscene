@@ -10,7 +10,6 @@ import '../features/auth/session.dart';
 import '../features/auth/token_store.dart';
 import '../features/catalog/app_shell.dart';
 import 'theme.dart';
-import '../design/palette.dart';
 import '../design/theme_preferences.dart';
 
 class DuosceneApp extends StatefulWidget {
@@ -84,16 +83,8 @@ class _DuosceneAppState extends State<DuosceneApp> {
           title: 'Duoscene',
           builder: themeSystemBars,
           debugShowCheckedModeBanner: false,
-          theme: buildDuosceneTheme(
-            appearance.selected == DSTheme.forest
-                ? DSPalette.woodland
-                : DSPalette.light,
-          ),
-          darkTheme: buildDuosceneTheme(
-            appearance.selected == DSTheme.forest
-                ? DSPalette.woodland
-                : DSPalette.dark,
-          ),
+          theme: duosceneTheme,
+          darkTheme: duosceneDarkTheme,
           themeMode: appearance.mode,
           themeAnimationDuration: const Duration(milliseconds: 200),
           locale: const Locale('zh', 'CN'),
