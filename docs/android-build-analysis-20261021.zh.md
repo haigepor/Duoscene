@@ -137,6 +137,10 @@ MySQL/realtime/account-recovery 的 `.integration.ts` 不在默认 npm test 范�
 工作流使用校验过官方归档 SHA256 的 actionlint 1.7.12 检查通过；PowerShell 语法和仓库 UTF-8/LF/引用检查通过。
 详细测试日志保存在被忽略的 `.local/flutter-tests-final.log`。
 
+首次云端运行的 api-checks 已通过；Android 在 `sdkmanager: command not found` 处失败。
+原因是 runner 的 SDK 已安装但 sdkmanager 不在 PATH。工作流已改为从 ANDROID_HOME 查找可执行文件，
+同时获取并验证 Flutter 官方版本 tag，供浅克隆后的版本检测使用；不跳过失败的检查。
+
 ## 7. 官方依据
 
 - [Flutter Android 构建和签名](https://docs.flutter.dev/deployment/android)

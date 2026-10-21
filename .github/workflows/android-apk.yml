@@ -72,8 +72,13 @@ jobs:
           persist-credentials: false
       - name: Configure Flutter and Android SDK
         run: |
+          git -C "$GITHUB_WORKSPACE/.local/flutter-sdk" fetch --depth=1 origin tag 3.47.6
+          test "$(git -C "$GITHUB_WORKSPACE/.local/flutter-sdk" rev-parse 3.47.6)" = "5fc346839b5d0eef006ed8404392afb4dfae428d"
           echo "$GITHUB_WORKSPACE/.local/flutter-sdk/bin" >> "$GITHUB_PATH"
-          sdkmanager "platforms;android-36" "build-tools;35.0.0" "ndk;28.2.13676358"
+          SDK_MANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit)
+          test -n "$SDK_MANAGER"
+          echo "$(dirname "$SDK_MANAGER")" >> "$GITHUB_PATH"
+          "$SDK_MANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;35.0.0" "ndk;28.2.13676358"
       - run: flutter --version
       - run: flutter pub get --enforce-lockfile
       - run: flutter analyze --no-pub
