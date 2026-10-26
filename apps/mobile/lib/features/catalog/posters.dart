@@ -287,7 +287,7 @@ class FilmHero extends StatelessWidget {
                     film.title,
                     style: const TextStyle(
                       color: DSPalette.onMedia,
-                      fontSize: 28,
+                      fontSize: DS.posterTitleSize,
                       fontFamily: 'DuosceneDisplay',
                       fontWeight: FontWeight.w600,
                       letterSpacing: 3,

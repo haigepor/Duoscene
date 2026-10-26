@@ -204,7 +204,7 @@ class _ModeOption extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, size: 17, color: color),
+                  Icon(icon, size: DS.iconSmall, color: color),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(

@@ -180,22 +180,26 @@ class DSTabs extends StatelessWidget {
     required this.onChanged,
     this.pill = false,
     this.ticket = false,
-  }) : assert(!ticket || pill);
+    this.dense = false,
+  }) : assert(!ticket || pill, !dense || !pill);
   final List<String> labels;
   final int index;
   final ValueChanged<int> onChanged;
   final bool pill;
   final bool ticket;
+
+  /// 紧凑档（约 36 高）：嵌在播放器等内容区里的分区条，不再承担独立触控行。
+  final bool dense;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, c) {
-      final height =
-          (MediaQuery.textScalerOf(context).scale(DS.bodySize) * 1.4 + 24)
-              .clamp(DS.touchTarget, 80.0);
+      final textHeight =
+          MediaQuery.textScalerOf(context).scale(DS.bodySize) * 1.4;
+      final height = dense
+          ? (textHeight + 21).clamp(38.0, DS.touchTarget)
+          : (textHeight + 24).clamp(DS.touchTarget, 80.0);
       final pillHeight =
-          (MediaQuery.textScalerOf(context).scale(DS.bodySize) * 1.4 +
-                  (ticket ? 8 : 10))
-              .clamp(28.0, height - 8);
+          (textHeight + (ticket ? 8 : 10)).clamp(28.0, height - 8);
       return SizedBox(
         height: height,
         child: Stack(
@@ -209,7 +213,7 @@ class DSTabs extends StatelessWidget {
               start:
                   c.maxWidth / labels.length * index +
                   (pill ? 4 : (c.maxWidth / labels.length - 24) / 2),
-              bottom: pill ? (height - pillHeight) / 2 : DS.space8,
+              bottom: pill ? (height - pillHeight) / 2 : dense ? 6 : DS.space8,
               width: pill ? c.maxWidth / labels.length - 8 : 24,
               height: pill ? pillHeight : DS.space2,
               child: ticket

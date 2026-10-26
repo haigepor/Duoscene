@@ -26,6 +26,24 @@ Widget themeSystemBars(BuildContext context, Widget? child) {
   );
 }
 
+/// 媒体沉浸页（竖屏信息流 / 播放器 / 详情页大图）：系统条透明并入画面，
+/// 白色前景图标，避免内容页的米白系统条压在全屏画面上。
+const mediaSystemBarsStyle = SystemUiOverlayStyle(
+  statusBarColor: Colors.transparent,
+  statusBarIconBrightness: Brightness.light,
+  statusBarBrightness: Brightness.dark,
+  systemNavigationBarColor: Colors.transparent,
+  systemNavigationBarIconBrightness: Brightness.light,
+  systemStatusBarContrastEnforced: false,
+  systemNavigationBarContrastEnforced: false,
+);
+
+Widget mediaSystemBars(BuildContext context, Widget? child) =>
+    AnnotatedRegion<SystemUiOverlayStyle>(
+      value: mediaSystemBarsStyle,
+      child: child ?? const SizedBox.shrink(),
+    );
+
 ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   useMaterial3: true,
   extensions: [p],
@@ -61,6 +79,8 @@ ThemeData buildDuosceneTheme(DSPalette p) => ThemeData(
   pageTransitionsTheme: const PageTransitionsTheme(
     builders: {
       TargetPlatform.android: DSPageTransitions(),
+      TargetPlatform.iOS: DSPageTransitions(),
+      TargetPlatform.macOS: DSPageTransitions(),
       TargetPlatform.windows: DSPageTransitions(),
       TargetPlatform.linux: DSPageTransitions(),
     },
