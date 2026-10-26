@@ -1,0 +1,15 @@
+{
+  "type": "media",
+  "commandId": "handoff-invalid",
+  "epoch": "room-epoch",
+  "expectedRevision": 2,
+  "positionMs": 125000,
+  "media": {
+    "provider": "whisklet",
+    "filmId": "whisklet:600318",
+    "episode": 0,
+    "identity": "whisklet:600318:BBA:0",
+    "title": "Invalid selection",
+    "headers": { "authorization": "private" }
+  }
+}

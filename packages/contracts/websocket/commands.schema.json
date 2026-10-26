@@ -159,34 +159,85 @@
           "minimum": 0
         },
         "media": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "uri",
-            "identity",
-            "title",
-            "hls"
-          ],
-          "properties": {
-            "uri": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 4096
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "uri",
+                "identity",
+                "title",
+                "hls"
+              ],
+              "properties": {
+                "uri": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "identity": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "hls": {
+                  "type": "boolean"
+                }
+              }
             },
-            "identity": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 1024
-            },
-            "title": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            },
-            "hls": {
-              "type": "boolean"
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "provider",
+                "filmId",
+                "episode",
+                "identity",
+                "title"
+              ],
+              "properties": {
+                "provider": {
+                  "const": "whisklet"
+                },
+                "filmId": {
+                  "type": "string",
+                  "pattern": "^whisklet:[1-9][0-9]*$",
+                  "maxLength": 80
+                },
+                "episode": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100000
+                },
+                "lineCode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80,
+                  "pattern": "^[^\\s\\u0000-\\u001f\\u007f]+$"
+                },
+                "identity": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                }
+              }
             }
-          }
+          ]
+        },
+        "positionMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 86400000
         }
       }
     }

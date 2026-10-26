@@ -1,0 +1,15 @@
+{
+  "type": "media",
+  "commandId": "handoff-episode-3",
+  "epoch": "room-epoch",
+  "expectedRevision": 2,
+  "positionMs": 125000,
+  "media": {
+    "provider": "whisklet",
+    "filmId": "whisklet:600318",
+    "episode": 3,
+    "lineCode": "BBA",
+    "identity": "whisklet:600318:BBA:3",
+    "title": "共享影片 · 第 3 集"
+  }
+}
