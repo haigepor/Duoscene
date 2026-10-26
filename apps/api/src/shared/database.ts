@@ -23,7 +23,10 @@ export class Database extends SqlSession {
     const pool = createPool({
       host: config.host, port: config.port, database: config.database,
       user: config.user, password: config.password,
-      connectionLimit: 4, waitForConnections: true, queueLimit: 16,
+      // 12 个连接覆盖 realtime 心跳 + 消息校验 + checkpoint + REST 的并发峰值；
+      // 队列等 250 个请求，超出的由 app.ts 错误处理映射为 503。
+      connectionLimit: 12, waitForConnections: true, queueLimit: 250,
+      maxIdle: 6, idleTimeout: 60_000,
       connectTimeout: 2000, timezone: 'Z', charset: 'utf8mb4',
       multipleStatements: false,
     });

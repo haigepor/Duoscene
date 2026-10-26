@@ -15,6 +15,9 @@ export interface AppConfig {
   port: number;
   logLevel: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent';
   database: DatabaseConfig;
+  // 仅当部署在可信反向代理之后才开启：信任 X-Forwarded-For 决定限流键，
+  // 直连部署开启它会让客户端伪造头绕过限流。
+  trustProxy: boolean;
   voice?: { urls: string[]; secret: string; relayOnly: boolean };
 }
 
@@ -70,6 +73,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     port: port(env.API_PORT, 3000, 'API_PORT'),
     logLevel,
     database,
+    trustProxy: env.API_TRUST_PROXY === 'true',
     ...(env.TURN_URLS ? { voice: { urls: env.TURN_URLS.split(',').map(v => v.trim()), secret: required(env, 'TURN_SECRET'), relayOnly: env.TURN_RELAY_ONLY === 'true' } } : {}),
   };
 }

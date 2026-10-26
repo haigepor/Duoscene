@@ -43,6 +43,8 @@ export function buildApp(options: BuildAppOptions = {}) {
     requestTimeout: 10_000,
     connectionTimeout: 10_000,
     forceCloseConnections: 'idle',
+    // 是否信任代理头决定限流键；只有部署在可信反代后才应置 true（env.ts）。
+    trustProxy: config.trustProxy,
     ajv: { customOptions: { removeAdditional: false, coerceTypes: false } },
   });
   const database = attachDatabase(app, config.database);
@@ -51,13 +53,15 @@ export function buildApp(options: BuildAppOptions = {}) {
     auth: createAuthService(database.database), rooms: createRoomService(database.database),
   } : null);
   const realtime = database.database && services ? createRealtimeHub(database.database, services.auth, services.rooms, config) : null;
+  app.addSchema(apiSchema);
+  // 限流必须在 realtime/业务路由之前注册：插件的 onRoute 钩子只覆盖
+  // 注册时已存在的路由，晚注册会让 realtime 票据等路由绕过限流。
+  app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
   app.register(websocket, { options: { maxPayload: 24 * 1024 } });
   if (realtime) {
     app.addHook('preClose', async () => { await realtime.close(); });
     app.register(async instance => { await realtime.register(instance); });
   }
-  app.addSchema(apiSchema);
-  app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
   app.addHook('onSend', async (_request, reply) => {
     reply.header('cache-control', 'no-store');
     reply.header('x-content-type-options', 'nosniff');
@@ -70,6 +74,10 @@ export function buildApp(options: BuildAppOptions = {}) {
     if (error instanceof ApiError) return reply.code(error.statusCode).send(failure(error.code, error.message, request.id));
     if (typeof error === 'object' && error !== null && 'validation' in error) {
       return reply.code(422).send(failure('VALIDATION_ERROR', 'Invalid request', request.id));
+    }
+    // 连接池队列打满时 mysql2 抛无 code 的裸错误，映射成 503 让客户端走重试。
+    if (error instanceof Error && error.message === 'Queue limit reached.') {
+      return reply.code(503).send(failure('DATABASE_UNAVAILABLE', 'Service is busy; retry shortly', request.id));
     }
     if (typeof error === 'object' && error !== null && 'code' in error) {
       const code = error.code;
