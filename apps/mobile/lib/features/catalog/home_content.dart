@@ -122,7 +122,8 @@ class _HomeCarouselState extends State<HomeCarousel>
                   padEnds: false,
                   itemCount: widget.items.length,
                   onPageChanged: (i) {
-                    setState(() => index = i);
+                    // index 只驱动自动轮播计时，不参与 build；翻页无需整卡重建。
+                    index = i;
                     schedule();
                   },
                   itemBuilder: (context, i) {
@@ -207,7 +208,14 @@ class _HomeCarouselState extends State<HomeCarousel>
                                     FilmArtwork(
                                       film,
                                       asset: homeArtwork(film, landscape: true),
-                                      cacheWidth: null,
+                                      // 轮播大图按屏宽×dpr 限幅解码，弱 GPU 不再全尺寸解码。
+                                      cacheWidth:
+                                          (MediaQuery.sizeOf(context).width *
+                                              MediaQuery.devicePixelRatioOf(
+                                                context,
+                                              ))
+                                          .ceil()
+                                          .clamp(480, 1080),
                                       excludeFromSemantics: true,
                                     ),
                                     Positioned(

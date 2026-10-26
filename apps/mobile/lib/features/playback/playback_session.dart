@@ -54,10 +54,31 @@ class PlaybackSession extends ChangeNotifier {
   String? error;
   String? notice;
   Timer? _poll;
+  Duration _lastPollPosition = Duration.zero;
   Timer? _sleep;
   DateTime? sleepAt;
   StreamSubscription<String>? _errors;
   Future<void>? _closing;
+
+  /// 进度走轻量通道：进度条局部订阅 ValueNotifier，不再让 200ms 轮询
+  /// 把整页 UI 拉起来重建（弱 GPU 设备上 raster 超预算的主因）。
+  final positionTick = ValueNotifier<Duration>(Duration.zero);
+  final bufferTick = ValueNotifier<Duration>(Duration.zero);
+  final stateTick = ValueNotifier<int>(0); // 播放/缓冲等状态号，变化即局部重建
+
+  int _stateSignature = -1;
+  int _stateSnapshot() => Object.hash(
+    core.playerPlaying,
+    core.playerBuffering,
+    core.playerCompleted,
+    core.playerDuration,
+    core.mediaPlayer != null,
+    loading,
+    error,
+    notice,
+    source?.identity,
+    generation,
+  );
 
   /// 房间会话把用户意图送往服务端；远端目标只通过 applyTarget/load(synchronized) 落地。
   Future<void> Function(String, Map<String, dynamic>)? remoteCommand;
@@ -80,7 +101,22 @@ class PlaybackSession extends ChangeNotifier {
     _poll = Timer.periodic(const Duration(milliseconds: 200), (_) {
       if (_disposed) return;
       core.syncPlaybackState();
-      _changed();
+      final position = core.playerPosition;
+      // mpv 的 error 流混有分片拉取等瞬时报错，播放会自动恢复；位置仍在前进就撤销阻断横幅，
+      // 真失败时位置不再前进，横幅保留。
+      if (error != null && !loading && core.playerPlaying && position > _lastPollPosition) {
+        error = null;
+      }
+      _lastPollPosition = position;
+      // 进度/缓冲每拍走轻量通道；整页通知只在状态签名变化（迁移）时发。
+      positionTick.value = position;
+      bufferTick.value = core.playerBuffer;
+      final signature = _stateSnapshot();
+      if (signature != _stateSignature) {
+        _stateSignature = signature;
+        stateTick.value++;
+        _changed();
+      }
     });
   }
 
@@ -276,6 +312,9 @@ class PlaybackSession extends ChangeNotifier {
     } catch (_) {
       // 初始化失败也要释放设置订阅，不能让退出页面留下悬空异常。
     }
+    positionTick.dispose();
+    bufferTick.dispose();
+    stateTick.dispose();
     screenshots.dispose();
     await preferences.dispose();
   }();
