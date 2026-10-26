@@ -30,7 +30,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('搜索影片、剧集'), findsOneWidget);
       expect(find.byKey(const Key('home-search')), findsOneWidget);
-      expect(find.byKey(const Key('category-filter-panel')), findsNothing);
+      expect(find.byKey(const Key('category-filter-panel')), findsOneWidget);
       expect(find.byKey(const Key('category-picks')), findsOneWidget);
       final grid = t.widget<SliverGrid>(find.byType(SliverGrid));
       expect(
@@ -38,16 +38,12 @@ void main() {
             .crossAxisCount,
         3,
       );
-      await t.tap(find.byKey(const Key('category-filter-toggle')));
-      await t.pumpAndSettle();
       await t.tap(find.byKey(const Key('category-genre-科幻')));
       await t.pumpAndSettle();
       expect(find.byKey(const Key('category-picks')), findsNothing);
       expect(find.byKey(const Key('category-film-mountains')), findsNothing);
       expect(find.byKey(const Key('category-film-stars')), findsOneWidget);
-      await t.tap(find.byKey(const Key('category-filter-toggle')));
-      await t.pumpAndSettle();
-      expect(find.byKey(const Key('category-filter-panel')), findsNothing);
+      expect(find.byKey(const Key('category-filter-panel')), findsOneWidget);
       expect(find.textContaining('科幻'), findsWidgets);
       await t.tap(find.byKey(const Key('category-film-stars')));
       await t.pumpAndSettle();
@@ -183,8 +179,6 @@ void main() {
       expect(selection.limit, 40);
       position.jumpTo(0);
       await t.pumpAndSettle();
-      await t.tap(find.byKey(const Key('category-filter-toggle')));
-      await t.pumpAndSettle();
       await Scrollable.ensureVisible(
         t.element(find.byKey(const Key('category-length-3'))),
         alignment: .5,
@@ -194,6 +188,109 @@ void main() {
       await t.pumpAndSettle();
       expect(selection.limit, 12);
       expect(find.byKey(const Key('category-film-item-0')), findsNothing);
+      expect(t.takeException(), isNull);
+      await t.pumpWidget(const SizedBox());
+      library.dispose();
+    },
+  );
+
+  testWidgets(
+    'remote bottom auto-loads, retries failures and chains while parked',
+    (t) async {
+      t.view.physicalSize = const Size(390, 844);
+      t.view.devicePixelRatio = 1;
+      addTearDown(t.view.resetPhysicalSize);
+      addTearDown(t.view.resetDevicePixelRatio);
+      final library = LibraryState(accountId: 'discovery-remote', preview: true);
+      final selection = CatalogSelection();
+      Film film(int i) => Film(
+        'item-$i',
+        '影片 $i',
+        '电影',
+        '剧情',
+        100 + i,
+        art: 'poster-mountains',
+      );
+      var items = [for (var i = 0; i < 12; i++) film(i)];
+      // 计数器放可变容器里：闭包内自增不违反 prefer_final_locals。
+      final loads = <int>[0];
+      final hasMore = true;
+      String? error;
+
+      Future<void> rebuild() => t.pumpWidget(
+        MaterialApp(
+          theme: duosceneTheme,
+          home: Scaffold(
+            body: CatalogDiscovery(
+              library: library,
+              kind: '电影',
+              selection: selection,
+              header: const SizedBox(height: 48),
+              items: items,
+              hasMore: hasMore,
+              error: error,
+              onLoadMore: () => loads[0]++,
+            ),
+          ),
+        ),
+      );
+
+      // 确定性触底：先回顶（事件在顶部无效果），再跳到底（恰好一次触底事件）。
+      // 直接 jumpTo 已在底部时不会再发滚动事件。
+      Future<void> toBottom() async {
+        final scrollable = find
+            .descendant(
+              of: find.byType(CustomScrollView),
+              matching: find.byType(Scrollable),
+            )
+            .first;
+        final position = t.state<ScrollableState>(scrollable).position;
+        position.jumpTo(0);
+        await t.pumpAndSettle();
+        position.jumpTo(position.maxScrollExtent);
+        await t.pumpAndSettle();
+      }
+
+      await rebuild();
+      await t.pumpAndSettle();
+
+      // 触底自动拉取下一页：无需任何点击。
+      await toBottom();
+      expect(loads[0], 1);
+
+      // 拉取失败：滚回底部即自动重试（error 不再拦停），底部出现内联重试。
+      error = '片库加载失败，请检查网络后重试';
+      await rebuild();
+      await t.pumpAndSettle();
+      await toBottom();
+      expect(loads[0], 2);
+      expect(find.byKey(const Key('category-load-retry')), findsOneWidget);
+      await t.tap(find.byKey(const Key('category-load-retry')));
+      await t.pumpAndSettle();
+      expect(loads[0], 3);
+      // 停在底部无手势：退避定时器到点自动重试。
+      await t.pump(const Duration(seconds: 2));
+      expect(loads[0], 4);
+
+      // 成功但上游返回重复片目：停底也继续追拉下一页（列表引用变化触发）。
+      error = null;
+      items = [for (var i = 0; i < 12; i++) film(i)];
+      await rebuild();
+      await t.pumpAndSettle();
+      expect(loads[0], 5);
+      expect(find.text('继续上滑，查看更多'), findsOneWidget);
+
+      // 成功带来新片目：停在底部无需任何手势，新页到达后直接续渲染到位
+      // （item-12 已进视口；item-23 在构建缓存外，触底后才物化）。
+      items = [for (var i = 0; i < 24; i++) film(i)];
+      await rebuild();
+      await t.pumpAndSettle();
+      expect(selection.limit, 24);
+      expect(find.byKey(const Key('category-film-item-12')), findsOneWidget);
+      expect(loads[0], 5);
+      await toBottom();
+      expect(find.byKey(const Key('category-film-item-23')), findsOneWidget);
+      expect(loads[0], 6);
       expect(t.takeException(), isNull);
       await t.pumpWidget(const SizedBox());
       library.dispose();

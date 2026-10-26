@@ -70,8 +70,6 @@ void main() {
             );
             expect(find.byType(HomeCarousel), findsNothing);
             expect(find.byType(WatchTogetherPanel), findsNothing);
-            await t.tap(find.byKey(const Key('category-filter-toggle')));
-            await t.pumpAndSettle();
             final items = films.where((film) => film.kind == kind);
             for (final genre in items.map((film) => film.genre).toSet()) {
               final chip = find.byKey(Key('category-genre-$genre'));
@@ -258,8 +256,6 @@ void main() {
     expect(find.byType(WatchTogetherPanel), findsNothing);
     expect(find.byKey(const ValueKey('pick-mountains')), findsOneWidget);
     expect(t.takeException(), isNull);
-    await t.tap(find.byKey(const Key('category-filter-toggle')));
-    await t.pumpAndSettle();
     await t.tap(find.byKey(const Key('category-genre-科幻')));
     await t.pumpAndSettle();
     expect(find.byKey(const Key('category-film-mountains')), findsNothing);
@@ -267,7 +263,7 @@ void main() {
     await t.tap(find.byKey(const Key('category-length-1')));
     await t.pumpAndSettle();
     expect(find.text('暂时没有符合条件的片目'), findsOneWidget);
-    await t.tap(find.text('重置筛选'));
+    await t.tap(find.text('重置筛选').last);
     await t.pumpAndSettle();
     expect(find.byKey(const ValueKey('pick-mountains')), findsOneWidget);
     await t.tap(find.byKey(const Key('category-genre-科幻')));

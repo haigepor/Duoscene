@@ -215,7 +215,23 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                                   onPressed: busy ? null : _login,
-                                  child: Text(busy ? '正在登录…' : '登录'),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (busy) ...[
+                                        const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.2,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                      Text(busy ? '正在登录…' : '登录'),
+                                    ],
+                                  ),
                                 ),
                                 const SizedBox(height: DS.space12),
                                 AuthLink(

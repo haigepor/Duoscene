@@ -274,7 +274,13 @@ class _ChatPanelState extends State<ChatPanel> {
             Padding(
               padding: widget.composerHeader == null
                   ? const EdgeInsets.fromLTRB(12, 4, 12, 10)
-                  : const EdgeInsets.only(top: DS.space4, bottom: DS.space8),
+                  // 播放器页：与上方个人观看栏对齐，左右各留一道边。
+                  : const EdgeInsets.fromLTRB(
+                      DS.space12,
+                      DS.space4,
+                      DS.space12,
+                      DS.space8,
+                    ),
               child: _composerSurface(
                 context,
                 Row(
@@ -323,7 +329,7 @@ class _ChatPanelState extends State<ChatPanel> {
                             isDense: true,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 12,
+                              vertical: 6,
                             ),
                             border: const OutlineInputBorder(
                               borderRadius: BorderRadius.all(
@@ -351,11 +357,18 @@ class _ChatPanelState extends State<ChatPanel> {
                       style: widget.composerHeader == null
                           ? null
                           : IconButton.styleFrom(
-                              fixedSize: const Size.square(DS.buttonHeight),
-                              minimumSize: const Size.square(DS.buttonHeight),
-                              maximumSize: const Size.square(DS.buttonHeight),
-                              padding: const EdgeInsets.all(DS.space8),
-                              tapTargetSize: MaterialTapTargetSize.padded,
+                              fixedSize: const Size.square(
+                                DS.buttonHeight - DS.space4,
+                              ),
+                              minimumSize: const Size.square(
+                                DS.buttonHeight - DS.space4,
+                              ),
+                              maximumSize: const Size.square(
+                                DS.buttonHeight - DS.space4,
+                              ),
+                              padding: const EdgeInsets.all(DS.space4),
+                              // 收掉 padded 的 48 最小布局盒，行高由输入框决定。
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                       onPressed: enabled && input.text.trim().isNotEmpty
                           ? send
@@ -413,17 +426,14 @@ class _ChatPanelState extends State<ChatPanel> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // 状态栏不做色块，直接坐在页面背景上；左右各收一道，起点窄于输入框。
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DS.space12),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: p.subtle,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(DS.panelRadius),
-              ),
-            ),
-            child: widget.composerHeader,
+          padding: const EdgeInsets.only(
+            left: DS.space12,
+            right: DS.space12,
+            bottom: DS.space4,
           ),
+          child: widget.composerHeader,
         ),
         DecoratedBox(
           key: const Key('watch-composer-input-surface'),
@@ -433,7 +443,10 @@ class _ChatPanelState extends State<ChatPanel> {
             borderRadius: BorderRadius.circular(DS.panelRadius),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(DS.space4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: DS.space4,
+              vertical: DS.space2,
+            ),
             child: inputRow,
           ),
         ),

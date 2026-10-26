@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
@@ -13,7 +15,6 @@ class CatalogSelection {
   String? genre;
   String? area, language, year;
   int length = 0, sort = 0, pickOffset = 0, limit = pageSize;
-  bool expanded = false;
   static const pageSize = 12;
   bool get filtered =>
       genre != null ||
@@ -127,7 +128,12 @@ class CatalogDiscovery extends StatefulWidget {
 class _CatalogDiscoveryState extends State<CatalogDiscovery> {
   final scroll = ScrollController();
   final gridHeadingKey = GlobalKey();
+  late final VoidCallback unbindScrollTop;
   late List<Film> all, result;
+
+  /// 远程触底加载的自动重试：上游常闪断，失败不能死等用户手动点重试。
+  Timer? retryTimer;
+  int retryDelay = 2;
   CatalogSelection get selection => widget.selection;
 
   @override
@@ -135,6 +141,7 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
     super.initState();
     updateResults();
     scroll.addListener(loadMore);
+    unbindScrollTop = bindScrollTop(widget.library.scrollTopRequest, scroll);
   }
 
   @override
@@ -144,6 +151,19 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
         oldWidget.kind != widget.kind ||
         oldWidget.selection != widget.selection)
       updateResults();
+    if (oldWidget.error != widget.error) {
+      if (widget.error != null) {
+        scheduleRetry();
+      } else {
+        retryDelay = 2;
+      }
+    }
+    if (oldWidget.items != widget.items) {
+      // 停在底部等新页时没有滚动事件：新数据到达后直接续渲染/续拉取。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) loadMore();
+      });
+    }
   }
 
   void updateResults() {
@@ -166,22 +186,35 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
       widget.onFilter?.call(selection.query);
   }
 
+  void scheduleRetry() {
+    retryTimer?.cancel();
+    retryTimer = Timer(Duration(seconds: retryDelay), () {
+      retryDelay = (retryDelay * 2).clamp(2, 12);
+      if (mounted) loadMore();
+    });
+  }
+
   void loadMore() {
     if (!scroll.hasClients || scroll.position.extentAfter > 400) return;
     if (selection.limit >= result.length) {
-      if (!widget.loading && widget.error == null && widget.hasMore)
-        widget.onLoadMore?.call();
+      // 加载失败不再由 error 永久拦停：滚动、退避定时器、新页到达都会重试。
+      if (!widget.loading && widget.hasMore) widget.onLoadMore?.call();
       return;
     }
-    // 本地有限片库同步追加；不制造网络等待，也不重复片目伪装无限列表。
-    setState(
-      () => selection.limit = (selection.limit + CatalogSelection.pageSize)
-          .clamp(0, result.length),
+    // 本地有限片库同步追加；limit 已到 result.length 后不再 setState，
+    // 避免触底区每个滚动 tick 都整页重建。
+    final next = (selection.limit + CatalogSelection.pageSize).clamp(
+      0,
+      result.length,
     );
+    if (next == selection.limit) return;
+    setState(() => selection.limit = next);
   }
 
   @override
   void dispose() {
+    retryTimer?.cancel();
+    unbindScrollTop();
     scroll.removeListener(loadMore);
     scroll.dispose();
     super.dispose();
@@ -200,278 +233,180 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
       '动漫' => ('打开想象', '另一种世界', '全部动漫'),
       _ => ('短篇片单', '片刻入戏', '全部短剧'),
     };
-    return CustomScrollView(
-      key: PageStorageKey('catalog-${widget.kind}'),
-      controller: scroll,
-      slivers: [
-        SliverToBoxAdapter(child: widget.header),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: DS.space4),
-                _filterCard(),
-                if (widget.loading) const LinearProgressIndicator(),
-                if (widget.error != null)
-                  EmptyView(
-                    '暂时无法加载片库',
-                    widget.error!,
-                    action: '重试',
-                    onTap: widget.onRetry,
-                  ),
-                if (!selection.filtered && all.isNotEmpty) ...[
-                  _DiscoveryCollection(
-                    key: const Key('category-picks'),
-                    title: titles.$1,
-                    items: all,
-                    selection: selection,
-                    large: large,
-                    onOpen: openFilm,
-                  ),
-                  const SizedBox(height: DS.space8),
-                  SectionHeading(
-                    titles.$2,
-                    action: Semantics(
-                      label: '查看全部${widget.kind}',
-                      child: ArrowAction(
-                        '',
-                        onTap: () {
-                          final target = gridHeadingKey.currentContext;
-                          if (target != null)
-                            Scrollable.ensureVisible(
-                              target,
-                              duration: DSMotion.duration(context),
-                              alignment: .12,
-                            );
-                        },
+    return RefreshIndicator(
+      color: p.primary,
+      onRefresh: () async => widget.onRetry?.call(),
+      child: CustomScrollView(
+        key: PageStorageKey('catalog-${widget.kind}'),
+        controller: scroll,
+        // 筛选结果很短时也要能下拉刷新。
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(child: widget.header),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: DS.space4),
+                  _filterPanel(),
+                  if (widget.error != null)
+                    EmptyView(
+                      '暂时无法加载片库',
+                      widget.error!,
+                      action: '重试',
+                      onTap: widget.onRetry,
+                    ),
+                  if (!selection.filtered && all.isNotEmpty) ...[
+                    _DiscoveryCollection(
+                      key: const Key('category-picks'),
+                      title: titles.$1,
+                      items: all,
+                      selection: selection,
+                      large: large,
+                      onOpen: openFilm,
+                    ),
+                    const SizedBox(height: DS.space8),
+                    SectionHeading(
+                      titles.$2,
+                      action: Semantics(
+                        label: '查看全部${widget.kind}',
+                        child: ArrowAction(
+                          '',
+                          onTap: () {
+                            final target = gridHeadingKey.currentContext;
+                            if (target != null)
+                              Scrollable.ensureVisible(
+                                target,
+                                duration: DSMotion.duration(context),
+                                alignment: .12,
+                              );
+                          },
+                        ),
+                      ),
+                    ),
+                    _posterShelf(all, large),
+                    const SizedBox(height: DS.space8),
+                  ],
+                  Padding(
+                    key: gridHeadingKey,
+                    padding: const EdgeInsets.symmetric(vertical: DS.space12),
+                    child: SectionHeading(
+                      selection.filtered ? '筛选结果' : titles.$3,
+                      action: Text(
+                        widget.remoteFilters
+                            ? '已载 ${result.length} 部'
+                            : '${result.length} 部',
+                        style: DS.smallFor(context),
                       ),
                     ),
                   ),
-                  _posterShelf(all, large),
-                  const SizedBox(height: DS.space8),
-                ],
-                Padding(
-                  key: gridHeadingKey,
-                  padding: const EdgeInsets.symmetric(vertical: DS.space12),
-                  child: SectionHeading(
-                    selection.filtered ? '筛选结果' : titles.$3,
-                    action: Text(
-                      widget.remoteFilters
-                          ? '已载 ${result.length} 部'
-                          : '${result.length} 部',
-                      style: DS.smallFor(context),
-                    ),
-                  ),
-                ),
-                if (result.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: DS.space24),
-                    child: Column(
-                      children: [
-                        Text(
-                          widget.loading
-                              ? '正在加载…'
-                              : widget.hasMore
-                              ? '本页暂无片目，可继续加载'
-                              : '暂时没有符合条件的片目',
-                          style: DS.smallFor(context),
-                        ),
-                        if (widget.hasMore && !widget.loading)
-                          TextButton(
-                            onPressed: widget.onLoadMore,
-                            child: const Text('加载下一页'),
+                  if (result.isEmpty && widget.loading && widget.error == null)
+                    _GridSkeleton(large: large)
+                  else if (result.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: DS.space24),
+                      child: Column(
+                        children: [
+                          Text(
+                            widget.hasMore ? '本页暂无片目，可继续加载' : '暂时没有符合条件的片目',
+                            style: DS.smallFor(context),
                           ),
-                        TextButton(
-                          onPressed: () => changeFilter(selection.reset),
-                          child: const Text('重置筛选'),
-                        ),
-                      ],
+                          if (widget.hasMore)
+                            TextButton(
+                              onPressed: widget.onLoadMore,
+                              child: const Text('加载下一页'),
+                            ),
+                          TextButton(
+                            onPressed: () => changeFilter(selection.reset),
+                            child: const Text('重置筛选'),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
-          sliver: SliverLayoutBuilder(
-            builder: (context, constraints) {
-              final columns = large ? 2 : 3;
-              final width =
-                  (constraints.crossAxisExtent - DS.space8 * (columns - 1)) /
-                  columns;
-              final text = MediaQuery.textScalerOf(context);
-              return SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  crossAxisSpacing: DS.space8,
-                  mainAxisSpacing: DS.space16,
-                  // 中文回退字体在原生设备会向上取整，保留少量行高余量。
-                  mainAxisExtent:
-                      width / .75 +
-                      DS.space8 +
-                      (text.scale(14) * 1.4).ceilToDouble() +
-                      DS.space4 +
-                      (text.scale(12) * 1.5).ceilToDouble() +
-                      DS.space4,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final film = result[index];
-                  return _DiscoveryPoster(
-                    key: Key('category-film-${film.id}'),
-                    film: film,
-                    onTap: () => openFilm(film),
-                  );
-                }, childCount: result.length.clamp(0, selection.limit)),
-              );
-            },
-          ),
-        ),
-        if (result.isNotEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: DS.space24),
-              child: Center(
-                child: Text(
-                  widget.loading
-                      ? '正在加载…'
-                      : selection.limit >= result.length && !widget.hasMore
-                      ? '已经到底了'
-                      : '继续上滑，查看更多',
-                  key: const Key('category-page-status'),
-                  style: DS.smallFor(context).copyWith(color: p.muted),
-                ),
+                ],
               ),
             ),
           ),
-        SliverToBoxAdapter(
-          child: SizedBox(height: 96 + MediaQuery.paddingOf(context).bottom),
-        ),
-      ],
-    );
-  }
-
-  Widget _filterCard() {
-    final p = DSPalette.of(context);
-    return Material(
-      color: p.panel,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(DS.radiusMedium),
-        side: BorderSide(color: p.line),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          _filterBar(),
-          if (MediaQuery.disableAnimationsOf(context))
-            if (selection.expanded) _filterPanel() else const SizedBox()
-          else
-            AnimatedSize(
-              alignment: Alignment.topCenter,
-              duration: DSMotion.duration(context),
-              curve: DSMotion.curve,
-              child: selection.expanded ? _filterPanel() : const SizedBox(),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
+            sliver: SliverLayoutBuilder(
+              builder: (context, constraints) {
+                final columns = large ? 2 : 3;
+                final width =
+                    (constraints.crossAxisExtent - DS.space8 * (columns - 1)) /
+                    columns;
+                final text = MediaQuery.textScalerOf(context);
+                return SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: DS.space8,
+                    mainAxisSpacing: DS.space16,
+                    // 中文回退字体在原生设备会向上取整，保留少量行高余量。
+                    mainAxisExtent:
+                        width / .75 +
+                        DS.space8 +
+                        (text.scale(14) * 1.4).ceilToDouble() +
+                        DS.space4 +
+                        (text.scale(12) * 1.5).ceilToDouble() +
+                        DS.space4,
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final film = result[index];
+                    return _DiscoveryPoster(
+                      key: Key('category-film-${film.id}'),
+                      film: film,
+                      onTap: () => openFilm(film),
+                    );
+                  }, childCount: result.length.clamp(0, selection.limit)),
+                );
+              },
             ),
+          ),
+          if (result.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: DS.space24),
+                child: Center(
+                  child:
+                      widget.error != null && widget.hasMore && !widget.loading
+                      ? TextButton(
+                          key: const Key('category-load-retry'),
+                          onPressed: widget.onLoadMore,
+                          child: const Text('下一页加载失败，点击重试'),
+                        )
+                      : Text(
+                          widget.loading
+                              ? '正在加载…'
+                              : selection.limit >= result.length &&
+                                    !widget.hasMore
+                              ? '已经到底了'
+                              : '继续上滑，查看更多',
+                          key: const Key('category-page-status'),
+                          style: DS.smallFor(context).copyWith(color: p.muted),
+                        ),
+                ),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: SizedBox(height: 96 + MediaQuery.paddingOf(context).bottom),
+          ),
         ],
       ),
     );
   }
 
-  Widget _filterBar() {
-    final p = DSPalette.of(context);
-    final labels = selection.lengthLabels(widget.kind);
-    final summary = [
-      selection.genre ?? '全部题材',
-      if (!widget.remoteFilters) labels[selection.length],
-      if (widget.remoteFilters) ...[
-        selection.area ?? '全部地区',
-        selection.year ?? '全部年份',
-        selection.language ?? '全部语言',
-      ],
-      if (selection.sort != 0)
-        selection.sort == 1
-            ? widget.remoteFilters
-                  ? '本页片名'
-                  : '片名排序'
-            : widget.kind == '电影' || widget.kind == '短剧'
-            ? '时长优先'
-            : '集数优先',
-    ].join(' · ');
-    return Row(
-      children: [
-        Expanded(
-          child: Semantics(
-            expanded: selection.expanded,
-            child: InkWell(
-              key: const Key('category-filter-toggle'),
-              onTap: () =>
-                  setState(() => selection.expanded = !selection.expanded),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: DS.touchTarget),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: DS.space12,
-                    vertical: DS.space8,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          summary,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: DS.label.copyWith(
-                            color: selection.filtered ? p.onTint : p.muted,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: DS.space8),
-                      Text(
-                        selection.expanded ? '收起' : '筛选',
-                        style: DS.label.copyWith(color: p.muted),
-                      ),
-                      const SizedBox(width: DS.space4),
-                      AnimatedRotation(
-                        turns: selection.expanded ? .5 : 0,
-                        duration: DSMotion.duration(context, DSMotion.fast),
-                        curve: DSMotion.curve,
-                        child: DSIcon(
-                          'chevron-down',
-                          size: DS.chevronSize,
-                          color: p.muted,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        if (selection.filtered)
-          IconButton(
-            key: const Key('category-reset'),
-            tooltip: '重置筛选',
-            onPressed: () => changeFilter(selection.reset),
-            icon: DSIcon('refresh-cw', size: DS.iconSmall, color: p.primary),
-          ),
-      ],
-    );
-  }
-
+  // 筛选区常驻展开（不再折叠）：行式全量选项铺开，选中值以主题色高亮。
   Widget _filterPanel() {
     if (widget.remoteFilters) return _remoteFilterPanel();
     final genres = all.map((f) => f.genre).toSet();
     final lengths = selection.lengthLabels(widget.kind);
     return Padding(
       key: const Key('category-filter-panel'),
-      padding: const EdgeInsets.symmetric(
-        horizontal: DS.space8,
-        vertical: DS.space4,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: DS.space4),
       child: Column(
+        spacing: DS.space4,
         children: [
           _filterRow('题材', [
             _choice(
@@ -524,11 +459,9 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
 
   Widget _remoteFilterPanel() => Padding(
     key: const Key('category-filter-panel'),
-    padding: const EdgeInsets.symmetric(
-      horizontal: DS.space8,
-      vertical: DS.space4,
-    ),
+    padding: const EdgeInsets.symmetric(vertical: DS.space4),
     child: Column(
+      spacing: DS.space4,
       children: [
         if (widget.navigationError != null)
           TextButton(
@@ -600,24 +533,16 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
         key: Key(key),
         onPressed: onTap,
         style: TextButton.styleFrom(
-          minimumSize: const Size(48, 48),
-          padding: const EdgeInsets.symmetric(horizontal: 3),
+          // 横向滚动的筛选条：加宽命中区提升点按精度，纵向只小幅上调。
+          minimumSize: const Size(52, 40),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
         ),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: DS.space12,
-            vertical: 6,
-          ),
-          decoration: BoxDecoration(
-            color: selected ? p.tint : p.bg,
-            borderRadius: BorderRadius.circular(DS.radiusSmall),
-            border: Border.all(
-              color: selected ? p.primary : Colors.transparent,
-            ),
-          ),
-          child: Text(
-            label,
-            style: DS.label.copyWith(color: selected ? p.onTint : p.muted),
+        child: Text(
+          label,
+          style: DS.label.copyWith(
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+            color: selected ? p.primary : p.ink,
           ),
         ),
       ),
@@ -832,4 +757,90 @@ class _DiscoveryPoster extends StatelessWidget {
       ),
     ),
   );
+}
+
+// 片库加载骨架：占位网格与真实网格同构（列数、间距、海报比例一致）。
+class _GridSkeleton extends StatefulWidget {
+  const _GridSkeleton({required this.large});
+
+  final bool large;
+
+  @override
+  State<_GridSkeleton> createState() => _GridSkeletonState();
+}
+
+class _GridSkeletonState extends State<_GridSkeleton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController pulse = _initPulse();
+
+  // 呼吸动画遵循系统"减少动画"设置：关闭时停在满不透明度，不闪动。
+  AnimationController _initPulse() {
+    final controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    );
+    if (MediaQuery.disableAnimationsOf(context)) {
+      controller.value = 1;
+    } else {
+      controller.repeat(reverse: true);
+    }
+    return controller;
+  }
+
+  @override
+  void dispose() {
+    pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = DSPalette.of(context).subtle;
+    Widget bone(double width, double height) => Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(6),
+      ),
+    );
+
+    Widget card(double width) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: width,
+          height: width / .75,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(DS.radiusSmall),
+          ),
+        ),
+        const SizedBox(height: DS.space8),
+        bone(width * .72, 13),
+        const SizedBox(height: DS.space4),
+        bone(width * .45, 12),
+      ],
+    );
+
+    return FadeTransition(
+      key: const Key('catalog-skeleton'),
+      opacity: CurvedAnimation(parent: pulse, curve: Curves.easeInOut),
+      child: Semantics(
+        label: '正在加载片库',
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = widget.large ? 2 : 3;
+            final width =
+                (constraints.maxWidth - DS.space8 * (columns - 1)) / columns;
+            return Wrap(
+              spacing: DS.space8,
+              runSpacing: DS.space16,
+              children: [for (var i = 0; i < columns * 2; i++) card(width)],
+            );
+          },
+        ),
+      ),
+    );
+  }
 }

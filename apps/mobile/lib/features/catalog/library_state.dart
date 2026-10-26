@@ -169,9 +169,15 @@ class LibraryState extends ChangeNotifier {
     await persist();
   }
 
+  /// 双击当前底栏标签回顶：由壳层递增，页面自行订阅并滚动到顶部。
+  /// 用信号而不是直接持有各页的 ScrollController，避免壳层依赖子页实现。
+  final scrollTopRequest = ValueNotifier(0);
+  void requestScrollTop() => scrollTopRequest.value++;
+
   @override
   void dispose() {
     _disposed = true;
+    scrollTopRequest.dispose();
     catalog.dispose();
     provider?.close();
     super.dispose();

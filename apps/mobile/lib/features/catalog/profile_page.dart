@@ -15,241 +15,269 @@ import 'detail_page.dart';
 import 'collection_pages.dart';
 import '../experience/appearance_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.library, this.previewTools});
   final LibraryState library;
   final Widget? previewTools;
   @override
-  Widget build(BuildContext context) => ScrollChrome(
-    header: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
-      child: Row(
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final scroll = ScrollController();
+  late final VoidCallback unbindScrollTop = bindScrollTop(
+    widget.library.scrollTopRequest,
+    scroll,
+  );
+
+  @override
+  void dispose() {
+    unbindScrollTop();
+    scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final library = widget.library;
+    return ScrollChrome(
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Text(
+                '我的',
+                style: TextStyle(
+                  fontSize: DS.pageTitleSize,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            IconTap(
+              'settings',
+              '外观设置',
+              () => openPage(context, const AppearancePage()),
+            ),
+          ],
+        ),
+      ),
+      child: ListView(
+        key: const PageStorageKey('profile'),
+        controller: scroll,
+        padding: EdgeInsets.fromLTRB(
+          16,
+          DS.toolbarHeight,
+          16,
+          16 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
-          const Expanded(
-            child: Text(
-              '我的',
-              style: TextStyle(
-                fontSize: DS.pageTitleSize,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          IconTap(
-            'settings',
-            '外观设置',
-            () => openPage(context, const AppearancePage()),
-          ),
-        ],
-      ),
-    ),
-    child: ListView(
-      key: const PageStorageKey('profile'),
-      padding: EdgeInsets.fromLTRB(
-        16,
-        DS.toolbarHeight,
-        16,
-        16 + MediaQuery.paddingOf(context).bottom,
-      ),
-      children: [
-        const SizedBox(height: 6),
-        InkWell(
-          onTap: () => openPage(context, AccountPage(library: library)),
-          child: Panel(
-            child: Row(
-              children: [
-                MountainAvatar(initial: library.initial, size: DS.avatarMedium),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(library.displayName, style: DS.section),
-                      const SizedBox(height: 6),
-                      Text(
-                        library.preview ? '与喜欢的人，看喜欢的故事。' : '私有账户 · 仅受邀加入',
-                        style: DS.smallFor(context),
-                      ),
-                    ],
-                  ),
-                ),
-                DSIcon(
-                  'chevron-right',
-                  size: DS.chevronSize,
-                  color: DSPalette.of(context).muted,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Panel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionHeading(
-                '我的收藏',
-                action: ArrowAction(
-                  '查看全部',
-                  onTap: () =>
-                      openPage(context, FavoritesPage(library: library)),
-                ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text('喜欢的故事，留到下次。', style: DS.smallFor(context)),
-                  ),
-                  const DSIllustration(
-                    'collection-favorites-glass',
-                    width: 72,
-                    height: 52,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 7),
-              if (library.favorites.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: DS.space8),
-                  child: Text('还没有收藏，去发现喜欢的影片。', style: DS.smallFor(context)),
-                )
-              else
-                _favoriteStrip(context),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (library.preview)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: () => openPage(context, AccountPage(library: library)),
             child: Panel(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 74,
-                    height: 40,
-                    child: Stack(
-                      children: [
-                        const Positioned(
-                          left: 32,
-                          child: MountainAvatar(initial: '满', size: 40),
-                        ),
-                        Positioned(
-                          left: 0,
-                          child: MountainAvatar(
-                            initial: library.initial,
-                            size: 40,
-                          ),
-                        ),
-                      ],
-                    ),
+                  MountainAvatar(
+                    initial: library.initial,
+                    size: DS.avatarMedium,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('正在一起看 · 预览'),
-                        Text('山海之间', style: DS.smallFor(context)),
+                        Text(library.displayName, style: DS.section),
+                        const SizedBox(height: 6),
+                        Text(
+                          library.preview ? '与喜欢的人，看喜欢的故事。' : '私有账户 · 仅受邀加入',
+                          style: DS.smallFor(context),
+                        ),
                       ],
                     ),
                   ),
-                  FilledButton(
-                    onPressed: () => openPage(
-                      context,
-                      DetailPage(film: films.first, library: library),
-                    ),
-                    child: const Text('返回'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        Panel(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Column(
-            children: [
-              MenuRow(
-                'sun',
-                '外观',
-                onTap: () => openPage(context, const AppearancePage()),
-              ),
-              const Divider(height: 1),
-              MenuRow('send', '观影邀请', onTap: () => _invitations(context)),
-              Divider(
-                height: 1,
-                indent: DS.navigationIcon + DS.space12,
-                color: DSPalette.of(context).line,
-              ),
-              MenuRow(
-                'volume-2',
-                '播放与音频',
-                onTap: () =>
-                    openPage(context, AudioSettingsPage(library: library)),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: DS.space16),
-        Panel(
-          padding: const EdgeInsets.symmetric(horizontal: DS.space12),
-          child: Column(
-            children: [
-              MenuRow(
-                'shield-check',
-                '隐私与记录',
-                onTap: () => openPage(context, PrivacyPage(library: library)),
-              ),
-              Divider(
-                height: 1,
-                indent: DS.navigationIcon + DS.space12,
-                color: DSPalette.of(context).line,
-              ),
-              MenuRow(
-                'circle-help',
-                '帮助与支持',
-                onTap: () => openPage(context, const HelpPage()),
-              ),
-              Divider(
-                height: 1,
-                indent: DS.navigationIcon + DS.space12,
-                color: DSPalette.of(context).line,
-              ),
-              MenuRow(
-                'info',
-                '关于 Duoscene',
-                onTap: () => openPage(context, const AboutPage()),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        Panel(
-          child: InkWell(
-            onTap: () => logout(context, library),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
                   DSIcon(
-                    'log-out',
+                    'chevron-right',
+                    size: DS.chevronSize,
                     color: DSPalette.of(context).muted,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    library.preview ? '退出预览' : '退出登录',
-                    style: TextStyle(color: DSPalette.of(context).muted),
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+          const SizedBox(height: 8),
+          Panel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeading(
+                  '我的收藏',
+                  action: ArrowAction(
+                    '查看全部',
+                    onTap: () =>
+                        openPage(context, FavoritesPage(library: library)),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('喜欢的故事，留到下次。', style: DS.smallFor(context)),
+                    ),
+                    const DSIllustration(
+                      'collection-favorites-glass',
+                      width: 72,
+                      height: 52,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 7),
+                if (library.favorites.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: DS.space8),
+                    child: Text('还没有收藏，去发现喜欢的影片。', style: DS.smallFor(context)),
+                  )
+                else
+                  _favoriteStrip(context),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          if (library.preview)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Panel(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 74,
+                      height: 40,
+                      child: Stack(
+                        children: [
+                          const Positioned(
+                            left: 32,
+                            child: MountainAvatar(initial: '满', size: 40),
+                          ),
+                          Positioned(
+                            left: 0,
+                            child: MountainAvatar(
+                              initial: library.initial,
+                              size: 40,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('正在一起看 · 预览'),
+                          Text('山海之间', style: DS.smallFor(context)),
+                        ],
+                      ),
+                    ),
+                    FilledButton(
+                      onPressed: () => openPage(
+                        context,
+                        DetailPage(film: films.first, library: library),
+                      ),
+                      child: const Text('返回'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          Panel(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              children: [
+                MenuRow(
+                  'sun',
+                  '外观',
+                  onTap: () => openPage(context, const AppearancePage()),
+                ),
+                const Divider(height: 1),
+                MenuRow('send', '观影邀请', onTap: () => _invitations(context)),
+                Divider(
+                  height: 1,
+                  indent: DS.navigationIcon + DS.space12,
+                  color: DSPalette.of(context).line,
+                ),
+                MenuRow(
+                  'volume-2',
+                  '播放与音频',
+                  onTap: () =>
+                      openPage(context, AudioSettingsPage(library: library)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: DS.space16),
+          Panel(
+            padding: const EdgeInsets.symmetric(horizontal: DS.space12),
+            child: Column(
+              children: [
+                MenuRow(
+                  'shield-check',
+                  '隐私与记录',
+                  onTap: () => openPage(context, PrivacyPage(library: library)),
+                ),
+                Divider(
+                  height: 1,
+                  indent: DS.navigationIcon + DS.space12,
+                  color: DSPalette.of(context).line,
+                ),
+                MenuRow(
+                  'circle-help',
+                  '帮助与支持',
+                  onTap: () => openPage(context, const HelpPage()),
+                ),
+                Divider(
+                  height: 1,
+                  indent: DS.navigationIcon + DS.space12,
+                  color: DSPalette.of(context).line,
+                ),
+                MenuRow(
+                  'info',
+                  '关于 Duoscene',
+                  onTap: () => openPage(context, const AboutPage()),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          Panel(
+            child: InkWell(
+              onTap: () => logout(context, library),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    DSIcon(
+                      'log-out',
+                      color: DSPalette.of(context).muted,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      library.preview ? '退出预览' : '退出登录',
+                      style: TextStyle(color: DSPalette.of(context).muted),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   static int _coverOrder(Film f) => switch (f.id) {
     'summer' => 0,
@@ -277,7 +305,10 @@ class ProfilePage extends StatelessWidget {
                       aspectRatio: .85,
                       onTap: () => openPage(
                         context,
-                        DetailPage(film: covers[index], library: library),
+                        DetailPage(
+                          film: covers[index],
+                          library: widget.library,
+                        ),
                       ),
                     ),
                   ),
@@ -288,8 +319,8 @@ class ProfilePage extends StatelessWidget {
 
   Iterable<Film> get _favoriteCovers {
     final items =
-        library.knownFilms
-            .where((f) => library.favorites.contains(f.id))
+        widget.library.knownFilms
+            .where((f) => widget.library.favorites.contains(f.id))
             .toList()
           ..sort((a, b) => _coverOrder(a).compareTo(_coverOrder(b)));
     return items.take(3);
@@ -309,14 +340,14 @@ class ProfilePage extends StatelessWidget {
               '邀请与房间',
               onTap: () {
                 Navigator.pop(sheet);
-                if (library.preview) {
+                if (widget.library.preview) {
                   tell(context, '开发预览没有账户凭据，请登录后管理真实房间。');
                 } else {
                   openPage(
                     context,
                     RoomListPage(
-                      session: library.session!,
-                      rooms: RoomRepository(library.session!),
+                      session: widget.library.session!,
+                      rooms: RoomRepository(widget.library.session!),
                     ),
                   );
                 }
@@ -327,7 +358,7 @@ class ProfilePage extends StatelessWidget {
               '接受观影邀请',
               onTap: () {
                 Navigator.pop(sheet);
-                openPage(context, ReceivedInvitePage(library: library));
+                openPage(context, ReceivedInvitePage(library: widget.library));
               },
             ),
           ],
