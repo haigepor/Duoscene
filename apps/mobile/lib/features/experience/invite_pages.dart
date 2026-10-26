@@ -12,6 +12,8 @@ import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
 import '../catalog/posters.dart';
 import '../rooms/room_repository.dart';
+import '../realtime/room_connection.dart';
+import '../realtime/room_media.dart';
 import '../realtime/room_watch_page.dart';
 
 Future<void> showInvite(
@@ -20,6 +22,8 @@ Future<void> showInvite(
   required LibraryState library,
   int episode = 1,
   int position = 0,
+  String? lineCode,
+  String? sourceIdentity,
 }) => showDSSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -29,6 +33,8 @@ Future<void> showInvite(
     library: library,
     episode: episode,
     position: position,
+    lineCode: lineCode,
+    sourceIdentity: sourceIdentity,
   ),
 );
 
@@ -39,10 +45,15 @@ class InviteSheet extends StatefulWidget {
     required this.library,
     this.episode = 1,
     this.position = 0,
+    this.lineCode,
+    this.sourceIdentity,
+    this.connectionFactory,
   });
   final Film film;
   final LibraryState library;
   final int episode, position;
+  final String? lineCode, sourceIdentity;
+  final RoomConnection Function(String roomId)? connectionFactory;
   @override
   State<InviteSheet> createState() => _InviteSheetState();
 }
@@ -51,6 +62,7 @@ class _InviteSheetState extends State<InviteSheet> {
   Invite? invite;
   Room? room;
   bool busy = false;
+  bool mediaInitialized = false;
   String? error;
   Timer? timer;
   @override
@@ -99,6 +111,22 @@ class _InviteSheetState extends State<InviteSheet> {
     try {
       final rooms = RoomRepository(session!);
       room ??= await rooms.create(widget.film.title);
+      if (widget.film.remote && !mediaInitialized) {
+        final media = catalogRoomMedia(
+          film: widget.film,
+          episode: widget.episode,
+          lineCode: widget.lineCode,
+          sourceIdentity: widget.sourceIdentity,
+        );
+        await initializeRoomMedia(
+          widget.connectionFactory?.call(room!.id) ??
+              RoomConnection(session, room!.id),
+          media: media,
+          positionMs: widget.position * 1000,
+        );
+        mediaInitialized = true;
+      }
+      if (!mounted) return;
       if (invite == null || invite!.expired)
         invite = await rooms.invite(room!.id);
       _scheduleExpiry();
@@ -139,12 +167,12 @@ class _InviteSheetState extends State<InviteSheet> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(DS.radiusSmall),
-                child: Image.asset(
-                  homeArtwork(widget.film),
+                child: FilmArtwork(
+                  widget.film,
+                  asset: homeArtwork(widget.film),
                   width: 64,
                   height: 48,
                   cacheWidth: 192,
-                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(width: DS.space12),
@@ -287,7 +315,10 @@ class _InviteSheetState extends State<InviteSheet> {
               icon: DSIcon('copy', size: DS.iconSmall, color: p.muted),
               label: const Text('复制邀请'),
             );
-            if (room == null || widget.library.preview) return copy;
+            if (room == null ||
+                widget.library.preview ||
+                (widget.film.remote && !mediaInitialized))
+              return copy;
             final enter = FilledButton.tonalIcon(
               style: FilledButton.styleFrom(
                 backgroundColor: p.tint,
@@ -297,7 +328,11 @@ class _InviteSheetState extends State<InviteSheet> {
                   ? null
                   : () => openPage(
                       context,
-                      RoomWatchPage(room: room!, auth: widget.library.session!),
+                      RoomWatchPage(
+                        room: room!,
+                        auth: widget.library.session!,
+                        provider: widget.library.provider,
+                      ),
                     ),
               icon: DSIcon('play', size: DS.iconSmall, color: p.onTint),
               label: const Text('进入同看房间'),
@@ -327,7 +362,9 @@ class _InviteSheetState extends State<InviteSheet> {
         ),
         const SizedBox(height: DS.space12),
         Text(
-          '仅房间成员可见 · 加入后选择双方可访问的视频',
+          widget.film.remote
+              ? '仅房间成员可见 · 加入后载入当前影片，等待双方准备'
+              : '仅房间成员可见 · 加入后选择双方可访问的视频',
           textAlign: TextAlign.center,
           style: DS.smallFor(context),
         ),
@@ -382,8 +419,11 @@ class _ReceivedInvitePageState extends State<ReceivedInvitePage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute<void>(
-            builder: (_) =>
-                RoomWatchPage(room: room, auth: widget.library.session!),
+            builder: (_) => RoomWatchPage(
+              room: room,
+              auth: widget.library.session!,
+              provider: widget.library.provider,
+            ),
           ),
         );
       }

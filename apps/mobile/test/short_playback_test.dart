@@ -20,7 +20,7 @@ class _Session extends PlaybackSession {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   testWidgets(
-    'short controls fit large text and reject a seek after media replacement',
+    'tiktok scrub line rejects a seek after media replacement and seeks on drag end',
     (tester) async {
       final session = _Session();
       session.core.duration = const Duration(minutes: 3);
@@ -39,12 +39,16 @@ void main() {
         MaterialApp(
           theme: duosceneTheme,
           home: Scaffold(
-            body: Center(
+            body: Align(
+              alignment: Alignment.bottomCenter,
               child: SizedBox(
-                width: 224,
+                width: 300,
                 child: MediaQuery(
                   data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-                  child: ShortPlaybackControls(player: player),
+                  child: ShortScrubLine(
+                    key: const Key('short-seek'),
+                    player: player,
+                  ),
                 ),
               ),
             ),
@@ -52,15 +56,32 @@ void main() {
         ),
       );
       expect(tester.takeException(), isNull);
-      final slider = tester.widget<Slider>(find.byKey(const Key('short-seek')));
-      expect(slider.onChanged, isNotNull);
-      slider.onChangeStart!(0);
+      final seekKey = find.byKey(const Key('short-seek'));
+      final width = tester.getSize(seekKey).width;
+      final detector = tester.widget<GestureDetector>(
+        find
+            .descendant(of: seekKey, matching: find.byType(GestureDetector))
+            .first,
+      );
+      // 换代拒绝：拖动开始后媒体被替换，松手不得落 seek。
+      detector.onHorizontalDragStart!(
+        DragStartDetails(localPosition: Offset(width / 2, 12)),
+      );
       session.mediaGeneration++;
-      slider.onChangeEnd!(9000);
+      detector.onHorizontalDragEnd!(DragEndDetails());
       expect(session.seeks, isEmpty);
-      slider.onChangeStart!(0);
-      slider.onChangeEnd!(12000);
-      expect(session.seeks, [const Duration(seconds: 12)]);
+      // 同一代内拖到 3/4 处松手：整长 3 分钟 → seek 到 135 秒。
+      detector.onHorizontalDragStart!(
+        DragStartDetails(localPosition: Offset(width / 2, 12)),
+      );
+      detector.onHorizontalDragUpdate!(
+        DragUpdateDetails(
+          globalPosition: Offset.zero,
+          localPosition: Offset(width * .75, 12),
+        ),
+      );
+      detector.onHorizontalDragEnd!(DragEndDetails());
+      expect(session.seeks, [const Duration(milliseconds: 135000)]);
       await tester.pumpWidget(const SizedBox.shrink());
       await session.close();
       session.dispose();

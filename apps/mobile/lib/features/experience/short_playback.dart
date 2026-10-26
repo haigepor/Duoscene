@@ -1,26 +1,36 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
 import '../playback/player_page.dart';
 import '../catalog/media_provider.dart';
 
-MediaLine? preferredShortLine(Iterable<MediaLine> lines) =>
-    lines.where((line) => line.episodes.length > 1).firstOrNull ??
-    lines
-        .where((line) => line.direct && line.episodes.isNotEmpty)
-        .firstOrNull ??
-    lines.where((line) => line.episodes.isNotEmpty).firstOrNull;
+/// 短剧信息流选线：多集正片优先；正片只有单集时保住多集线路（连播优先于
+/// 线路口味），最后才落回单集正片、单集「备用」。
+MediaLine? preferredShortLine(Iterable<MediaLine> lines) {
+  MediaLine? pick(bool Function(MediaLine line) test) =>
+      lines.where(test).firstOrNull;
+  bool main(MediaLine line) => !isBackupLineName(line.name);
+  return pick((line) => main(line) && line.episodes.length > 1) ??
+      pick((line) => line.episodes.length > 1) ??
+      pick((line) => main(line) && line.episodes.isNotEmpty) ??
+      pick((line) => line.episodes.isNotEmpty);
+}
 
 class ShortVideoSurface extends StatelessWidget {
   const ShortVideoSurface({
     super.key,
     required this.player,
     required this.onRetry,
+    this.onDoubleTap,
   });
   final PlayerPresentation player;
   final VoidCallback onRetry;
+
+  /// 双击画面收藏（短视频习惯）。为空时不注册双击，单击仍立即生效。
+  final VoidCallback? onDoubleTap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +51,7 @@ class ShortVideoSurface extends StatelessWidget {
               fit: BoxFit.contain,
               pauseUponEnteringBackgroundMode: false,
             ),
-          // 不注册纵向拖动，切集手势只交给外层 PageView。
+          // 不注册纵向拖动，切剧手势只交给外层 PageView。
           Positioned.fill(
             child: Semantics(
               button: true,
@@ -52,6 +62,9 @@ class ShortVideoSurface extends StatelessWidget {
                 onTap: error != null || busy
                     ? null
                     : () => unawaited(player.toggle()),
+                // 有双击收藏时，单击会等到双击窗口结束才执行：这是
+                // GestureDetector 的固有行为，换来的是同一点按区域支持收藏。
+                onDoubleTap: onDoubleTap,
                 child: Center(
                   child: error != null
                       ? TextButton(
@@ -80,18 +93,34 @@ class ShortVideoSurface extends StatelessWidget {
   }
 }
 
-class ShortPlaybackControls extends StatefulWidget {
-  const ShortPlaybackControls({super.key, required this.player});
+/// TikTok 式贴底进度线：常态 2px 细线，拖动时加粗并浮出时间气泡；
+/// seek 锁定发起时的会话代，切剧换代后松手不会落到新源上。
+class ShortScrubLine extends StatefulWidget {
+  const ShortScrubLine({super.key, required this.player});
   final PlayerPresentation player;
   @override
-  State<ShortPlaybackControls> createState() => _ShortPlaybackControlsState();
+  State<ShortScrubLine> createState() => _ShortScrubLineState();
 }
 
-class _ShortPlaybackControlsState extends State<ShortPlaybackControls> {
-  double? preview;
+class _ShortScrubLineState extends State<ShortScrubLine> {
+  double? drag; // 拖动目标位置（毫秒），松手或换代后清空。
   int? seekGeneration;
+  // 进度走会话的轻量 ValueNotifier 通道：200ms 一拍只重建这根 2px 细线，
+  // 外层再包 RepaintBoundary，把失效区域钉在本层，不牵连整页 raster。
+  ValueListenable<Duration>? _positionListen;
+
   static String time(int seconds) =>
       '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final listen = widget.player.session.positionTick;
+    if (!identical(_positionListen, listen)) {
+      _positionListen = listen;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = widget.player.session;
@@ -102,84 +131,154 @@ class _ShortPlaybackControlsState extends State<ShortPlaybackControls> {
         !session.loading &&
         session.error == null &&
         widget.player.error == null;
-    if (seekGeneration != session.generation) preview = null;
-    final progress = (preview ?? core.playerPosition.inMilliseconds.toDouble())
-        .clamp(0.0, total > 0 ? total.toDouble() : 1.0);
-    final toggle = IconButton(
-      key: const Key('short-transport-toggle'),
-      tooltip: core.playerPlaying ? '暂停' : '播放',
-      onPressed: ready ? () => unawaited(widget.player.toggle()) : null,
-      icon: Icon(
-        core.playerPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-        color: Colors.white,
-      ),
-    );
-    final timeline = SliderTheme(
-      data: SliderTheme.of(context).copyWith(
-        trackHeight: 2,
-        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
-        overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-      ),
-      child: Slider(
-        key: const Key('short-seek'),
-        label: ready
-            ? '${time(progress ~/ 1000)} / ${time(total ~/ 1000)}'
-            : '正在准备',
-        activeColor: Colors.white,
-        inactiveColor: Colors.white30,
-        min: 0,
-        max: total > 0 ? total.toDouble() : 1,
-        value: progress,
-        onChangeStart: ready
-            ? (_) => seekGeneration = session.generation
-            : null,
-        onChanged: ready ? (value) => setState(() => preview = value) : null,
-        onChangeEnd: ready
-            ? (value) {
-                final valid = seekGeneration == session.generation;
-                setState(() => preview = null);
-                if (valid)
-                  unawaited(
-                    session.seek(Duration(milliseconds: value.round())),
-                  );
-              }
-            : null,
-      ),
-    );
-    final timestamp = Text(
-      ready ? '${time(progress ~/ 1000)} / ${time(total ~/ 1000)}' : '准备中',
-      style: const TextStyle(fontSize: 11, color: Colors.white70),
-    );
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 240 ||
-            MediaQuery.textScalerOf(context).scale(11) > 16) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  toggle,
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: timestamp,
+    if (seekGeneration != session.generation) drag = null;
+    final scrubbing = drag != null;
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          double valueAt(double dx) => width <= 0 || total <= 0
+              ? 0.0
+              : (dx.clamp(0.0, width) / width) * total;
+
+          void startAt(Offset local) {
+            seekGeneration = session.generation;
+            setState(() => drag = valueAt(local.dx));
+          }
+
+          void end() {
+            final value = drag;
+            final valid = seekGeneration == session.generation;
+            setState(() => drag = null);
+            if (value != null && valid)
+              unawaited(session.seek(Duration(milliseconds: value.round())));
+          }
+
+          // 常态：进度线订阅轻通道局部重绘，手势层常驻，不依赖任何整页重建。
+          final line = ValueListenableBuilder<Duration>(
+            valueListenable: _positionListen ?? session.positionTick,
+            builder: (context, value, _) {
+              final position =
+                  (scrubbing ? Duration(milliseconds: drag!.round()) : value)
+                      .inMilliseconds
+                      .clamp(0, total > 0 ? total : 0);
+              final played = position.toDouble().clamp(
+                0.0,
+                total > 0 ? total.toDouble() : 0.0,
+              );
+              final fraction = total > 0 ? played / total : 0.0;
+              final clock = '${time(played ~/ 1000)} / ${time(total ~/ 1000)}';
+              return Semantics(
+                label: ready ? '播放进度 $clock' : '正在准备',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTapDown: ready
+                      ? (details) => startAt(details.localPosition)
+                      : null,
+                  onTapUp: ready ? (_) => end() : null,
+                  onTapCancel: ready ? () => setState(() => drag = null) : null,
+                  onHorizontalDragStart: ready
+                      ? (details) => startAt(details.localPosition)
+                      : null,
+                  onHorizontalDragUpdate: ready
+                      ? (details) => setState(
+                          () => drag = valueAt(details.localPosition.dx),
+                        )
+                      : null,
+                  onHorizontalDragEnd: ready ? (_) => end() : null,
+                  onHorizontalDragCancel: ready
+                      ? () => setState(() => drag = null)
+                      : null,
+                  child: CustomPaint(
+                    // 32px 命中高：视觉仍是 2px 细线，但手指不必贴着 2px 找。
+                    size: const Size(double.infinity, 32),
+                    painter: _HairlinePainter(
+                      fraction: fraction,
+                      active: scrubbing,
                     ),
                   ),
-                ],
+                ),
+              );
+            },
+          );
+          if (!scrubbing) return line;
+          // 拖动时在线上方浮出时间气泡，跟随拇指并收在两端之内。
+          final played = (drag ?? 0.0).clamp(
+            0.0,
+            total > 0 ? total.toDouble() : 0.0,
+          );
+          final fraction = total > 0 ? played / total : 0.0;
+          final clock = '${time(played ~/ 1000)} / ${time(total ~/ 1000)}';
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              line,
+              Positioned(
+                left: (fraction * (width - 88)).clamp(
+                  0.0,
+                  width < 88 ? 0.0 : width - 88,
+                ),
+                bottom: 26,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: .55),
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Text(
+                    clock,
+                    maxLines: 1,
+                    style: const TextStyle(fontSize: 11, color: Colors.white),
+                  ),
+                ),
               ),
-              timeline,
             ],
           );
-        }
-        return Row(
-          children: [
-            toggle,
-            Expanded(child: timeline),
-            timestamp,
-          ],
-        );
-      },
+        },
+      ),
     );
   }
+}
+
+/// 贴底细线：常态 2px，拖动加粗到 4px 并显示拇指；无缓冲轨道，保持 TikTok 的静默观感。
+class _HairlinePainter extends CustomPainter {
+  const _HairlinePainter({required this.fraction, required this.active});
+  final double fraction;
+  final bool active;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final thickness = active ? 4.0 : 2.0;
+    final radius = Radius.circular(thickness / 2);
+    final top = size.height / 2 - thickness / 2;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, top, size.width, thickness),
+        radius,
+      ),
+      Paint()..color = const Color(0x4DFFFFFF),
+    );
+    final playedWidth = size.width * fraction.clamp(0.0, 1.0);
+    if (playedWidth > 1)
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, top, playedWidth, thickness),
+          radius,
+        ),
+        Paint()..color = Colors.white,
+      );
+    if (active && playedWidth > 0)
+      canvas.drawCircle(
+        Offset(playedWidth, size.height / 2),
+        5,
+        Paint()..color = Colors.white,
+      );
+  }
+
+  @override
+  bool shouldRepaint(_HairlinePainter oldDelegate) =>
+      oldDelegate.fraction != fraction || oldDelegate.active != active;
 }
