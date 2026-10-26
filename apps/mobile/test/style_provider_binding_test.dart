@@ -79,6 +79,7 @@ class _StyleProvider implements MediaProvider {
     String filmId, {
     required int episode,
     String? lineCode,
+    MediaDetail? cachedDetail,
   }) => unresolvedMedia.future;
   @override
   void close() {}

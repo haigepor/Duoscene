@@ -67,7 +67,22 @@ void main() {
     },
   );
 
-  for (final host in ['m.ykimg.com', 'pic7.iqiyipic.com']) {
+  for (final host in [
+    'm.ykimg.com',
+    'pic0.iqiyipic.com',
+    'pic1.iqiyipic.com',
+    'pic2.iqiyipic.com',
+    'pic3.iqiyipic.com',
+    'pic4.iqiyipic.com',
+    'pic5.iqiyipic.com',
+    'pic6.iqiyipic.com',
+    'pic7.iqiyipic.com',
+    'pic8.iqiyipic.com',
+    'pic9.iqiyipic.com',
+    'puui.qpic.cn',
+    'i0.hdslb.com',
+    'images.imgzy1.com',
+  ]) {
     for (final port in ['', ':80']) {
       test('verified artwork $host$port upgrades to standard HTTPS port', () {
         final request = ArtworkRequest.parse(
@@ -123,6 +138,67 @@ void main() {
     });
   }
 
+  test('baidu image proxy resolves to verified douban target with headers', () {
+    const proxyUrl =
+        'https://image.baidu.com/search/down?url=https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2928250933.jpg';
+    final request = ArtworkRequest.parse(proxyUrl)!;
+    expect(
+      request.uri.toString(),
+      'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2928250933.jpg',
+    );
+    expect(request.headers, {
+      'User-Agent': browserAgent,
+      'Referer': 'https://movie.douban.com/',
+    });
+  });
+
+  test('verified img3 artwork gets the same douban headers', () {
+    final request = ArtworkRequest.parse(
+      'https://img3.doubanio.com/view/photo/s_ratio_poster/public/p2928250933.jpg',
+    )!;
+    expect(request.headers, {
+      'User-Agent': browserAgent,
+      'Referer': 'https://movie.douban.com/',
+    });
+  });
+
+  test('img9 douban host gets the same verified anti-hotlink headers', () {
+    final request = ArtworkRequest.parse(
+      'https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2935035734.jpg',
+    )!;
+    expect(request.headers, {
+      'User-Agent': browserAgent,
+      'Referer': 'https://movie.douban.com/',
+    });
+    expect(
+      ArtworkRequest.parse('https://img9.doubanio.com:8443/p.jpg')!.headers,
+      isEmpty,
+    );
+  });
+
+  test('snzypic plaintext image host is the only verified http allowance', () {
+    const url = 'http://snzypic.com/upload/vod/20240103-1/37aa4b49.jpg';
+    final request = ArtworkRequest.parse(url)!;
+    expect(request.uri.scheme, 'http');
+    expect(request.uri.host, 'snzypic.com');
+    expect(request.headers, isEmpty);
+    for (final url in [
+      'http://snzypic.com:8080/upload/vod/x.jpg',
+      'http://snzypic.com.evil.example/upload/vod/x.jpg',
+      'http://sub.snzypic.com/upload/vod/x.jpg',
+    ]) {
+      expect(ArtworkRequest.parse(url), isNull, reason: url);
+    }
+  });
+
+  test('baidu proxy with unverified target keeps the proxy url bare', () {
+    const proxyUrl =
+        'https://image.baidu.com/search/down?url=https://img3.doubanio.com.evil.example/poster.jpg';
+    final request = ArtworkRequest.parse(proxyUrl)!;
+    expect(request.uri.toString(), proxyUrl);
+    expect(request.headers, isEmpty);
+  });
+
   test('provider retains normal HTTPS artwork path and query', () async {
     const url = 'https://img.lzipic.com/cover.webp?width=480&quality=85';
     expect((await _filmWithPoster(url)).posterUrl, url);
@@ -131,6 +207,8 @@ void main() {
   for (final original in [
     'http://m.ykimg.com/058400006AD1B9FD13FA2B1479067535?width=480',
     'http://pic7.iqiyipic.com/image/20260909/47/13/a_101467435_m_601_579_772.jpg',
+    'http://pic4.iqiyipic.com/image/20260109/d1/1e/a_100459186_m_601_m36_1248_702.jpg',
+    'http://pic1.iqiyipic.com/image/20261022/b0/8e/a_101698406_m_601_579_772.jpg',
   ]) {
     test('provider upgrades verified artwork endpoint $original', () async {
       expect(
