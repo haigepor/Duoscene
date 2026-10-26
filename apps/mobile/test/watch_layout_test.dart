@@ -64,11 +64,11 @@ void main() {
           final inputSurface = t.getRect(
             find.byKey(const Key('watch-composer-input-surface')),
           );
-          expect(inputSurface.width, greaterThan(statusBar.width));
-          expect(inputSurface.left, lessThan(statusBar.left));
-          expect(inputSurface.right, greaterThan(statusBar.right));
-          expect(inputSurface.left, 0);
-          expect(inputSurface.width, width);
+          // 输入框通铺到 DS.space12；状态栏与输入框同底色，但左右各收一道，严格窄于输入框。
+          expect(inputSurface.left, DS.space12);
+          expect(inputSurface.width, width - DS.space12 * 2);
+          expect(statusBar.left, greaterThan(inputSurface.left));
+          expect(statusBar.right, lessThan(inputSurface.right));
           expect(find.text('剧情 · 108 分钟'), findsOneWidget);
           expect(find.text('正在观看'), findsNothing);
           expect(find.text('山海之间'), findsOneWidget);
@@ -380,7 +380,9 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.text('选集 · 3'));
       await t.pumpAndSettle();
-      expect(find.text('同看时，换集将与好友同步确认'), findsOneWidget);
+      // 底部常驻描述已删除；同看模式下弹层仍可用且不再有静态说明文案。
+      expect(find.text('同看时，换集将与好友同步确认'), findsNothing);
+      expect(find.byType(OutlinedButton), findsWidgets);
       expect(t.takeException(), isNull);
       await t.pumpWidget(const SizedBox());
       library.dispose();
