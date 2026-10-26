@@ -9,6 +9,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 
+import '../../app/theme.dart';
+import '../../design/tokens.dart';
 import 'playback_session.dart';
 import 'playback_source.dart';
 import 'player_audio.dart';
@@ -28,6 +30,7 @@ class PlayerPage extends StatefulWidget {
     this.presentation,
     this.canStartPlayback,
     this.onManualPause,
+    this.respectSafeArea = true,
   });
   final String roomName;
   final String? roomId;
@@ -36,6 +39,9 @@ class PlayerPage extends StatefulWidget {
   final Widget Function(BuildContext, PlayerPresentation, Widget)? presentation;
   final bool Function()? canStartPlayback;
   final VoidCallback? onManualPause;
+
+  /// 竖屏信息流等全屏媒体页传 false：画面顶到状态栏后，控件自行避开安全区。
+  final bool respectSafeArea;
   @override
   State<PlayerPage> createState() => _PlayerPageState();
 }
@@ -239,7 +245,7 @@ class _PlayerPageState extends State<PlayerPage> with WidgetsBindingObserver {
                       child: Text(
                         '挑选截图',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: DS.pageTitleSize,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -346,18 +352,23 @@ class _PlayerPageState extends State<PlayerPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Theme(
-      data: theme,
-      child: PopScope(
-        canPop: !_fullscreen,
-        onPopInvokedWithResult: (popped, _) {
-          if (!popped && _fullscreen) unawaited(_fullscreenToggle());
-        },
-        child: Scaffold(
-          key: _scaffoldKey,
-          body: SafeArea(
-            top: !_fullscreen,
-            bottom: !_fullscreen,
+    // 播放器是媒体暗色环境：Scaffold 底色与画面一致，SafeArea 外露出的
+    // 状态栏/导航条区域不再用内容页的米白底。
+    return mediaSystemBars(
+      context,
+      Theme(
+        data: theme,
+        child: PopScope(
+          canPop: !_fullscreen,
+          onPopInvokedWithResult: (popped, _) {
+            if (!popped && _fullscreen) unawaited(_fullscreenToggle());
+          },
+          child: Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: DSPalette.media,
+            body: SafeArea(
+              top: !_fullscreen && widget.respectSafeArea,
+              bottom: !_fullscreen,
             child: AnimatedBuilder(
               animation: s,
               builder: (context, _) => LayoutBuilder(
@@ -420,7 +431,8 @@ class _PlayerPageState extends State<PlayerPage> with WidgetsBindingObserver {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 
@@ -484,7 +496,10 @@ class _NetworkSourceFormState extends State<_NetworkSourceForm> {
           children: [
             const Text(
               '载入视频',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: DS.pageTitleSize,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 20),
             TextField(
