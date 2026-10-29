@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../design/window_layout.dart';
+
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import 'catalog.dart';
@@ -298,7 +300,14 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
           padding: const EdgeInsets.symmetric(horizontal: DS.pageInset),
           sliver: SliverLayoutBuilder(
             builder: (context, constraints) {
-              final columns = large ? 2 : 3;
+              final columns = WindowLayout.isWide(context)
+                  ? WindowLayout.posterColumns(
+                      constraints.crossAxisExtent,
+                      MediaQuery.textScalerOf(context),
+                    )
+                  : large
+                  ? 2
+                  : 3;
               final width =
                   (constraints.crossAxisExtent - DS.space8 * (columns - 1)) /
                   columns;
@@ -625,7 +634,11 @@ class _CatalogDiscoveryState extends State<CatalogDiscovery> {
   }
 
   Widget _posterShelf(List<Film> items, bool large) {
-    final width = large ? 144.0 : 104.0;
+    final width = WindowLayout.isWide(context)
+        ? 144.0
+        : large
+        ? 144.0
+        : 104.0;
     final text = MediaQuery.textScalerOf(context);
     return SizedBox(
       height:
@@ -691,7 +704,17 @@ class _DiscoveryCollectionState extends State<_DiscoveryCollection> {
       ),
       LayoutBuilder(
         builder: (context, constraints) {
-          final columns = widget.large || constraints.maxWidth < 280 ? 1 : 2;
+          final columns = WindowLayout.isWide(context)
+              ? (constraints.maxWidth /
+                        (280 *
+                            MediaQuery.textScalerOf(context)
+                                .scale(1)
+                                .clamp(1, 1.3)))
+                    .floor()
+                    .clamp(1, 4)
+              : widget.large || constraints.maxWidth < 280
+              ? 1
+              : 2;
           final width =
               (constraints.maxWidth - DS.space8 * (columns - 1)) / columns;
           final picks = [
@@ -791,6 +814,7 @@ class _DiscoveryPoster extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     label: '${film.title}，${homeMetadata(film)}',
+    onTap: onTap,
     excludeSemantics: true,
     child: InkWell(
       onTap: onTap,
@@ -809,7 +833,8 @@ class _DiscoveryPoster extends StatelessWidget {
                   cacheWidth:
                       (constraints.maxWidth *
                               MediaQuery.devicePixelRatioOf(context))
-                          .ceil(),
+                          .ceil()
+                          .clamp(1, 480),
                 ),
               ),
             ),

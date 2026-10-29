@@ -3,7 +3,6 @@ class ArtworkRequest {
   final Uri uri;
   final Map<String, String> headers;
 
-  static const _httpsUpgrades = {'m.ykimg.com', 'pic7.iqiyipic.com'};
   static const browserAgent =
       'Mozilla/5.0 (Linux; Android 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36';
 
@@ -18,10 +17,11 @@ class ArtworkRequest {
         uri.userInfo.isNotEmpty ||
         uri.hasFragment)
       return null;
-    // 仅升级已逐条实测支持 HTTPS 的精确图片域，不放开全局明文网络。
-    if (uri.scheme == 'http' &&
-        _httpsUpgrades.contains(uri.host) &&
-        uri.port == 80) {
+    // 来源会增加新的图片 CDN：统一尝试 HTTPS，保留签名路径/查询，不降级明文或忽略证书。
+    // 非标准 HTTP 端口无法推断对应 TLS 入口；协议相对地址只采用标准 HTTPS 端口。
+    if (uri.scheme.isEmpty && (!uri.hasPort || uri.port == 443)) {
+      uri = uri.replace(scheme: 'https');
+    } else if (uri.scheme == 'http' && uri.port == 80) {
       uri = uri.replace(scheme: 'https', port: 443);
     }
     if (uri.scheme != 'https') return null;

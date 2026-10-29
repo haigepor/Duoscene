@@ -68,6 +68,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) => PageFrame(
     title: '搜索',
+    maxContentWidth: 840,
     child: Column(
       children: [
         Padding(

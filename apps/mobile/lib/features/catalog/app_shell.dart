@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/motion.dart';
-import '../../design/bottom_navigation.dart';
+import '../../design/adaptive_app_frame.dart';
+import '../../design/window_layout.dart';
 import '../auth/session.dart';
 import '../experience/short_feed.dart';
 import '../experience/preview_gallery.dart';
@@ -36,11 +37,15 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   late final library =
       widget.library ??
-      LibraryState(
-        accountId: widget.preview ? 'design-preview' : widget.session!.user!.id,
-        session: widget.session,
-        preview: widget.preview,
-      );
+      (!widget.preview && widget.session?.user == null
+          ? LibraryState.guest()
+          : LibraryState(
+              accountId: widget.preview
+                  ? 'design-preview'
+                  : widget.session!.user!.id,
+              session: widget.session,
+              preview: widget.preview,
+            ));
   final tab = ValueNotifier(0);
   final preparingTab = ValueNotifier<int?>(null);
   late final navigation = Listenable.merge([tab, preparingTab]);
@@ -105,7 +110,9 @@ class _AppShellState extends State<AppShell> {
         // 切页复用同一批 Widget；只有业务数据变化才刷新页面描述。
         // 可见性由 MotionTabs 的 TickerMode 传递，避免离开首页时重建整棵列表。
         final pages = <Widget>[
-          WatchHome(library: library, onProfile: () => select(3)),
+          ContentWidth(
+            child: WatchHome(library: library, onProfile: () => select(3)),
+          ),
           ShortFeed(library: library, active: true),
           HistoryPage(library: library, onBrowse: () => select(0)),
           ProfilePage(
@@ -125,24 +132,15 @@ class _AppShellState extends State<AppShell> {
             final index = tab.value;
             // 覆盖状态只更新导航壳，子页沿用 Playra 的可见性规则暂停后台工作。
             final covered = ModalRoute.isCurrentOf(context) == false;
-            return Scaffold(
+            return AdaptiveAppFrame(
+              index: index,
+              onSelect: select,
               // 内容延伸到玻璃底栏后方；各页通过底部 inset 保留最后一项的可达性。
-              extendBody: true,
-              body: Forest(
-                child: SafeArea(
-                  bottom: false,
-                  child: MotionTabs(
-                    index: index,
-                    isCovered: covered,
-                    preparingIndex: preparingTab.value,
-                    children: pages,
-                  ),
-                ),
-              ),
-              bottomNavigationBar: DuosceneNavigation(
+              child: MotionTabs(
                 index: index,
-                onSelect: select,
-                notifyReselection: true,
+                isCovered: covered,
+                preparingIndex: preparingTab.value,
+                children: pages,
               ),
             );
           },

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../design/window_layout.dart';
+
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import '../catalog/catalog.dart';
@@ -283,6 +285,21 @@ class _ShortFeedState extends State<ShortFeed> {
   }
 
   Widget _content({
+    Widget? surface,
+    double? bottomInset,
+    PlayerPresentation? player,
+  }) => ColoredBox(
+    color: DSPalette.media,
+    child: PortraitMediaFrame(
+      child: _feedContent(
+        surface: surface,
+        bottomInset: bottomInset,
+        player: player,
+      ),
+    ),
+  );
+
+  Widget _feedContent({
     Widget? surface,
     double? bottomInset,
     PlayerPresentation? player,

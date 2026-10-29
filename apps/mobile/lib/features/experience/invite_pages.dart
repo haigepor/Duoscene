@@ -86,6 +86,10 @@ class _InviteSheetState extends State<InviteSheet> {
 
   Future<void> generate({bool share = false}) async {
     if (busy) return;
+    if (widget.library.isGuest) {
+      tell(context, '当前免登录模式暂不支持双人房间。');
+      return;
+    }
     if (widget.library.preview) {
       tell(context, '预览邀请不会创建房间或生成真实邀请码。请登录后使用真实邀请。');
       return;
@@ -362,6 +366,10 @@ class _ReceivedInvitePageState extends State<ReceivedInvitePage> {
 
   Future<void> join() async {
     if (busy) return;
+    if (widget.library.isGuest) {
+      tell(context, '当前免登录模式暂不支持双人房间。');
+      return;
+    }
     if (widget.library.preview) {
       tell(context, '预览：已准备加入，尚未同步。实际加入需登录并使用真实邀请码。');
       return;

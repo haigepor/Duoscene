@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import '../../design/motion.dart';
+import '../../design/adaptive_watch_layout.dart';
 import '../playback/widgets/player_library_view.dart';
 import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
@@ -189,240 +190,247 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
             final p = DSPalette.of(context);
             return Forest(
               child: LayoutBuilder(
-                builder: (context, bounds) => Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: DS.space4,
-                        vertical: DS.space4,
-                      ),
-                      child: Row(
-                        children: [
-                          IconTap(
-                            'arrow-left',
-                            '返回',
-                            () => Navigator.pop(context),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  s.source?.title ?? film.title,
-                                  key: const Key('watch-header-title'),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: DS.toolbar,
-                                ),
-                                const SizedBox(height: DS.space2),
-                                Text(
-                                  '${film.genre} · ${film.episodes > 1
-                                      ? '第 $episode 集 · 共 ${film.episodes} 集'
-                                      : film.remote
-                                      ? film.meta
-                                      : '${film.minutes} 分钟'}',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: DS.smallFor(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconTap('ellipsis', '播放器更多功能', () => _more(controls)),
-                        ],
-                      ),
+                builder: (context, bounds) => AdaptiveWatchLayout(
+                  showMedia: !composing && bounds.maxHeight >= 400,
+                  header: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DS.space4,
+                      vertical: DS.space4,
                     ),
-                    if (!composing && bounds.maxHeight >= 400)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: DS.pageInset,
+                    child: Row(
+                      children: [
+                        IconTap(
+                          'arrow-left',
+                          '返回',
+                          () => Navigator.pop(context),
                         ),
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: bounds.maxHeight * .4,
-                            ),
-                            child: AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                  DS.panelRadius,
-                                ),
-                                child: s.source == null
-                                    ? WatchCover(
-                                        cover: homeArtwork(
-                                          film,
-                                          landscape: true,
-                                        ),
-                                        onChoose: () => controlsKey.currentState
-                                            ?.chooseSource(),
-                                      )
-                                    : surface,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (controls.error != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: DS.pageInset,
-                        ),
-                        child: Text(
-                          controls.error!,
-                          style: DS.small.copyWith(color: p.amber),
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        DS.pageInset,
-                        DS.space4,
-                        DS.pageInset,
-                        DS.space12,
-                      ),
-                      child: WatchControls(
-                        key: controlsKey,
-                        player: controls,
-                        library: widget.library,
-                        shared: shared,
-                        status: _status(),
-                        onInvite: invite,
-                        lines: widget.lines,
-                        lineCode: lineCode,
-                        onLine: _selectLine,
-                        onPeerReady: !intent.peerReady
-                            ? () {
-                                intent.peer(true);
-                                setState(
-                                  () => widget.library.scenario =
-                                      intent.manuallyPaused
-                                      ? 'manual-pause'
-                                      : 'normal',
-                                );
-                              }
-                            : null,
-                        onEndPreview: shared
-                            ? () {
-                                intent.peer(true);
-                                setState(
-                                  () => widget.library.scenario =
-                                      'private-chat-empty',
-                                );
-                              }
-                            : null,
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, DS.space12),
-                        child: Material(
-                          type: MaterialType.transparency,
+                        Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: DS.pageInset + DS.space12,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: DSTabs(
-                                        labels: const ['交流', '简介'],
-                                        index: tab,
-                                        onChanged: (i) {
-                                          FocusScope.of(context).unfocus();
-                                          setState(() => tab = i);
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: DS.space8),
-                                    Expanded(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          DSIcon(
-                                            'lock-keyhole',
-                                            size: DS.chevronSize,
-                                            color: p.muted,
-                                          ),
-                                          const SizedBox(width: DS.space4),
-                                          Flexible(
-                                            child: Text(
-                                              '私密交流',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: DS.smallFor(context),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              Text(
+                                s.source?.title ?? film.title,
+                                key: const Key('watch-header-title'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: DS.toolbar,
                               ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: DS.pageInset + DS.space12,
-                                ),
-                                child: Divider(height: 1),
-                              ),
-                              Expanded(
-                                child: MotionTabs(
-                                  index: tab,
-                                  children: [
-                                    ChatPanel(
-                                      library: widget.library,
-                                      compact: true,
-                                      onInvite: invite,
-                                      composerHeader: WatchComposerBar(
-                                        player: controls,
-                                        shared: shared,
-                                        episode: film.episodes > 1
-                                            ? episode
-                                            : null,
-                                        onTogether: () => controlsKey
-                                            .currentState
-                                            ?.showTogether(),
-                                        onEpisode: _selectEpisode,
-                                        onQuality: () => controlsKey
-                                            .currentState
-                                            ?.chooseQuality(),
-                                      ),
-                                    ),
-                                    ListView(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal:
-                                            DS.pageInset + DS.panelPadding,
-                                        vertical: DS.panelPadding,
-                                      ),
-                                      children: [
-                                        Text(
-                                          film.synopsis,
-                                          style: DS.body.copyWith(
-                                            color: p.muted,
-                                          ),
-                                        ),
-                                        const SizedBox(height: DS.space12),
-                                        Text(
-                                          film.remote
-                                              ? '第一播放源 · 线路不可用时可返回详情换线。'
-                                              : '片目为设计预览，选择的视频以实际文件为准。',
-                                          style: DS.smallFor(context),
-                                        ),
-                                        const SizedBox(height: DS.space12),
-                                        PlayerQuickActions(player: controls),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              const SizedBox(height: DS.space2),
+                              Text(
+                                '${film.genre} · ${film.episodes > 1
+                                    ? '第 $episode 集 · 共 ${film.episodes} 集'
+                                    : film.remote
+                                    ? film.meta
+                                    : '${film.minutes} 分钟'}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: DS.smallFor(context),
                               ),
                             ],
                           ),
                         ),
+                        IconTap('ellipsis', '播放器更多功能', () => _more(controls)),
+                      ],
+                    ),
+                  ),
+                  media: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: DS.pageInset,
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxHeight: double.infinity,
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(DS.panelRadius),
+                            child: s.source == null
+                                ? WatchCover(
+                                    cover: homeArtwork(film, landscape: true),
+                                    onChoose: () => controlsKey.currentState
+                                        ?.chooseSource(),
+                                  )
+                                : surface,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
+                  ),
+                  controls: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (controls.error != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: DS.pageInset,
+                          ),
+                          child: Text(
+                            controls.error!,
+                            style: DS.small.copyWith(color: p.amber),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          DS.pageInset,
+                          DS.space4,
+                          DS.pageInset,
+                          DS.space12,
+                        ),
+                        child: WatchControls(
+                          key: controlsKey,
+                          player: controls,
+                          library: widget.library,
+                          shared: shared,
+                          status: _status(),
+                          onInvite: invite,
+                          lines: widget.lines,
+                          lineCode: lineCode,
+                          onLine: _selectLine,
+                          onPeerReady: !intent.peerReady
+                              ? () {
+                                  intent.peer(true);
+                                  setState(
+                                    () => widget.library.scenario =
+                                        intent.manuallyPaused
+                                        ? 'manual-pause'
+                                        : 'normal',
+                                  );
+                                }
+                              : null,
+                          onEndPreview: shared
+                              ? () {
+                                  intent.peer(true);
+                                  setState(
+                                    () => widget.library.scenario =
+                                        'private-chat-empty',
+                                  );
+                                }
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                  conversation: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            0,
+                            0,
+                            0,
+                            DS.space12,
+                          ),
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: DS.pageInset + DS.space12,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: DSTabs(
+                                          labels: const ['交流', '简介'],
+                                          index: tab,
+                                          onChanged: (i) {
+                                            FocusScope.of(context).unfocus();
+                                            setState(() => tab = i);
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: DS.space8),
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            DSIcon(
+                                              'lock-keyhole',
+                                              size: DS.chevronSize,
+                                              color: p.muted,
+                                            ),
+                                            const SizedBox(width: DS.space4),
+                                            Flexible(
+                                              child: Text(
+                                                '私密交流',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: DS.smallFor(context),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: DS.pageInset + DS.space12,
+                                  ),
+                                  child: Divider(height: 1),
+                                ),
+                                Expanded(
+                                  child: MotionTabs(
+                                    index: tab,
+                                    children: [
+                                      ChatPanel(
+                                        library: widget.library,
+                                        compact: true,
+                                        onInvite: invite,
+                                        composerHeader: WatchComposerBar(
+                                          player: controls,
+                                          shared: shared,
+                                          episode: film.episodes > 1
+                                              ? episode
+                                              : null,
+                                          onTogether: () => controlsKey
+                                              .currentState
+                                              ?.showTogether(),
+                                          onEpisode: _selectEpisode,
+                                          onQuality: () => controlsKey
+                                              .currentState
+                                              ?.chooseQuality(),
+                                        ),
+                                      ),
+                                      ListView(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal:
+                                              DS.pageInset + DS.panelPadding,
+                                          vertical: DS.panelPadding,
+                                        ),
+                                        children: [
+                                          Text(
+                                            film.synopsis,
+                                            style: DS.body.copyWith(
+                                              color: p.muted,
+                                            ),
+                                          ),
+                                          const SizedBox(height: DS.space12),
+                                          Text(
+                                            film.remote
+                                                ? '第一播放源 · 线路不可用时可返回详情换线。'
+                                                : '片目为设计预览，选择的视频以实际文件为准。',
+                                            style: DS.smallFor(context),
+                                          ),
+                                          const SizedBox(height: DS.space12),
+                                          PlayerQuickActions(player: controls),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

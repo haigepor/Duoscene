@@ -1,0 +1,3591 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-29",
+  "project": "Duoscene",
+  "scope": "Tablet adaptive layout implementation; existing image/guest/GPU changes preserved",
+  "baseline": {
+    "head": "435fea310b21dfe7c5279ea88167a6a247ec0461",
+    "initialDirtyFileCount": 23,
+    "unchangedPreviousFiles": [
+      "apps/mobile/README.md",
+      "apps/mobile/lib/app/duoscene_app.dart",
+      "apps/mobile/lib/core/rendering_budget.dart",
+      "apps/mobile/lib/features/catalog/artwork_request.dart",
+      "apps/mobile/lib/features/catalog/home_page.dart",
+      "apps/mobile/lib/features/catalog/library_state.dart",
+      "apps/mobile/lib/features/experience/invite_pages.dart",
+      "apps/mobile/lib/features/experience/settings_pages.dart",
+      "apps/mobile/test/app_test.dart",
+      "apps/mobile/test/artwork_decode_test.dart",
+      "apps/mobile/test/artwork_loading_test.dart",
+      "apps/mobile/test/benchmarks/README.md",
+      "apps/mobile/test/benchmarks/artwork_live_probe.dart",
+      "apps/mobile/test/guest_entry_test.dart",
+      "apps/mobile/test/provider_artwork_test.dart",
+      "apps/mobile/test/rendering_budget_test.dart",
+      "docs/performance/20261029-image-gpu-results.json",
+      "docs/performance/20261029-tablet-layout-audit.json",
+      "docs/playra-image-gpu-optimization-20261029.zh.md",
+      "docs/tablet-layout-audit-20261029.zh.md"
+    ],
+    "previousDirtyModifiedThisTurn": [
+      "apps/mobile/lib/features/catalog/app_shell.dart",
+      "apps/mobile/lib/features/catalog/posters.dart",
+      "apps/mobile/lib/features/catalog/profile_page.dart"
+    ],
+    "manifest": ".local/tablet-implementation-20261029/baseline-manifest.json"
+  },
+  "toolchain": {
+    "flutter": "3.47.6",
+    "dart": "3.13.5",
+    "java": "21.0.12.1+1",
+    "mode": "Profile",
+    "abi": "arm64-v8a"
+  },
+  "device": {
+    "model": "TB711FU",
+    "android": 16,
+    "physicalSizePx": [
+      2560,
+      3840
+    ],
+    "densityDpi": 480,
+    "devicePixelRatio": 3,
+    "portraitLogicalSize": [
+      853.3333333333334,
+      1280
+    ],
+    "landscapeLogicalSize": [
+      1280,
+      853.3333333333334
+    ],
+    "fontScale": 1,
+    "restoredRotation": "lock 0",
+    "adbReversePortsAfter": [],
+    "normalApplicationReinstalled": true,
+    "finalScreen": "portrait home / recommendation"
+  },
+  "verification": {
+    "flutterTests": {
+      "passed": 425,
+      "log": ".local/tablet-implementation-20261029/flutter-delivery.log",
+      "existingPhoneGoldensUpdated": false
+    },
+    "analyze": "No issues found",
+    "matrix": {
+      "cases": 135,
+      "errorCount": 0,
+      "records": [
+        {
+          "page": "home",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 390,
+            "height": 206.15
+          },
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 206,
+            "crossAxisExtent": 358,
+            "columnWidth": 114
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            109.33333333333333,
+            109.33333333333333,
+            109.33333333333333
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 358,
+            "height": 201.375
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [
+            102.66666666666667,
+            102.66666666666667,
+            102.66666666666667
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            110,
+            110,
+            110,
+            110,
+            110
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 390,
+            "height": 408
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 390,
+            "height": 270.45
+          },
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 225,
+            "crossAxisExtent": 358,
+            "columnWidth": 114
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            109.33333333333333,
+            109.33333333333333,
+            109.33333333333333
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 358,
+            "height": 201.375
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [
+            102.66666666666667,
+            102.66666666666667,
+            102.66666666666667
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            171,
+            171,
+            171,
+            171,
+            171
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 390,
+            "height": 461.20000000000005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 390,
+            "height": 286.55
+          },
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "grid": {
+            "columns": 2,
+            "mainAxisExtent": 325.33333333333337,
+            "crossAxisExtent": 358,
+            "columnWidth": 175
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            109.33333333333333,
+            109.33333333333333,
+            109.33333333333333
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 358,
+            "height": 201.375
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [
+            102.66666666666667,
+            102.66666666666667,
+            102.66666666666667
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            171,
+            171,
+            171,
+            171,
+            171
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 390,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "phone",
+          "logicalWidth": 390,
+          "logicalHeight": 844,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 390,
+            "height": 567.5999999999999
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 504,
+            "height": 264
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 256.66666666666663,
+            "crossAxisExtent": 472,
+            "columnWidth": 152
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            126,
+            126,
+            126,
+            126,
+            126,
+            126,
+            126,
+            126,
+            126,
+            126,
+            126,
+            126
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 568,
+            "height": 319.5
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            143.33333333333334,
+            143.33333333333334,
+            143.33333333333334
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 4,
+            "mainAxisExtent": 226.61111111111111,
+            "crossAxisExtent": 548,
+            "columnWidth": 125
+          },
+          "posterWidths": [
+            125,
+            125,
+            125,
+            125,
+            125
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 600,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 600,
+            "height": 408
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 504,
+            "height": 264
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 2,
+            "mainAxisExtent": 382.3333333333333,
+            "crossAxisExtent": 472,
+            "columnWidth": 232
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 568,
+            "height": 319.5
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            219,
+            219,
+            219
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 309.8888888888889,
+            "crossAxisExtent": 548,
+            "columnWidth": 172
+          },
+          "posterWidths": [
+            172,
+            172,
+            172,
+            172,
+            172
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 600,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 600,
+            "height": 434.20000000000005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 504,
+            "height": 295.2
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 2,
+            "mainAxisExtent": 401.3333333333333,
+            "crossAxisExtent": 472,
+            "columnWidth": 232
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334,
+            173.33333333333334
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 568,
+            "height": 319.5
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            219,
+            219,
+            219
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 327.8888888888889,
+            "crossAxisExtent": 548,
+            "columnWidth": 172
+          },
+          "posterWidths": [
+            172,
+            172,
+            172,
+            172,
+            172
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 600,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "medium",
+          "logicalWidth": 600,
+          "logicalHeight": 900,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 600,
+            "height": 495.59999999999997
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 757.333333,
+            "height": 264
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 5,
+            "mainAxisExtent": 238.88888880000002,
+            "crossAxisExtent": 725.333333,
+            "columnWidth": 138.6666666
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666,
+            148.2666666
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 821.333333,
+            "height": 461.99999981250005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            168.83333325,
+            168.83333325,
+            168.83333325
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 5,
+            "mainAxisExtent": 257.8148147222222,
+            "crossAxisExtent": 801.333333,
+            "columnWidth": 147.4666666
+          },
+          "posterWidths": [
+            147.4666666,
+            147.4666666,
+            147.4666666,
+            147.4666666,
+            147.4666666
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 853.333333,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 640,
+            "height": 408
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 757.333333,
+            "height": 264
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 388.25925911111113,
+            "crossAxisExtent": 725.333333,
+            "columnWidth": 236.44444433333334
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 821.333333,
+            "height": 461.99999981250005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            227.77777766666668,
+            227.77777766666668,
+            227.77777766666668
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 4,
+            "mainAxisExtent": 332.5740739583334,
+            "crossAxisExtent": 801.333333,
+            "columnWidth": 188.33333325
+          },
+          "posterWidths": [
+            188.33333325,
+            188.33333325,
+            188.33333325,
+            188.33333325,
+            188.33333325
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 853.333333,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 640,
+            "height": 434.20000000000005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 757.333333,
+            "height": 295.2
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 407.25925911111113,
+            "crossAxisExtent": 725.333333,
+            "columnWidth": 236.44444433333334
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325,
+            189.33333325
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 821.333333,
+            "height": 461.99999981250005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            227.77777766666668,
+            227.77777766666668,
+            227.77777766666668
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 4,
+            "mainAxisExtent": 350.5740739583334,
+            "crossAxisExtent": 801.333333,
+            "columnWidth": 188.33333325
+          },
+          "posterWidths": [
+            188.33333325,
+            188.33333325,
+            188.33333325,
+            188.33333325,
+            188.33333325
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 853.333333,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "tablet-portrait",
+          "logicalWidth": 853.333333,
+          "logicalHeight": 1280,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 640,
+            "height": 495.59999999999997
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 1184,
+            "height": 264
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 7,
+            "mainAxisExtent": 264.28571428571433,
+            "crossAxisExtent": 1152,
+            "columnWidth": 157.71428571428572
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142,
+            139.42857142857142
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 864,
+            "height": 486
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            143,
+            143,
+            143
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 7,
+            "mainAxisExtent": 261.73015873015873,
+            "crossAxisExtent": 1148,
+            "columnWidth": 150.28571428571428
+          },
+          "posterWidths": [
+            150.28571428571428,
+            150.28571428571428,
+            150.28571428571428,
+            150.28571428571428,
+            150.28571428571428
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 1280,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 640,
+            "height": 408
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 1184,
+            "height": 264
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 5,
+            "mainAxisExtent": 371.6666666666667,
+            "crossAxisExtent": 1152,
+            "columnWidth": 224
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 864,
+            "height": 486
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            143,
+            143,
+            143
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 5,
+            "mainAxisExtent": 372.11111111111114,
+            "crossAxisExtent": 1148,
+            "columnWidth": 216.8
+          },
+          "posterWidths": [
+            216.8,
+            216.8,
+            216.8,
+            216.8,
+            216.8
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 1280,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 640,
+            "height": 434.20000000000005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 1184,
+            "height": 295.2
+          },
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144,
+            144
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "grid": {
+            "columns": 5,
+            "mainAxisExtent": 390.6666666666667,
+            "crossAxisExtent": 1152,
+            "columnWidth": 224
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6,
+            201.6
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 864,
+            "height": 486
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 80,
+            "height": 240
+          },
+          "posterWidths": [
+            215.5,
+            215.5,
+            215.5
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "grid": {
+            "columns": 5,
+            "mainAxisExtent": 390.11111111111114,
+            "crossAxisExtent": 1148,
+            "columnWidth": 216.8
+          },
+          "posterWidths": [
+            216.8,
+            216.8,
+            216.8,
+            216.8,
+            216.8
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 1280,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "tablet-landscape",
+          "logicalWidth": 1280,
+          "logicalHeight": 853.333333,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 640,
+            "height": 495.59999999999997
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 480,
+            "height": 222
+          },
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 246,
+            "crossAxisExtent": 448,
+            "columnWidth": 144
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            139.33333333333334,
+            139.33333333333334,
+            139.33333333333334
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 448,
+            "height": 252
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [
+            132.66666666666666,
+            132.66666666666666,
+            132.66666666666666
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            102,
+            102,
+            102,
+            102,
+            102
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 480,
+            "height": 408
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 480,
+            "height": 286.3
+          },
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108,
+            108
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "grid": {
+            "columns": 3,
+            "mainAxisExtent": 265,
+            "crossAxisExtent": 448,
+            "columnWidth": 144
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            139.33333333333334,
+            139.33333333333334,
+            139.33333333333334
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 448,
+            "height": 252
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [
+            132.66666666666666,
+            132.66666666666666,
+            132.66666666666666
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            216,
+            216,
+            216,
+            216,
+            216
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 1.5,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 480,
+            "height": 434.20000000000005
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "home",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "carouselSize": {
+            "width": 480,
+            "height": 302.4
+          },
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "category",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "grid": {
+            "columns": 2,
+            "mainAxisExtent": 385.3333333333333,
+            "crossAxisExtent": 448,
+            "columnWidth": 220
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "detail",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            139.33333333333334,
+            139.33333333333334,
+            139.33333333333334
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "watch",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "videoCoverSize": {
+            "width": 448,
+            "height": 252
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "profile",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [
+            132.66666666666666,
+            132.66666666666666,
+            132.66666666666666
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "favorites",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [
+            216,
+            216,
+            216,
+            216,
+            216
+          ],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "search",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "short",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "navigationSize": {
+            "width": 480,
+            "height": 64
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        },
+        {
+          "page": "episodes",
+          "window": "split-like",
+          "logicalWidth": 480,
+          "logicalHeight": 720,
+          "textScale": 2,
+          "evidence": "Flutter debug preview / actual component layout; not native video playback",
+          "episodeSheetSize": {
+            "width": 480,
+            "height": 531.5999999999999
+          },
+          "posterWidths": [],
+          "errors": [],
+          "errorCount": 0
+        }
+      ]
+    },
+    "nativeVideo": {
+      "nativeFirstFrame": true,
+      "sourceDimensions": [
+        640,
+        360
+      ],
+      "wideVideoWidth": 864,
+      "portraitVideoWidth": 821.3333333333333,
+      "controllerPreserved": true,
+      "draftPreserved": true,
+      "positionPreserved": true,
+      "keyboardVisibleAndInputReachable": true,
+      "fullscreenRoundTrip": true,
+      "pipRoundTrip": true,
+      "fixtureRequests": 1,
+      "fixtureSource": "local synthetic MP4 via adb reverse; not external source or real room",
+      "log": ".local/tablet-implementation-20261029/native-video-verified.log"
+    },
+    "stateRetentionFocused": {
+      "passed": 4,
+      "log": ".local/tablet-implementation-20261029/state-retention-final.log"
+    },
+    "encoding": "strict UTF-8, LF, no BOM or replacement characters for this turn files",
+    "structureCheck": {
+      "status": "pre-existing failure",
+      "file": "apps/mobile/docs/playra-layout-reference.md",
+      "reason": "CRLF; unchanged and out of scope"
+    }
+  },
+  "benchmark": {
+    "mode": "Profile",
+    "runsPerVariant": 3,
+    "windowSeconds": 40,
+    "fixtureMetadataCount": 84,
+    "fixtureMetadataSha256": "87b55d1711b701d852b989f051e05f509402726f50aaacd6af2791a965ade0a2",
+    "fixture": "same fixed metadata with real HTTPS images",
+    "skiaResourceBudgetMiB": 192,
+    "actionCount": 13,
+    "refreshPolicy": "original dynamic policy unchanged; per-run end snapshots 60Hz",
+    "thermalStatuses": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "before": [
+      {
+        "variant": "fixed-before",
+        "run": 1,
+        "startedAt": "2026-10-29T11:00:26.860Z",
+        "mode": "profile",
+        "windowUs": 40001934,
+        "activityTotalTimeMs": 832,
+        "launchState": "COLD",
+        "build": {
+          "count": 863,
+          "p50Us": 531,
+          "p95Us": 1210,
+          "p99Us": 7495,
+          "maxUs": 23341,
+          "above8333": 8,
+          "above16667": 4
+        },
+        "raster": {
+          "count": 863,
+          "p50Us": 3868,
+          "p95Us": 8871,
+          "p99Us": 17254,
+          "maxUs": 65605,
+          "above8333": 54,
+          "above16667": 12
+        },
+        "decodedImageCacheBytes": 55915920,
+        "totalPssKiB": 640300,
+        "graphicsKiB": 419788,
+        "nativeHeapKiB": 78776,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 86,
+          "temperatureC": 30.3
+        },
+        "batteryAfter": {
+          "level": 85,
+          "temperatureC": 30.3
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4011.4537
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6004.4748
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8003.919500000001
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10013.0095
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12007.6498
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14011.8436
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17013.6313
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20009.929900000003
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23005.2013
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26009.8107
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29008.4703
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32009.566600000002
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35015.6933
+          }
+        ]
+      },
+      {
+        "variant": "fixed-before",
+        "run": 2,
+        "startedAt": "2026-10-29T11:01:11.289Z",
+        "mode": "profile",
+        "windowUs": 40001629,
+        "activityTotalTimeMs": 904,
+        "launchState": "COLD",
+        "build": {
+          "count": 886,
+          "p50Us": 506,
+          "p95Us": 1316,
+          "p99Us": 9373,
+          "maxUs": 23538,
+          "above8333": 10,
+          "above16667": 3
+        },
+        "raster": {
+          "count": 886,
+          "p50Us": 3778,
+          "p95Us": 8313,
+          "p99Us": 16923,
+          "maxUs": 59170,
+          "above8333": 43,
+          "above16667": 10
+        },
+        "decodedImageCacheBytes": 55915920,
+        "totalPssKiB": 644088,
+        "graphicsKiB": 422160,
+        "nativeHeapKiB": 79228,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 85,
+          "temperatureC": 30.3
+        },
+        "batteryAfter": {
+          "level": 85,
+          "temperatureC": 30.5
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4004.9037000000003
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6013.7606000000005
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8008.612700000001
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10004.855
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12000.8107
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14011.533
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17013.8862
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20003.5123
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23006.2879
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26010.3563
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29009.3837
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32009.274999999998
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35013.6329
+          }
+        ]
+      },
+      {
+        "variant": "fixed-before",
+        "run": 3,
+        "startedAt": "2026-10-29T11:01:55.753Z",
+        "mode": "profile",
+        "windowUs": 40001208,
+        "activityTotalTimeMs": 889,
+        "launchState": "COLD",
+        "build": {
+          "count": 896,
+          "p50Us": 507,
+          "p95Us": 1464,
+          "p99Us": 9377,
+          "maxUs": 23727,
+          "above8333": 9,
+          "above16667": 4
+        },
+        "raster": {
+          "count": 896,
+          "p50Us": 3768,
+          "p95Us": 9152,
+          "p99Us": 22934,
+          "maxUs": 58449,
+          "above8333": 53,
+          "above16667": 16
+        },
+        "decodedImageCacheBytes": 55915920,
+        "totalPssKiB": 636170,
+        "graphicsKiB": 420788,
+        "nativeHeapKiB": 79700,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 85,
+          "temperatureC": 30.5
+        },
+        "batteryAfter": {
+          "level": 85,
+          "temperatureC": 30.9
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4002.6023
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6012.0885
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8009.2297
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 9999.339
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12008.0474
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14012.6923
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17004.785399999997
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20000.2427
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23011.165999999997
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26005.3256
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29006.961799999997
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32014.144999999997
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35009.3563
+          }
+        ]
+      }
+    ],
+    "after": [
+      {
+        "variant": "fixed-after",
+        "run": 1,
+        "startedAt": "2026-10-29T11:31:24.012Z",
+        "mode": "profile",
+        "windowUs": 40002086,
+        "activityTotalTimeMs": 819,
+        "launchState": "COLD",
+        "build": {
+          "count": 829,
+          "p50Us": 306,
+          "p95Us": 1275,
+          "p99Us": 7721,
+          "maxUs": 21680,
+          "above8333": 7,
+          "above16667": 3
+        },
+        "raster": {
+          "count": 829,
+          "p50Us": 3254,
+          "p95Us": 9931,
+          "p99Us": 23856,
+          "maxUs": 52441,
+          "above8333": 83,
+          "above16667": 14
+        },
+        "decodedImageCacheBytes": 41894224,
+        "totalPssKiB": 550447,
+        "graphicsKiB": 336404,
+        "nativeHeapKiB": 77008,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 85,
+          "temperatureC": 30.7
+        },
+        "batteryAfter": {
+          "level": 85,
+          "temperatureC": 30.7
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4002.7329999999997
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 5999.744000000001
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8002.9977
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10011.4547
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12010.9447
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14005.9303
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17008.7608
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20006.3726
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23005.7068
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26003.365899999997
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29013.059699999998
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32014.0939
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35011.9586
+          }
+        ]
+      },
+      {
+        "variant": "fixed-after",
+        "run": 2,
+        "startedAt": "2026-10-29T11:32:08.385Z",
+        "mode": "profile",
+        "windowUs": 40001811,
+        "activityTotalTimeMs": 889,
+        "launchState": "COLD",
+        "build": {
+          "count": 864,
+          "p50Us": 310,
+          "p95Us": 1262,
+          "p99Us": 7084,
+          "maxUs": 22422,
+          "above8333": 6,
+          "above16667": 1
+        },
+        "raster": {
+          "count": 864,
+          "p50Us": 3152,
+          "p95Us": 8206,
+          "p99Us": 16423,
+          "maxUs": 55511,
+          "above8333": 41,
+          "above16667": 8
+        },
+        "decodedImageCacheBytes": 41894224,
+        "totalPssKiB": 603512,
+        "graphicsKiB": 384932,
+        "nativeHeapKiB": 80040,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 85,
+          "temperatureC": 30.7
+        },
+        "batteryAfter": {
+          "level": 85,
+          "temperatureC": 30.9
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4011.4094999999998
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6010.7534000000005
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8000.907400000001
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10007.2963
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12006.185899999999
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14005.788299999998
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17002.0434
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20001.8415
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23012.314599999998
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26013.338799999998
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29007.4607
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32007.242
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35005.198800000006
+          }
+        ]
+      },
+      {
+        "variant": "fixed-after",
+        "run": 3,
+        "startedAt": "2026-10-29T11:32:52.780Z",
+        "mode": "profile",
+        "windowUs": 40001034,
+        "activityTotalTimeMs": 856,
+        "launchState": "COLD",
+        "build": {
+          "count": 828,
+          "p50Us": 304,
+          "p95Us": 1157,
+          "p99Us": 7509,
+          "maxUs": 22407,
+          "above8333": 6,
+          "above16667": 1
+        },
+        "raster": {
+          "count": 828,
+          "p50Us": 3132,
+          "p95Us": 8792,
+          "p99Us": 15884,
+          "maxUs": 59074,
+          "above8333": 47,
+          "above16667": 7
+        },
+        "decodedImageCacheBytes": 40920112,
+        "totalPssKiB": 591844,
+        "graphicsKiB": 380528,
+        "nativeHeapKiB": 73884,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 85,
+          "temperatureC": 30.9
+        },
+        "batteryAfter": {
+          "level": 84,
+          "temperatureC": 30.9
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4001.1178999999997
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6005.6066
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8000.7938
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10004.438600000001
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12007.970800000001
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14003.143600000001
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17002.6015
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20014.1165
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23007.9889
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 25999.6501
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29006.7375
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32010.9009
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35014.3008
+          }
+        ]
+      }
+    ],
+    "aggregates": {
+      "totalPssMiB": {
+        "beforeMedian": 625.29296875,
+        "afterMedian": 577.97265625,
+        "percentChange": -7.567702639387786,
+        "beforeRange": [
+          621.259765625,
+          628.9921875
+        ],
+        "afterRange": [
+          537.5458984375,
+          589.3671875
+        ]
+      },
+      "graphicsMiB": {
+        "beforeMedian": 410.92578125,
+        "afterMedian": 371.609375,
+        "percentChange": -9.567763339258729,
+        "beforeRange": [
+          409.94921875,
+          412.265625
+        ],
+        "afterRange": [
+          328.51953125,
+          375.91015625
+        ]
+      },
+      "decodedImageCacheMiB": {
+        "beforeMedian": 53.32557678222656,
+        "afterMedian": 39.95344543457031,
+        "percentChange": -25.076393270467513,
+        "beforeRange": [
+          53.32557678222656,
+          53.32557678222656
+        ],
+        "afterRange": [
+          39.02445983886719,
+          39.95344543457031
+        ]
+      },
+      "buildP95Ms": {
+        "beforeMedian": 1.316,
+        "afterMedian": 1.262,
+        "percentChange": -4.103343465045595,
+        "beforeRange": [
+          1.21,
+          1.464
+        ],
+        "afterRange": [
+          1.157,
+          1.275
+        ]
+      },
+      "rasterP95Ms": {
+        "beforeMedian": 8.871,
+        "afterMedian": 8.792,
+        "percentChange": -0.8905422162101329,
+        "beforeRange": [
+          8.313,
+          9.152
+        ],
+        "afterRange": [
+          8.206,
+          9.931
+        ]
+      }
+    },
+    "limitations": [
+      "Same catalog and semantic actions; new layout changes visible card count and size, so this is an overall interface comparison, not isolated GPU/cache tuning.",
+      "PSS and Graphics are end snapshots, not peaks; they are not additive.",
+      "FrameTiming raster is not hardware GPU duration or FPS; small median timing differences do not establish a speedup.",
+      "No comparable real-source image first-frame or end-to-end loading-speed measurement.",
+      "Fixed benchmark APK predates final low-height player reserve and detail error-state stretch fixes; those paths are outside the timed browsing flow. Final normal APK includes both fixes."
+    ]
+  },
+  "artifacts": {
+    "before": {
+      "path": "output/android/duoscene-fixed-after-profile-20261029.apk",
+      "bytes": 116761051,
+      "sha256": "83eb64a82a9b1db2e4059b05ad908379c2578b839ee0d25b96ef86c8925b9136"
+    },
+    "fixedAfter": {
+      "path": "output/android/duoscene-tablet-fixed-profile-20261029.apk",
+      "bytes": 116761051,
+      "sha256": "79b54816f065ae31cf9c0324f76ad298e01d556aecdd45468ef32f24b7b244b5"
+    },
+    "installedNormal": {
+      "path": "output/android/duoscene-tablet-profile-20261029.apk",
+      "bytes": 104427178,
+      "sha256": "f3311f5cc784f42aa8c42587bb86eb3d4f93b91e3dca976fea1a5d220b1b02ee",
+      "installedSha256Verified": true
+    },
+    "normalEntrypoint": "lib/main.dart",
+    "normalUsesFixtureMetadata": false,
+    "screenshots": [
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-final-home.png",
+        "sha256": "427465778f92fef54620670abb553104f65dff23279819384e37bc0fd3657230",
+        "widthPx": 2560,
+        "heightPx": 3840
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-landscape-detail.png",
+        "sha256": "69e8b54e1ae995f970dbca72e84e10f9fe193933104a2d71b4e407927550934c",
+        "widthPx": 3840,
+        "heightPx": 2560
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-landscape-grid.png",
+        "sha256": "19224298f2f501180b7ecce48628118d64a06913e45a6fd048aa414b5b374615",
+        "widthPx": 3840,
+        "heightPx": 2560
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-landscape-home.png",
+        "sha256": "86552bbcead8f356b714cbbf033a5512c2d7f44dcbe6bd9e8e65af71f77f2b32",
+        "widthPx": 3840,
+        "heightPx": 2560
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-portrait-detail.png",
+        "sha256": "405be66ca492f85badb99f0094986d9ac0d4553a2a582d69e3a9c3967e2d6473",
+        "widthPx": 2560,
+        "heightPx": 3840
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-portrait-home.png",
+        "sha256": "22326a5ee886a6ce78771a08e2cb33fbafa1c0a3afdf906c381d6be3bf8d59e7",
+        "widthPx": 2560,
+        "heightPx": 3840
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/delivery-portrait-profile.png",
+        "sha256": "7562d0aab7bcbc1037f4259556d5ae29edd249458ba44f6a62ba6f4d98e943f0",
+        "widthPx": 2560,
+        "heightPx": 3840
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/native-video-keyboard.png",
+        "sha256": "7f67a9df84d6b143f256623eddd81fbc079e411debc27f76705f5345193c1307",
+        "widthPx": 2560,
+        "heightPx": 3840
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/native-video-landscape.png",
+        "sha256": "fdadf0e95f6dfe4531d423fb4d77c4ec5fbb7160422cfd0d19c077701ff2e2a6",
+        "widthPx": 3840,
+        "heightPx": 2560
+      },
+      {
+        "path": ".local/tablet-implementation-20261029/native-video-portrait.png",
+        "sha256": "b1237534228fed0ec994f53cce4a5e3e9b588fed6912537284ba3585657a475f",
+        "widthPx": 2560,
+        "heightPx": 3840
+      }
+    ]
+  },
+  "changedFiles": [
+    {
+      "path": "apps/mobile/integration_test/README.md",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/integration_test/README.md"
+    },
+    {
+      "path": "apps/mobile/integration_test/tablet_player_layout_test.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/lib/design/adaptive_app_frame.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/lib/design/adaptive_watch_layout.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/lib/design/bottom_navigation.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/design/bottom_navigation.dart"
+    },
+    {
+      "path": "apps/mobile/lib/design/components.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/design/components.dart"
+    },
+    {
+      "path": "apps/mobile/lib/design/window_layout.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/app_shell.dart",
+      "kind": "modified-existing-dirty",
+      "rollback": ".local/tablet-implementation-20261029/baseline/apps/mobile/lib/features/catalog/app_shell.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/category_discovery.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/catalog/category_discovery.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/collection_pages.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/catalog/collection_pages.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/detail_page.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/catalog/detail_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/home_content.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/catalog/home_content.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/posters.dart",
+      "kind": "modified-existing-dirty",
+      "rollback": ".local/tablet-implementation-20261029/baseline/apps/mobile/lib/features/catalog/posters.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/profile_page.dart",
+      "kind": "modified-existing-dirty",
+      "rollback": ".local/tablet-implementation-20261029/baseline/apps/mobile/lib/features/catalog/profile_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/search_page.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/catalog/search_page.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/catalog/tablet_feature_card.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/experience_player.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/experience/experience_player.dart"
+    },
+    {
+      "path": "apps/mobile/lib/features/experience/short_feed.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/lib/features/experience/short_feed.dart"
+    },
+    {
+      "path": "apps/mobile/test/navigation_polish_test.dart",
+      "kind": "modified-initially-clean",
+      "rollback": ".local/tablet-implementation-20261029/clean-head-baseline/apps/mobile/test/navigation_polish_test.dart"
+    },
+    {
+      "path": "apps/mobile/test/tablet_content_layout_test.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/test/tablet_layout_test.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "apps/mobile/test/tablet_media_layout_test.dart",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "docs/performance/20261029-tablet-layout-results.json",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "docs/tablet-layout-implementation-20261029.zh.md",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    },
+    {
+      "path": "scripts/test-tablet-layout.mjs",
+      "kind": "new",
+      "rollback": "remove-only-this-new-file"
+    }
+  ],
+  "limitations": [
+    "Native playback verified with local synthetic 640x360 MP4 on one Android tablet; other devices, 4K/HDR and long-duration playback are not covered.",
+    "480dp split-like window is simulated; real OS split-screen dragging and TalkBack reading remain optional follow-up.",
+    "No commits or pushes made in this implementation turn."
+  ]
+}

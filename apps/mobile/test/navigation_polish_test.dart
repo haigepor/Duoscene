@@ -36,6 +36,10 @@ void main() {
   testWidgets('first tab layout precedes the shared page and thumb motion', (
     t,
   ) async {
+    t.view.devicePixelRatio = 1;
+    t.view.physicalSize = const Size(390, 844);
+    addTearDown(t.view.resetPhysicalSize);
+    addTearDown(t.view.resetDevicePixelRatio);
     await t.pumpWidget(
       MaterialApp(theme: duosceneTheme, home: const AppShell(preview: true)),
     );

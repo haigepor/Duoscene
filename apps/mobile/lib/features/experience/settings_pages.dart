@@ -329,7 +329,11 @@ class AccountPage extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    library.preview ? '预览身份' : '私有账户',
+                                    library.preview
+                                        ? '预览身份'
+                                        : library.isGuest
+                                        ? '本机访客'
+                                        : '私有账户',
                                     style: DS.label.copyWith(color: p.onTint),
                                   ),
                                 ),
@@ -354,13 +358,17 @@ class AccountPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('登录账户', style: DS.smallFor(context)),
+                            Text(
+                              library.isGuest ? '本机身份' : '登录账户',
+                              style: DS.smallFor(context),
+                            ),
                             const SizedBox(height: DS.space4),
                             Row(
                               children: [
                                 Expanded(
                                   child: SelectableText(
-                                    username ?? '未登录',
+                                    username ??
+                                        (library.isGuest ? '本机访客' : '未登录'),
                                     key: const Key('account-username'),
                                     style: DS.body.copyWith(
                                       fontFamily: 'monospace',
@@ -414,7 +422,11 @@ class AccountPage extends StatelessWidget {
                                       child: _info(
                                         context,
                                         '账户类型',
-                                        library.preview ? '预览身份' : '个人账户',
+                                        library.preview
+                                            ? '预览身份'
+                                            : library.isGuest
+                                            ? '本机访客'
+                                            : '个人账户',
                                       ),
                                     ),
                                   ],
@@ -457,10 +469,15 @@ class AccountPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('账户安全', style: DS.secondarySection),
+                              Text(
+                                library.isGuest ? '本机记录' : '账户安全',
+                                style: DS.secondarySection,
+                              ),
                               const SizedBox(height: DS.space4),
                               Text(
-                                '忘记密码时，可在登录页使用恢复码重设。',
+                                library.isGuest
+                                    ? '收藏与播放记录仅保存在当前设备。'
+                                    : '忘记密码时，可在登录页使用恢复码重设。',
                                 style: DS.smallFor(context),
                               ),
                             ],
@@ -470,16 +487,21 @@ class AccountPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: DS.space24),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: p.muted,
-                      side: BorderSide(color: p.line),
-                      alignment: Alignment.centerLeft,
+                  if (!library.isGuest)
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: p.muted,
+                        side: BorderSide(color: p.line),
+                        alignment: Alignment.centerLeft,
+                      ),
+                      onPressed: () => logout(context, library),
+                      icon: DSIcon(
+                        'log-out',
+                        size: DS.iconSmall,
+                        color: p.muted,
+                      ),
+                      label: const Text('退出登录'),
                     ),
-                    onPressed: () => logout(context, library),
-                    icon: DSIcon('log-out', size: DS.iconSmall, color: p.muted),
-                    label: const Text('退出登录'),
-                  ),
                 ],
               ),
             ),

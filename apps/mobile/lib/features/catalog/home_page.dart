@@ -120,6 +120,10 @@ class _WatchHomeState extends State<WatchHome> {
   );
 
   Future<void> openRoom(bool join) async {
+    if (widget.library.isGuest) {
+      tell(context, '当前免登录模式暂不支持双人房间。');
+      return;
+    }
     final session = widget.library.session;
     if (session == null || widget.library.preview) {
       tell(context, '登录后即可创建或加入真实房间。');

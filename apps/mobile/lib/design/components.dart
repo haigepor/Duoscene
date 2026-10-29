@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'tokens.dart';
 import 'scroll_chrome.dart';
+import 'window_layout.dart';
 
 /// 业务弹层显式恢复语义前景色，避免继承播放器的白色媒体文字。
 Future<T?> showDSSheet<T>({
@@ -241,6 +242,7 @@ class PageFrame extends StatelessWidget {
     this.bottom,
     this.hero = false,
     this.centerTitle = false,
+    this.maxContentWidth = WindowLayout.readingWidth,
   });
   final String title;
   final Widget child;
@@ -248,55 +250,59 @@ class PageFrame extends StatelessWidget {
   final Widget? bottom;
   final bool hero;
   final bool centerTitle;
+  final double maxContentWidth;
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: DSPalette.of(context).bg,
     body: Forest(
       hero: hero,
       child: SafeArea(
-        child: ScrollChrome(
-          header: SizedBox(
-            height: DS.toolbarHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  IconTap(
-                    'arrow-left',
-                    '返回',
-                    () => Navigator.maybePop(context),
-                    // 外观页切换主题时，返回图标与页面前景色同步更新。
-                    color: DSPalette.of(context).ink,
-                  ),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: DS.toolbar.copyWith(
-                        color: DSPalette.of(context).ink,
-                      ),
-                      textAlign: centerTitle
-                          ? TextAlign.center
-                          : TextAlign.start,
+        child: ContentWidth(
+          maxWidth: maxContentWidth,
+          child: ScrollChrome(
+            header: SizedBox(
+              height: DS.toolbarHeight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: [
+                    IconTap(
+                      'arrow-left',
+                      '返回',
+                      () => Navigator.maybePop(context),
+                      // 外观页切换主题时，返回图标与页面前景色同步更新。
+                      color: DSPalette.of(context).ink,
                     ),
-                  ),
-                  ...?actions,
-                  if (centerTitle && actions == null)
-                    const SizedBox(width: DS.touchTarget),
-                ],
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: DS.toolbar.copyWith(
+                          color: DSPalette.of(context).ink,
+                        ),
+                        textAlign: centerTitle
+                            ? TextAlign.center
+                            : TextAlign.start,
+                      ),
+                    ),
+                    ...?actions,
+                    if (centerTitle && actions == null)
+                      const SizedBox(width: DS.touchTarget),
+                  ],
+                ),
               ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(top: DS.toolbarHeight),
-            child: Column(
-              children: [
-                Expanded(child: child),
-                if (bottom != null)
-                  Padding(
-                    padding: const EdgeInsets.all(DS.pageInset),
-                    child: bottom!,
-                  ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(top: DS.toolbarHeight),
+              child: Column(
+                children: [
+                  Expanded(child: child),
+                  if (bottom != null)
+                    Padding(
+                      padding: const EdgeInsets.all(DS.pageInset),
+                      child: bottom!,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/window_layout.dart';
 import '../../design/scroll_chrome.dart';
 import '../experience/experience_player.dart';
 import '../experience/episode_sheet.dart';
@@ -44,9 +45,11 @@ class _DetailPageState extends State<DetailPage> {
     widget.library.remember([widget.film]);
     if (widget.film.remote) {
       unawaited(load());
-      unawaited(widget.library.catalog.home.load().then((_) {
-        if (mounted) setState(() {});
-      }));
+      unawaited(
+        widget.library.catalog.home.load().then((_) {
+          if (mounted) setState(() {});
+        }),
+      );
     }
   }
 
@@ -125,202 +128,286 @@ class _DetailPageState extends State<DetailPage> {
       240.0,
       320.0,
     );
+    final wide = WindowLayout.isWide(context);
+    final information = <Widget>[
+      if (loading) const LinearProgressIndicator(semanticsLabel: '正在加载详情'),
+      if (loadError != null)
+        EmptyView('详情加载失败', loadError!, action: '重试', onTap: load),
+      if (detail != null && detail!.lines.isEmpty) const Text('当前片目暂无可用播放线路'),
+      const Text(
+        '剧情简介',
+        style: TextStyle(fontSize: DS.sectionSize, fontWeight: FontWeight.w600),
+      ),
+      const SizedBox(height: 12),
+      Text(
+        f.synopsis,
+        style: DS.body.copyWith(color: DSPalette.of(context).muted),
+      ),
+      if (f.episodes > 1)
+        MenuRow(
+          'list-video',
+          '选集 · 第 $episode 集',
+          subtitle: '共 ${f.episodes} 集',
+          onTap: () async {
+            final next = await showEpisodes(context, f, episode, shared: false);
+            if (next != null && mounted) setState(() => episode = next);
+          },
+        ),
+      if (widget.resume != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Text(
+            '从${widget.resume!.shared ? '共同' : '个人'}进度 ${widget.resume!.seconds ~/ 60}:${(widget.resume!.seconds % 60).toString().padLeft(2, '0')} 继续 · 本机',
+            style: TextStyle(color: DSPalette.of(context).primary),
+          ),
+        ),
+      if (!f.remote) const PreviewLabel(),
+    ];
+    final recommendations = <Widget>[
+      const Divider(height: 36),
+      const Text('你可能也喜欢', style: TextStyle(fontSize: DS.sectionSize)),
+      const SizedBox(height: 16),
+      if (wide)
+        _wideRecommendations(f, l)
+      else
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final other
+                in (f.remote ? l.catalog.home.items : films)
+                    .where((v) => v.id != f.id)
+                    .take(3))
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: FilmPoster(
+                    other,
+                    editorial: true,
+                    aspectRatio: .72,
+                    onTap: () =>
+                        openPage(context, DetailPage(film: other, library: l)),
+                  ),
+                ),
+              ),
+          ],
+        ),
+    ];
     return Scaffold(
       body: Forest(
-        child: Stack(
-          children: [
-            ScrollChrome(
-              fadeStart: heroHeight - 110,
-              fadeExtent: 64,
-              header: SafeArea(
-                bottom: false,
-                child: Row(
+        child: ContentWidth(
+          maxWidth: 1120,
+          child: Stack(
+            children: [
+              ScrollChrome(
+                fadeStart: wide ? 0 : heroHeight - 110,
+                fadeExtent: 64,
+                header: SafeArea(
+                  bottom: false,
+                  child: Row(
+                    children: [
+                      _CoverAction(
+                        'arrow-left',
+                        '返回',
+                        () => Navigator.maybePop(context),
+                      ),
+                      const Spacer(),
+                      _CoverAction(
+                        l.favorites.contains(f.id)
+                            ? 'bookmark-check'
+                            : 'bookmark',
+                        '收藏影片',
+                        () async {
+                          try {
+                            await l.toggleFavorite(f);
+                            if (mounted) setState(() {});
+                          } catch (_) {
+                            if (context.mounted) tell(context, '收藏保存失败，请重试。');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                child: ListView(
+                  padding: const EdgeInsets.only(bottom: 110),
                   children: [
-                    _CoverAction(
-                      'arrow-left',
-                      '返回',
-                      () => Navigator.maybePop(context),
-                    ),
-                    const Spacer(),
-                    _CoverAction(
-                      l.favorites.contains(f.id)
-                          ? 'bookmark-check'
-                          : 'bookmark',
-                      '收藏影片',
-                      () async {
-                        try {
-                          await l.toggleFavorite(f);
-                          if (mounted) setState(() {});
-                        } catch (_) {
-                          if (context.mounted) tell(context, '收藏保存失败，请重试。');
-                        }
-                      },
-                    ),
+                    if (wide)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 72, 16, 0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 200,
+                              child: AspectRatio(
+                                key: const Key('tablet-detail-poster'),
+                                aspectRatio: .75,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    DS.panelRadius,
+                                  ),
+                                  child: FilmArtwork(f, asset: f.image),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: ContentWidth(
+                                maxWidth: 720,
+                                wideInset: 0,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      f.title,
+                                      style: DS.section.copyWith(
+                                        fontSize: DS.posterTitleSize,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      homeMetadata(f),
+                                      style: DS.smallFor(context),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    ...information,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else ...[
+                      FilmHero(f, height: heroHeight),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DS.pageInset,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 12),
+                            ...information,
+                            ...recommendations,
+                          ],
+                        ),
+                      ),
+                    ],
+                    if (wide)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: DS.pageInset,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [...recommendations],
+                        ),
+                      ),
                   ],
                 ),
               ),
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 110),
-                children: [
-                  FilmHero(f, height: heroHeight),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DS.pageInset,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 12),
-                        if (loading)
-                          const LinearProgressIndicator(
-                            semanticsLabel: '正在加载详情',
-                          ),
-                        if (loadError != null)
-                          EmptyView(
-                            '详情加载失败',
-                            loadError!,
-                            action: '重试',
-                            onTap: load,
-                          ),
-                        if (detail != null && detail!.lines.isEmpty)
-                          const Text('当前片目暂无可用播放线路'),
-                        const Text(
-                          '剧情简介',
-                          style: TextStyle(
-                            fontSize: DS.sectionSize,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          f.synopsis,
-                          style: DS.body.copyWith(
-                            color: DSPalette.of(context).muted,
-                          ),
-                        ),
-                        if (f.episodes > 1)
-                          MenuRow(
-                            'list-video',
-                            '选集 · 第 $episode 集',
-                            subtitle: '共 ${f.episodes} 集',
-                            onTap: () async {
-                              final next = await showEpisodes(
-                                context,
-                                f,
-                                episode,
-                                shared: false,
-                              );
-                              if (next != null && mounted)
-                                setState(() => episode = next);
-                            },
-                          ),
-                        if (widget.resume != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: Text(
-                              '从${widget.resume!.shared ? '共同' : '个人'}进度 ${widget.resume!.seconds ~/ 60}:${(widget.resume!.seconds % 60).toString().padLeft(2, '0')} 继续 · 本机',
-                              style: TextStyle(
-                                color: DSPalette.of(context).primary,
-                              ),
-                            ),
-                          ),
-                        if (!f.remote) const PreviewLabel(),
-                        const Divider(height: 36),
-                        const Text(
-                          '你可能也喜欢',
-                          style: TextStyle(fontSize: DS.sectionSize),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  color: DSPalette.of(context).bg.withValues(alpha: .96),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: ContentWidth(
+                        maxWidth: 720,
+                        wideInset: 0,
+                        child: Row(
                           children: [
-                            for (final other
-                                in (f.remote ? l.catalog.home.items : films)
-                                    .where((v) => v.id != f.id)
-                                    .take(3))
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 10),
-                                  child: FilmPoster(
-                                    other,
-                                    editorial: true,
-                                    aspectRatio: .72,
-                                    onTap: () => openPage(
-                                      context,
-                                      DetailPage(film: other, library: l),
-                                    ),
-                                  ),
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: unavailable ? null : watch,
+                                icon: DSIcon(
+                                  'play',
+                                  color: DSPalette.of(context).onPrimary,
+                                  size: 18,
+                                ),
+                                label: Text(
+                                  resolving
+                                      ? '正在解析…'
+                                      : loading
+                                      ? '正在加载…'
+                                      : unavailable
+                                      ? '片源暂不可用'
+                                      : !f.remote && designSource(f) == null
+                                      ? '选择视频观看'
+                                      : widget.resume != null
+                                      ? '继续观看'
+                                      : '立即观看',
                                 ),
                               ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: unavailable
+                                    ? null
+                                    : () => showInvite(
+                                        context,
+                                        film: f,
+                                        library: l,
+                                        episode: episode,
+                                        position: widget.resume?.seconds ?? 0,
+                                      ),
+                                child: const Text('邀请一起看'),
+                              ),
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                color: DSPalette.of(context).bg.withValues(alpha: .96),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: unavailable ? null : watch,
-                            icon: DSIcon(
-                              'play',
-                              color: DSPalette.of(context).onPrimary,
-                              size: 18,
-                            ),
-                            label: Text(
-                              resolving
-                                  ? '正在解析…'
-                                  : loading
-                                  ? '正在加载…'
-                                  : unavailable
-                                  ? '片源暂不可用'
-                                  : !f.remote && designSource(f) == null
-                                  ? '选择视频观看'
-                                  : widget.resume != null
-                                  ? '继续观看'
-                                  : '立即观看',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: unavailable
-                                ? null
-                                : () => showInvite(
-                                    context,
-                                    film: f,
-                                    library: l,
-                                    episode: episode,
-                                    position: widget.resume?.seconds ?? 0,
-                                  ),
-                            child: const Text('邀请一起看'),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _wideRecommendations(Film current, LibraryState library) =>
+      LayoutBuilder(
+        builder: (context, bounds) {
+          final items = (current.remote ? library.catalog.home.items : films)
+              .where((film) => film.id != current.id)
+              .take(12)
+              .toList();
+          final columns = WindowLayout.posterColumns(
+            bounds.maxWidth,
+            MediaQuery.textScalerOf(context),
+          );
+          final width = (bounds.maxWidth - 16 * (columns - 1)) / columns;
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              for (final film in items)
+                SizedBox(
+                  width: width,
+                  child: FilmPoster(
+                    film,
+                    editorial: true,
+                    aspectRatio: .72,
+                    onTap: () => openPage(
+                      context,
+                      DetailPage(film: film, library: library),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
 }
 
 /// 媒体封面与滚动后的浅色顶栏都需要稳定对比度，视觉圆片与触控区分离。

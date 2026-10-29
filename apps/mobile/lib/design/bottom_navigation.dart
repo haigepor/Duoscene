@@ -11,12 +11,14 @@ class DuosceneNavigation extends StatelessWidget {
     required this.index,
     required this.onSelect,
     this.notifyReselection = false,
+    this.vertical = false,
   });
   final int index;
   final ValueChanged<int> onSelect;
 
   /// 主壳层需要用最新状态处理连点取消；独立预览保留当前项不重复导航的规则。
   final bool notifyReselection;
+  final bool vertical;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +27,17 @@ class DuosceneNavigation extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final selectedColor = onMedia ? Colors.white : p.primary;
     final mutedColor = onMedia ? Colors.white70 : p.muted;
-    return SafeArea(
+    final itemHeight = (MediaQuery.textScalerOf(context).scale(10) * 1.2 + 30)
+        .clamp(56.0, double.infinity);
+    void choose(int i) {
+      if (index != i || notifyReselection) onSelect(i);
+    }
+
+    final navigation = SafeArea(
       top: false,
-      minimum: const EdgeInsets.fromLTRB(14, 6, 14, 10),
+      minimum: vertical
+          ? const EdgeInsets.all(8)
+          : const EdgeInsets.fromLTRB(14, 6, 14, 10),
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
@@ -91,10 +101,15 @@ class DuosceneNavigation extends StatelessWidget {
                           DSMotion.navigation,
                         ),
                         curve: DSMotion.curve,
-                        start: constraints.maxWidth / 4 * index + 3,
-                        top: 4,
-                        bottom: 4,
-                        width: constraints.maxWidth / 4 - 6,
+                        start: vertical
+                            ? 4
+                            : constraints.maxWidth / 4 * index + 3,
+                        top: vertical ? itemHeight * index + 4 : 4,
+                        bottom: vertical ? null : 4,
+                        width: vertical
+                            ? constraints.maxWidth - 8
+                            : constraints.maxWidth / 4 - 6,
+                        height: vertical ? itemHeight - 8 : null,
                         child: DecoratedBox(
                           key: const Key('navigation-thumb'),
                           decoration: BoxDecoration(
@@ -120,7 +135,8 @@ class DuosceneNavigation extends StatelessWidget {
                       ),
                       Material(
                         type: MaterialType.transparency,
-                        child: Row(
+                        child: Flex(
+                          direction: vertical ? Axis.vertical : Axis.horizontal,
                           children: [
                             for (var i = 0; i < 4; i++)
                               Expanded(
@@ -128,6 +144,7 @@ class DuosceneNavigation extends StatelessWidget {
                                   button: true,
                                   selected: index == i,
                                   label: ['观影', '短剧', '记录', '我的'][i],
+                                  onTap: () => choose(i),
                                   excludeSemantics: true,
                                   child: TextButton(
                                     key: Key('tab-$i'),
@@ -145,8 +162,7 @@ class DuosceneNavigation extends StatelessWidget {
                                     ),
                                     onPressed: () {
                                       // 壳层读取最新选择；同帧连续点击时，绘制索引可能仍是旧值。
-                                      if (index != i || notifyReselection)
-                                        onSelect(i);
+                                      choose(i);
                                     },
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
@@ -200,5 +216,8 @@ class DuosceneNavigation extends StatelessWidget {
         ),
       ),
     );
+    return vertical
+        ? SizedBox(width: 80, height: itemHeight * 4 + 16, child: navigation)
+        : navigation;
   }
 }

@@ -101,7 +101,7 @@ void main() {
   Future<void> login(WidgetTester tester, {bool unavailable = false}) async {
     createSession();
     failList = unavailable;
-    await tester.pumpWidget(DuosceneApp(session: session));
+    await tester.pumpWidget(DuosceneApp(session: session, requireLogin: true));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('username')), 'owner');
     await tester.enterText(
@@ -129,7 +129,7 @@ void main() {
     tester,
   ) async {
     createSession();
-    await tester.pumpWidget(DuosceneApp(session: session));
+    await tester.pumpWidget(DuosceneApp(session: session, requireLogin: true));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('登录'));
     await tester.tap(find.text('登录'));
@@ -164,7 +164,9 @@ void main() {
     'login has registration and recovery actions and password visibility preserves input',
     (tester) async {
       createSession();
-      await tester.pumpWidget(DuosceneApp(session: session));
+      await tester.pumpWidget(
+        DuosceneApp(session: session, requireLogin: true),
+      );
       await tester.pumpAndSettle();
       expect(find.textContaining('账户由管理员创建'), findsNothing);
       expect(find.textContaining('开发预览'), findsNothing);

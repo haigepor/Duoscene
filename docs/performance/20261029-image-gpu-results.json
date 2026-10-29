@@ -1,0 +1,4508 @@
+{
+  "date": "2026-10-29",
+  "baselineCommit": "435fea310b21dfe7c5279ea88167a6a247ec0461",
+  "playraReferenceCommit": "02fcd555fbf2fa049caf9c20377b2c47638a165c",
+  "device": {
+    "model": "TB711FU",
+    "android": 16,
+    "architecture": "arm64",
+    "physicalSize": [
+      2560,
+      3840
+    ],
+    "densityDpi": 480,
+    "renderer": "Skia",
+    "refreshPolicy": "Device dynamic refresh preserved; per-run snapshots recorded; no FPS claims"
+  },
+  "toolchain": {
+    "flutter": "3.47.6",
+    "dart": "3.13.5",
+    "java": "21.0.12.1+1",
+    "mode": "profile"
+  },
+  "controlledScenario": {
+    "fixtureSha256": "87b55d1711b701d852b989f051e05f509402726f50aaacd6af2791a965ade0a2",
+    "before": "Same current guest/URL/loading behavior; constant 480 default decode and default Skia cache",
+    "after": "Adaptive decode and 192MiB maximum Skia cache; original page boundary restored in both variants",
+    "entry": "frozen-main.dart",
+    "metadataDelayMs": 30,
+    "coverTransport": "Actual unchanged HTTPS CDN URLs; no synthetic image replacement",
+    "limits": "Focused AppShell scenario, not production startup or source service latency",
+    "additionalTrial": "128MiB cap measured first, archived as cap128; increased to 192MiB to check raster pressure"
+  },
+  "groups": {
+    "baseline": {
+      "samples": [
+        {
+          "variant": "baseline",
+          "run": 1,
+          "startedAt": "2026-10-29T09:03:25.323Z",
+          "mode": "profile",
+          "windowUs": 40001927,
+          "activityTotalTimeMs": 910,
+          "launchState": "COLD",
+          "build": {
+            "count": 786,
+            "p50Us": 555,
+            "p95Us": 1276,
+            "p99Us": 7553,
+            "maxUs": 25646,
+            "above8333": 7,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 786,
+            "p50Us": 3874,
+            "p95Us": 9668,
+            "p99Us": 17110,
+            "maxUs": 81955,
+            "above8333": 71,
+            "above16667": 9
+          },
+          "decodedImageCacheBytes": 57329820,
+          "totalPssKiB": 632303,
+          "graphicsKiB": 416788,
+          "nativeHeapKiB": 85424,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 90,
+            "temperatureC": 29.9
+          },
+          "batteryAfter": {
+            "level": 90,
+            "temperatureC": 29.9
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4002.0853
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 5999.3026
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8008.0341
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 9999.3545
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12012.2591
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14012.0297
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17008.8704
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20014.4552
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23004.9509
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26004.4694
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29001.0288
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32007.740100000003
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35001.2452
+            }
+          ]
+        },
+        {
+          "variant": "baseline",
+          "run": 2,
+          "startedAt": "2026-10-29T09:04:56.442Z",
+          "mode": "profile",
+          "windowUs": 40002080,
+          "activityTotalTimeMs": 956,
+          "launchState": "COLD",
+          "build": {
+            "count": 836,
+            "p50Us": 536,
+            "p95Us": 1721,
+            "p99Us": 7541,
+            "maxUs": 30326,
+            "above8333": 8,
+            "above16667": 1
+          },
+          "raster": {
+            "count": 836,
+            "p50Us": 4411,
+            "p95Us": 9998,
+            "p99Us": 16636,
+            "maxUs": 57471,
+            "above8333": 119,
+            "above16667": 8
+          },
+          "decodedImageCacheBytes": 57329820,
+          "totalPssKiB": 644097,
+          "graphicsKiB": 429704,
+          "nativeHeapKiB": 83164,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 90,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 90,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4006.3048999999996
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6001.752600000001
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8002.0871
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10013.6775
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12004.7626
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14011.7225
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17010.7824
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20013.4794
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23011.8342
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26012.9721
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29006.6174
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32002.8803
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35000.214
+            }
+          ]
+        },
+        {
+          "variant": "baseline",
+          "run": 3,
+          "startedAt": "2026-10-29T09:06:58.412Z",
+          "mode": "profile",
+          "windowUs": 40001418,
+          "activityTotalTimeMs": 751,
+          "launchState": "COLD",
+          "build": {
+            "count": 885,
+            "p50Us": 526,
+            "p95Us": 1296,
+            "p99Us": 7279,
+            "maxUs": 27253,
+            "above8333": 8,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 885,
+            "p50Us": 4029,
+            "p95Us": 9079,
+            "p99Us": 16446,
+            "maxUs": 52621,
+            "above8333": 59,
+            "above16667": 8
+          },
+          "decodedImageCacheBytes": 55169636,
+          "totalPssKiB": 579514,
+          "graphicsKiB": 370448,
+          "nativeHeapKiB": 75440,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 90,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 90,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4011.2198
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6011.2514
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8009.5192
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10060.6344
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12015.045300000002
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 13999.91
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17014.6178
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20002.933699999998
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23003.4391
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26033.9731
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29008.114299999997
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32005.7384
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35014.539800000006
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 617.4833984375,
+          "min": 565.931640625,
+          "max": 629.0009765625
+        },
+        "graphicsMiB": {
+          "median": 407.01953125,
+          "min": 361.765625,
+          "max": 419.6328125
+        },
+        "nativeHeapMiB": {
+          "median": 81.21484375,
+          "min": 73.671875,
+          "max": 83.421875
+        },
+        "decodedImageCacheMiB": {
+          "median": 54.67397689819336,
+          "min": 52.61386489868164,
+          "max": 54.67397689819336
+        },
+        "buildP95Ms": {
+          "median": 1.296,
+          "min": 1.276,
+          "max": 1.721
+        },
+        "rasterP95Ms": {
+          "median": 9.668,
+          "min": 9.079,
+          "max": 9.998
+        },
+        "rasterP99Ms": {
+          "median": 16.636,
+          "min": 16.446,
+          "max": 17.11
+        }
+      }
+    },
+    "images": {
+      "samples": [
+        {
+          "variant": "images",
+          "run": 1,
+          "startedAt": "2026-10-29T09:11:55.221Z",
+          "mode": "profile",
+          "windowUs": 40001900,
+          "activityTotalTimeMs": 779,
+          "launchState": "COLD",
+          "build": {
+            "count": 860,
+            "p50Us": 540,
+            "p95Us": 1391,
+            "p99Us": 7401,
+            "maxUs": 25180,
+            "above8333": 7,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 860,
+            "p50Us": 4231,
+            "p95Us": 9586,
+            "p99Us": 17091,
+            "maxUs": 64368,
+            "above8333": 143,
+            "above16667": 9
+          },
+          "decodedImageCacheBytes": 50336420,
+          "totalPssKiB": 636835,
+          "graphicsKiB": 425024,
+          "nativeHeapKiB": 75924,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 89,
+            "temperatureC": 30.5
+          },
+          "batteryAfter": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4009.2297
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6011.1535
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8008.3189999999995
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10012.5608
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12013.0093
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14015.9247
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17007.566
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20006.5931
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23007.595200000003
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26012.785900000003
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29004.9683
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32007.8136
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35001.9533
+            }
+          ]
+        },
+        {
+          "variant": "images",
+          "run": 2,
+          "startedAt": "2026-10-29T09:15:49.556Z",
+          "mode": "profile",
+          "windowUs": 40001208,
+          "activityTotalTimeMs": 877,
+          "launchState": "COLD",
+          "build": {
+            "count": 838,
+            "p50Us": 486,
+            "p95Us": 1409,
+            "p99Us": 10081,
+            "maxUs": 30261,
+            "above8333": 9,
+            "above16667": 5
+          },
+          "raster": {
+            "count": 838,
+            "p50Us": 3843,
+            "p95Us": 10252,
+            "p99Us": 15635,
+            "maxUs": 50098,
+            "above8333": 93,
+            "above16667": 7
+          },
+          "decodedImageCacheBytes": 50336420,
+          "totalPssKiB": 650255,
+          "graphicsKiB": 435636,
+          "nativeHeapKiB": 78428,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4008.7235
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6014.1801
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8013.697700000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10012.0707
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12013.7964
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14010.762999999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17005.302
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20010.2196
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23003.9091
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 25998.7581
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29001.4951
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32013.7942
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35009.2542
+            }
+          ]
+        },
+        {
+          "variant": "images",
+          "run": 3,
+          "startedAt": "2026-10-29T09:19:59.284Z",
+          "mode": "profile",
+          "windowUs": 40001888,
+          "activityTotalTimeMs": 828,
+          "launchState": "COLD",
+          "build": {
+            "count": 859,
+            "p50Us": 513,
+            "p95Us": 1479,
+            "p99Us": 8219,
+            "maxUs": 21827,
+            "above8333": 8,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 859,
+            "p50Us": 3862,
+            "p95Us": 9102,
+            "p99Us": 16110,
+            "maxUs": 39640,
+            "above8333": 56,
+            "above16667": 6
+          },
+          "decodedImageCacheBytes": 49904420,
+          "totalPssKiB": 696394,
+          "graphicsKiB": 473068,
+          "nativeHeapKiB": 86564,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4010.5488000000005
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6011.7111
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8002.598599999999
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10009.1375
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12013.2608
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14004.2812
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17006.4642
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20014.9768
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23014.2285
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26004.456000000002
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29012.0897
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32000.5704
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35012.4235
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 635.0146484375,
+          "min": 621.9091796875,
+          "max": 680.072265625
+        },
+        "graphicsMiB": {
+          "median": 425.42578125,
+          "min": 415.0625,
+          "max": 461.98046875
+        },
+        "nativeHeapMiB": {
+          "median": 76.58984375,
+          "min": 74.14453125,
+          "max": 84.53515625
+        },
+        "decodedImageCacheMiB": {
+          "median": 48.00455093383789,
+          "min": 47.59256362915039,
+          "max": 48.00455093383789
+        },
+        "buildP95Ms": {
+          "median": 1.409,
+          "min": 1.391,
+          "max": 1.479
+        },
+        "rasterP95Ms": {
+          "median": 9.586,
+          "min": 9.102,
+          "max": 10.252
+        },
+        "rasterP99Ms": {
+          "median": 16.11,
+          "min": 15.635,
+          "max": 17.091
+        }
+      }
+    },
+    "reliable": {
+      "samples": [
+        {
+          "variant": "reliable",
+          "run": 1,
+          "startedAt": "2026-10-29T09:37:03.822Z",
+          "mode": "profile",
+          "windowUs": 40001643,
+          "activityTotalTimeMs": 804,
+          "launchState": "COLD",
+          "build": {
+            "count": 769,
+            "p50Us": 552,
+            "p95Us": 1439,
+            "p99Us": 11934,
+            "maxUs": 20223,
+            "above8333": 9,
+            "above16667": 5
+          },
+          "raster": {
+            "count": 769,
+            "p50Us": 4176,
+            "p95Us": 9229,
+            "p99Us": 16515,
+            "maxUs": 59747,
+            "above8333": 76,
+            "above16667": 5
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 631365,
+          "graphicsKiB": 414524,
+          "nativeHeapKiB": 78824,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4004.8910000000005
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6010.7104
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8002.323799999999
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10006.1271
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12002.514899999998
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14013.110499999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 16999.3299
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20007.1586
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23011.7058
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26012.8356
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 28999.9993
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32011.742
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 34999.628500000006
+            }
+          ]
+        },
+        {
+          "variant": "reliable",
+          "run": 2,
+          "startedAt": "2026-10-29T09:39:33.201Z",
+          "mode": "profile",
+          "windowUs": 40001112,
+          "activityTotalTimeMs": 796,
+          "launchState": "COLD",
+          "build": {
+            "count": 786,
+            "p50Us": 550,
+            "p95Us": 1395,
+            "p99Us": 11890,
+            "maxUs": 29411,
+            "above8333": 9,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 786,
+            "p50Us": 3797,
+            "p95Us": 8929,
+            "p99Us": 14480,
+            "maxUs": 51920,
+            "above8333": 52,
+            "above16667": 4
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 646934,
+          "graphicsKiB": 431724,
+          "nativeHeapKiB": 79064,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 89,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4001.8927999999996
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6009.8073
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8000.2237
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10008.3854
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 11999.972199999998
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14008.241499999998
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17010.6339
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20010.833
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23011.1095
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26000.211199999998
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29013.9544
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32009.8416
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35013.2309
+            }
+          ]
+        },
+        {
+          "variant": "reliable",
+          "run": 3,
+          "startedAt": "2026-10-29T09:42:58.598Z",
+          "mode": "profile",
+          "windowUs": 40001870,
+          "activityTotalTimeMs": 909,
+          "launchState": "COLD",
+          "build": {
+            "count": 861,
+            "p50Us": 501,
+            "p95Us": 1153,
+            "p99Us": 7494,
+            "maxUs": 31768,
+            "above8333": 8,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 861,
+            "p50Us": 3682,
+            "p95Us": 9050,
+            "p99Us": 16159,
+            "maxUs": 46480,
+            "above8333": 49,
+            "above16667": 8
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 659273,
+          "graphicsKiB": 433728,
+          "nativeHeapKiB": 81760,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4003.2738999999997
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6013.6153
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8008.532900000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10000.529199999999
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12009.7909
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14001.220299999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17002.1643
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 19999.963900000002
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23000.096800000003
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26008.953800000003
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29006.223
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32009.1641
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35001.4926
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 631.771484375,
+          "min": 616.5673828125,
+          "max": 643.8212890625
+        },
+        "graphicsMiB": {
+          "median": 421.60546875,
+          "min": 404.80859375,
+          "max": 423.5625
+        },
+        "nativeHeapMiB": {
+          "median": 77.2109375,
+          "min": 76.9765625,
+          "max": 79.84375
+        },
+        "decodedImageCacheMiB": {
+          "median": 53.32557678222656,
+          "min": 53.32557678222656,
+          "max": 53.32557678222656
+        },
+        "buildP95Ms": {
+          "median": 1.395,
+          "min": 1.153,
+          "max": 1.439
+        },
+        "rasterP95Ms": {
+          "median": 9.05,
+          "min": 8.929,
+          "max": 9.229
+        },
+        "rasterP99Ms": {
+          "median": 16.159,
+          "min": 14.48,
+          "max": 16.515
+        }
+      }
+    },
+    "paint": {
+      "samples": [
+        {
+          "variant": "paint",
+          "run": 1,
+          "startedAt": "2026-10-29T09:45:20.571Z",
+          "mode": "profile",
+          "windowUs": 40001286,
+          "activityTotalTimeMs": 823,
+          "launchState": "COLD",
+          "build": {
+            "count": 908,
+            "p50Us": 504,
+            "p95Us": 1353,
+            "p99Us": 9494,
+            "maxUs": 28151,
+            "above8333": 11,
+            "above16667": 6
+          },
+          "raster": {
+            "count": 908,
+            "p50Us": 3903,
+            "p95Us": 8995,
+            "p99Us": 16098,
+            "maxUs": 66665,
+            "above8333": 57,
+            "above16667": 8
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 655150,
+          "graphicsKiB": 436440,
+          "nativeHeapKiB": 82184,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4004.2603
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6009.219599999999
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 7999.6185
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10003.259
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12004.4189
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14012.9226
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17009.418400000002
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20008.372600000002
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23003.4829
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26004.3443
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29007.6555
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32009.2431
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35008.55929999999
+            }
+          ]
+        },
+        {
+          "variant": "paint",
+          "run": 2,
+          "startedAt": "2026-10-29T09:48:13.054Z",
+          "mode": "profile",
+          "windowUs": 40001550,
+          "activityTotalTimeMs": 898,
+          "launchState": "COLD",
+          "build": {
+            "count": 767,
+            "p50Us": 553,
+            "p95Us": 1591,
+            "p99Us": 10247,
+            "maxUs": 30256,
+            "above8333": 9,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 767,
+            "p50Us": 4072,
+            "p95Us": 10167,
+            "p99Us": 17635,
+            "maxUs": 62964,
+            "above8333": 74,
+            "above16667": 12
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 637772,
+          "graphicsKiB": 413920,
+          "nativeHeapKiB": 80872,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4006.5678999999996
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 5999.8836
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8014.1683
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10014.817799999999
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12003.9273
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14012.960299999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17012.048
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20003.9066
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23013.921599999998
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26012.4989
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29002.9579
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32007.897399999998
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35010.1856
+            }
+          ]
+        },
+        {
+          "variant": "paint",
+          "run": 3,
+          "startedAt": "2026-10-29T09:50:55.867Z",
+          "mode": "profile",
+          "windowUs": 40001413,
+          "activityTotalTimeMs": 870,
+          "launchState": "COLD",
+          "build": {
+            "count": 773,
+            "p50Us": 543,
+            "p95Us": 1617,
+            "p99Us": 10005,
+            "maxUs": 23910,
+            "above8333": 9,
+            "above16667": 5
+          },
+          "raster": {
+            "count": 773,
+            "p50Us": 4237,
+            "p95Us": 9847,
+            "p99Us": 16623,
+            "maxUs": 47600,
+            "above8333": 84,
+            "above16667": 6
+          },
+          "decodedImageCacheBytes": 55469364,
+          "totalPssKiB": 672220,
+          "graphicsKiB": 451196,
+          "nativeHeapKiB": 77568,
+          "refreshRateHz": 60,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 88,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4013.9547
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6003.532899999999
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8005.8067
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10009.3582
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12007.74
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 13999.475900000001
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17010.3194
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20012.2343
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23005.158
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26000.0013
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29007.720299999997
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32005.4676
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35012.466
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 639.794921875,
+          "min": 622.82421875,
+          "max": 656.46484375
+        },
+        "graphicsMiB": {
+          "median": 426.2109375,
+          "min": 404.21875,
+          "max": 440.62109375
+        },
+        "nativeHeapMiB": {
+          "median": 78.9765625,
+          "min": 75.75,
+          "max": 80.2578125
+        },
+        "decodedImageCacheMiB": {
+          "median": 53.32557678222656,
+          "min": 52.89970779418945,
+          "max": 53.32557678222656
+        },
+        "buildP95Ms": {
+          "median": 1.591,
+          "min": 1.353,
+          "max": 1.617
+        },
+        "rasterP95Ms": {
+          "median": 9.847,
+          "min": 8.995,
+          "max": 10.167
+        },
+        "rasterP99Ms": {
+          "median": 16.623,
+          "min": 16.098,
+          "max": 17.635
+        }
+      }
+    },
+    "fixed-before": {
+      "samples": [
+        {
+          "variant": "fixed-before",
+          "run": 1,
+          "startedAt": "2026-10-29T10:08:47.668Z",
+          "mode": "profile",
+          "windowUs": 40001768,
+          "activityTotalTimeMs": 816,
+          "launchState": "COLD",
+          "build": {
+            "count": 873,
+            "p50Us": 495,
+            "p95Us": 1395,
+            "p99Us": 8938,
+            "maxUs": 24940,
+            "above8333": 10,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 873,
+            "p50Us": 3931,
+            "p95Us": 9248,
+            "p99Us": 18085,
+            "maxUs": 61052,
+            "above8333": 82,
+            "above16667": 12
+          },
+          "decodedImageCacheBytes": 63086944,
+          "totalPssKiB": 612332,
+          "graphicsKiB": 387636,
+          "nativeHeapKiB": 82224,
+          "refreshRateHz": 120.00001,
+          "thermalStatus": 1,
+          "batteryBefore": {
+            "level": 88,
+            "temperatureC": 30.1
+          },
+          "batteryAfter": {
+            "level": 88,
+            "temperatureC": 30.1
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4004.7073000000005
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6008.5517
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8002.9304999999995
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10001.4928
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12011.028100000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14002.426000000001
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17009.8878
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20002.5514
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23010.7774
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26013.3302
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29003.2036
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32001.2472
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35007.852999999996
+            }
+          ]
+        },
+        {
+          "variant": "fixed-before",
+          "run": 2,
+          "startedAt": "2026-10-29T10:10:03.691Z",
+          "mode": "profile",
+          "windowUs": 40001317,
+          "activityTotalTimeMs": 1093,
+          "launchState": "COLD",
+          "build": {
+            "count": 850,
+            "p50Us": 524,
+            "p95Us": 1503,
+            "p99Us": 10963,
+            "maxUs": 24344,
+            "above8333": 10,
+            "above16667": 5
+          },
+          "raster": {
+            "count": 850,
+            "p50Us": 3802,
+            "p95Us": 9472,
+            "p99Us": 21738,
+            "maxUs": 67759,
+            "above8333": 52,
+            "above16667": 11
+          },
+          "decodedImageCacheBytes": 63086944,
+          "totalPssKiB": 646582,
+          "graphicsKiB": 425820,
+          "nativeHeapKiB": 77208,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 30.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4002.8786999999998
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6012.8992
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8001.6224
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10008.7829
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12009.2043
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14010.8473
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17012.0066
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20004.1063
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23013.0855
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26013.8382
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29005.2645
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32006.3888
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35004.1281
+            }
+          ]
+        },
+        {
+          "variant": "fixed-before",
+          "run": 3,
+          "startedAt": "2026-10-29T10:10:48.156Z",
+          "mode": "profile",
+          "windowUs": 40002050,
+          "activityTotalTimeMs": 870,
+          "launchState": "COLD",
+          "build": {
+            "count": 885,
+            "p50Us": 501,
+            "p95Us": 1403,
+            "p99Us": 8314,
+            "maxUs": 26799,
+            "above8333": 8,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 885,
+            "p50Us": 3791,
+            "p95Us": 9772,
+            "p99Us": 21541,
+            "maxUs": 61776,
+            "above8333": 94,
+            "above16667": 13
+          },
+          "decodedImageCacheBytes": 63086944,
+          "totalPssKiB": 636235,
+          "graphicsKiB": 419620,
+          "nativeHeapKiB": 80832,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 30.3
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 30.5
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4008.1023
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6007.7624000000005
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8002.8047
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10008.615399999999
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 11999.9543
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14015.409399999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17005.105900000002
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20005.0135
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23014.757100000003
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26007.1594
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29006.3924
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32012.769500000002
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35003.7489
+            }
+          ]
+        },
+        {
+          "variant": "fixed-before",
+          "run": 4,
+          "startedAt": "2026-10-29T10:14:56.913Z",
+          "mode": "profile",
+          "windowUs": 40001152,
+          "activityTotalTimeMs": 779,
+          "launchState": "COLD",
+          "build": {
+            "count": 865,
+            "p50Us": 514,
+            "p95Us": 1267,
+            "p99Us": 7908,
+            "maxUs": 20880,
+            "above8333": 8,
+            "above16667": 5
+          },
+          "raster": {
+            "count": 865,
+            "p50Us": 3721,
+            "p95Us": 9394,
+            "p99Us": 18966,
+            "maxUs": 96580,
+            "above8333": 66,
+            "above16667": 15
+          },
+          "decodedImageCacheBytes": 63086944,
+          "totalPssKiB": 596910,
+          "graphicsKiB": 383748,
+          "nativeHeapKiB": 78472,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 30.9
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 31.1
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4011.0690000000004
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6003.6476
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8010.4257
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10010.5697
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12003.302
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14008.5325
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17004.873
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20006.2482
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23010.7484
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26005.6945
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29009.5435
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32005.0819
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35009.5456
+            }
+          ]
+        },
+        {
+          "variant": "fixed-before",
+          "run": 5,
+          "startedAt": "2026-10-29T10:15:41.497Z",
+          "mode": "profile",
+          "windowUs": 40001812,
+          "activityTotalTimeMs": 858,
+          "launchState": "COLD",
+          "build": {
+            "count": 869,
+            "p50Us": 510,
+            "p95Us": 1174,
+            "p99Us": 10333,
+            "maxUs": 27876,
+            "above8333": 10,
+            "above16667": 2
+          },
+          "raster": {
+            "count": 869,
+            "p50Us": 3722,
+            "p95Us": 9099,
+            "p99Us": 22358,
+            "maxUs": 59715,
+            "above8333": 60,
+            "above16667": 14
+          },
+          "decodedImageCacheBytes": 63086944,
+          "totalPssKiB": 632163,
+          "graphicsKiB": 418476,
+          "nativeHeapKiB": 77156,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 31.1
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 31.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4013.313
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6008.8578
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8012.220300000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10003.6075
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12014.3479
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14007.1926
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17012.8819
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 19999.9231
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23000.4432
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26009.7514
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29004.9777
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32007.6338
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35000.7957
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 617.3466796875,
+          "min": 582.919921875,
+          "max": 631.427734375
+        },
+        "graphicsMiB": {
+          "median": 408.66796875,
+          "min": 374.75390625,
+          "max": 415.83984375
+        },
+        "nativeHeapMiB": {
+          "median": 76.6328125,
+          "min": 75.34765625,
+          "max": 80.296875
+        },
+        "decodedImageCacheMiB": {
+          "median": 60.164398193359375,
+          "min": 60.164398193359375,
+          "max": 60.164398193359375
+        },
+        "buildP95Ms": {
+          "median": 1.395,
+          "min": 1.174,
+          "max": 1.503
+        },
+        "rasterP95Ms": {
+          "median": 9.394,
+          "min": 9.099,
+          "max": 9.772
+        },
+        "rasterP99Ms": {
+          "median": 21.541,
+          "min": 18.085,
+          "max": 22.358
+        }
+      }
+    },
+    "cap128": {
+      "samples": [
+        {
+          "variant": "cap128",
+          "run": 1,
+          "startedAt": "2026-10-29T10:12:09.232Z",
+          "mode": "profile",
+          "windowUs": 40001168,
+          "activityTotalTimeMs": 809,
+          "launchState": "COLD",
+          "build": {
+            "count": 875,
+            "p50Us": 524,
+            "p95Us": 1366,
+            "p99Us": 9549,
+            "maxUs": 19407,
+            "above8333": 12,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 875,
+            "p50Us": 3857,
+            "p95Us": 10373,
+            "p99Us": 17712,
+            "maxUs": 63054,
+            "above8333": 66,
+            "above16667": 9
+          },
+          "decodedImageCacheBytes": 55527120,
+          "totalPssKiB": 565606,
+          "graphicsKiB": 345580,
+          "nativeHeapKiB": 80104,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 30.5
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 30.7
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4003.3451
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6009.0842
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8002.445200000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10008.112
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12013.2685
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14010.335299999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17012.7451
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20004.0487
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23006.4166
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26008.9883
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29013.1257
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32007.9896
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35010.699
+            }
+          ],
+          "originalVariant": "fixed-after"
+        },
+        {
+          "variant": "cap128",
+          "run": 2,
+          "startedAt": "2026-10-29T10:12:53.622Z",
+          "mode": "profile",
+          "windowUs": 40001690,
+          "activityTotalTimeMs": 783,
+          "launchState": "COLD",
+          "build": {
+            "count": 863,
+            "p50Us": 510,
+            "p95Us": 1188,
+            "p99Us": 8362,
+            "maxUs": 21715,
+            "above8333": 9,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 863,
+            "p50Us": 3968,
+            "p95Us": 10595,
+            "p99Us": 23540,
+            "maxUs": 75092,
+            "above8333": 76,
+            "above16667": 14
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 564924,
+          "graphicsKiB": 349028,
+          "nativeHeapKiB": 79148,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 30.7
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 30.9
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4009.9413000000004
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6004.8655
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8008.7537
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10015.3135
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12006.6191
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14013.720399999998
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17003.5774
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20008.173899999998
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23004.318799999997
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26000.804099999998
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29003.6815
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32012.874
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35009.4403
+            }
+          ],
+          "originalVariant": "fixed-after"
+        },
+        {
+          "variant": "cap128",
+          "run": 3,
+          "startedAt": "2026-10-29T10:13:38.143Z",
+          "mode": "profile",
+          "windowUs": 40001393,
+          "activityTotalTimeMs": 857,
+          "launchState": "COLD",
+          "build": {
+            "count": 865,
+            "p50Us": 505,
+            "p95Us": 1255,
+            "p99Us": 9895,
+            "maxUs": 21169,
+            "above8333": 10,
+            "above16667": 5
+          },
+          "raster": {
+            "count": 865,
+            "p50Us": 3758,
+            "p95Us": 10024,
+            "p99Us": 21120,
+            "maxUs": 66360,
+            "above8333": 79,
+            "above16667": 18
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 564696,
+          "graphicsKiB": 345652,
+          "nativeHeapKiB": 76620,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 30.9
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 30.9
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4002.1818
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6008.9179
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8008.671200000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10007.2998
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12012.2846
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14002.1429
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17004.3711
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 19999.855
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23007.4122
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26002.7175
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29007.4238
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32000.1365
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35004.4029
+            }
+          ],
+          "originalVariant": "fixed-after"
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 551.68359375,
+          "min": 551.4609375,
+          "max": 552.349609375
+        },
+        "graphicsMiB": {
+          "median": 337.55078125,
+          "min": 337.48046875,
+          "max": 340.84765625
+        },
+        "nativeHeapMiB": {
+          "median": 77.29296875,
+          "min": 74.82421875,
+          "max": 78.2265625
+        },
+        "decodedImageCacheMiB": {
+          "median": 53.32557678222656,
+          "min": 52.95478820800781,
+          "max": 53.32557678222656
+        },
+        "buildP95Ms": {
+          "median": 1.255,
+          "min": 1.188,
+          "max": 1.366
+        },
+        "rasterP95Ms": {
+          "median": 10.373,
+          "min": 10.024,
+          "max": 10.595
+        },
+        "rasterP99Ms": {
+          "median": 21.12,
+          "min": 17.712,
+          "max": 23.54
+        }
+      }
+    },
+    "fixed-after": {
+      "samples": [
+        {
+          "variant": "fixed-after",
+          "run": 1,
+          "startedAt": "2026-10-29T10:16:44.946Z",
+          "mode": "profile",
+          "windowUs": 40000949,
+          "activityTotalTimeMs": 821,
+          "launchState": "COLD",
+          "build": {
+            "count": 838,
+            "p50Us": 512,
+            "p95Us": 1350,
+            "p99Us": 10120,
+            "maxUs": 22159,
+            "above8333": 9,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 838,
+            "p50Us": 3648,
+            "p95Us": 9041,
+            "p99Us": 19170,
+            "maxUs": 62797,
+            "above8333": 49,
+            "above16667": 10
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 599501,
+          "graphicsKiB": 378812,
+          "nativeHeapKiB": 77708,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 31.3
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 31.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4011.1620000000003
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6006.2535
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8004.287400000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10001.4081
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12009.8249
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14002.9325
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17001.706299999998
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20005.9103
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23003.4273
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 25998.6515
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29000.2856
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32006.466399999998
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35003.7112
+            }
+          ]
+        },
+        {
+          "variant": "fixed-after",
+          "run": 2,
+          "startedAt": "2026-10-29T10:17:29.303Z",
+          "mode": "profile",
+          "windowUs": 40001615,
+          "activityTotalTimeMs": 811,
+          "launchState": "COLD",
+          "build": {
+            "count": 880,
+            "p50Us": 496,
+            "p95Us": 1264,
+            "p99Us": 7630,
+            "maxUs": 25302,
+            "above8333": 7,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 880,
+            "p50Us": 3688,
+            "p95Us": 9376,
+            "p99Us": 19154,
+            "maxUs": 53920,
+            "above8333": 63,
+            "above16667": 15
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 595044,
+          "graphicsKiB": 380172,
+          "nativeHeapKiB": 78916,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 31.3
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 31.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4002.3190999999997
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6008.126
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8010.7753
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10005.706900000001
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12013.5369
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14003.915099999998
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17000.6142
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20000.4793
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23008.5602
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26012.9475
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29002.1004
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32012.826399999998
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35006.6613
+            }
+          ]
+        },
+        {
+          "variant": "fixed-after",
+          "run": 3,
+          "startedAt": "2026-10-29T10:18:13.816Z",
+          "mode": "profile",
+          "windowUs": 40002085,
+          "activityTotalTimeMs": 842,
+          "launchState": "COLD",
+          "build": {
+            "count": 877,
+            "p50Us": 511,
+            "p95Us": 1431,
+            "p99Us": 8774,
+            "maxUs": 23450,
+            "above8333": 9,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 877,
+            "p50Us": 3820,
+            "p95Us": 9761,
+            "p99Us": 18234,
+            "maxUs": 48196,
+            "above8333": 62,
+            "above16667": 13
+          },
+          "decodedImageCacheBytes": 55915920,
+          "totalPssKiB": 588726,
+          "graphicsKiB": 376652,
+          "nativeHeapKiB": 78112,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 87,
+            "temperatureC": 31.3
+          },
+          "batteryAfter": {
+            "level": 87,
+            "temperatureC": 31.5
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4000.3410000000003
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6009.4573
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 7999.694199999999
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10008.079600000001
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12008.2219
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14003.769100000001
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17003.1352
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20009.441199999997
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23005.8285
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26003.5615
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29008.2856
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32002.2899
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35007.0051
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 581.09765625,
+          "min": 574.927734375,
+          "max": 585.4501953125
+        },
+        "graphicsMiB": {
+          "median": 369.93359375,
+          "min": 367.82421875,
+          "max": 371.26171875
+        },
+        "nativeHeapMiB": {
+          "median": 76.28125,
+          "min": 75.88671875,
+          "max": 77.06640625
+        },
+        "decodedImageCacheMiB": {
+          "median": 53.32557678222656,
+          "min": 53.32557678222656,
+          "max": 53.32557678222656
+        },
+        "buildP95Ms": {
+          "median": 1.35,
+          "min": 1.264,
+          "max": 1.431
+        },
+        "rasterP95Ms": {
+          "median": 9.376,
+          "min": 9.041,
+          "max": 9.761
+        },
+        "rasterP99Ms": {
+          "median": 19.154,
+          "min": 18.234,
+          "max": 19.17
+        }
+      }
+    },
+    "optimized": {
+      "scenario": "Normal lib/main.dart entry and live changing source metadata; smoke/cohort only, not the controlled A/B",
+      "samples": [
+        {
+          "variant": "optimized",
+          "run": 1,
+          "startedAt": "2026-10-29T10:20:39.981Z",
+          "mode": "profile",
+          "windowUs": 40001892,
+          "activityTotalTimeMs": 723,
+          "launchState": "COLD",
+          "build": {
+            "count": 879,
+            "p50Us": 499,
+            "p95Us": 1280,
+            "p99Us": 10547,
+            "maxUs": 26423,
+            "above8333": 10,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 879,
+            "p50Us": 3764,
+            "p95Us": 9389,
+            "p99Us": 17508,
+            "maxUs": 58867,
+            "above8333": 61,
+            "above16667": 12
+          },
+          "decodedImageCacheBytes": 55137088,
+          "totalPssKiB": 684175,
+          "graphicsKiB": 471708,
+          "nativeHeapKiB": 77908,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 86,
+            "temperatureC": 31.5
+          },
+          "batteryAfter": {
+            "level": 86,
+            "temperatureC": 31.5
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4011.4813000000004
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6004.6467
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8009.9049
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10000.5288
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12003.340999999999
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14006.960299999999
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17012.8518
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20005.5402
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23012.179
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26011.8622
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29001.5881
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32004.301000000003
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35010.622599999995
+            }
+          ]
+        },
+        {
+          "variant": "optimized",
+          "run": 2,
+          "startedAt": "2026-10-29T10:24:01.504Z",
+          "mode": "profile",
+          "windowUs": 40001042,
+          "activityTotalTimeMs": 867,
+          "launchState": "COLD",
+          "build": {
+            "count": 869,
+            "p50Us": 524,
+            "p95Us": 1278,
+            "p99Us": 6866,
+            "maxUs": 30190,
+            "above8333": 6,
+            "above16667": 3
+          },
+          "raster": {
+            "count": 869,
+            "p50Us": 3967,
+            "p95Us": 9952,
+            "p99Us": 16613,
+            "maxUs": 65993,
+            "above8333": 91,
+            "above16667": 8
+          },
+          "decodedImageCacheBytes": 55137088,
+          "totalPssKiB": 567385,
+          "graphicsKiB": 349776,
+          "nativeHeapKiB": 79720,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 86,
+            "temperatureC": 31.3
+          },
+          "batteryAfter": {
+            "level": 86,
+            "temperatureC": 31.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4012.2162
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 5999.705
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8001.057900000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10012.236799999999
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12001.833299999998
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14009.606199999998
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17005.5789
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20013.9568
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23007.2201
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26013.039099999998
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29005.2094
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32012.6391
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35013.2272
+            }
+          ]
+        },
+        {
+          "variant": "optimized",
+          "run": 3,
+          "startedAt": "2026-10-29T10:24:45.929Z",
+          "mode": "profile",
+          "windowUs": 40001405,
+          "activityTotalTimeMs": 920,
+          "launchState": "COLD",
+          "build": {
+            "count": 774,
+            "p50Us": 543,
+            "p95Us": 1609,
+            "p99Us": 11458,
+            "maxUs": 26015,
+            "above8333": 10,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 774,
+            "p50Us": 4556,
+            "p95Us": 9143,
+            "p99Us": 16398,
+            "maxUs": 48596,
+            "above8333": 104,
+            "above16667": 6
+          },
+          "decodedImageCacheBytes": 55137088,
+          "totalPssKiB": 563883,
+          "graphicsKiB": 349436,
+          "nativeHeapKiB": 78464,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 86,
+            "temperatureC": 31.3
+          },
+          "batteryAfter": {
+            "level": 86,
+            "temperatureC": 31.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 4000.5837
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6008.6069
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8004.9136
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10001.7577
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12014.7619
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14010.4697
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17005.6221
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20007.902400000003
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23011.900700000002
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26008.752500000002
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29011.696500000002
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32010.5805
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35011.8483
+            }
+          ]
+        },
+        {
+          "variant": "optimized",
+          "run": 4,
+          "startedAt": "2026-10-29T10:26:35.748Z",
+          "mode": "profile",
+          "windowUs": 40002262,
+          "activityTotalTimeMs": 888,
+          "launchState": "COLD",
+          "build": {
+            "count": 786,
+            "p50Us": 527,
+            "p95Us": 1453,
+            "p99Us": 7637,
+            "maxUs": 24968,
+            "above8333": 7,
+            "above16667": 4
+          },
+          "raster": {
+            "count": 786,
+            "p50Us": 3917,
+            "p95Us": 9216,
+            "p99Us": 16256,
+            "maxUs": 69752,
+            "above8333": 69,
+            "above16667": 6
+          },
+          "decodedImageCacheBytes": 55137088,
+          "totalPssKiB": 596271,
+          "graphicsKiB": 378636,
+          "nativeHeapKiB": 80288,
+          "refreshRateHz": 60,
+          "thermalStatus": 0,
+          "batteryBefore": {
+            "level": 86,
+            "temperatureC": 31.3
+          },
+          "batteryAfter": {
+            "level": 86,
+            "temperatureC": 31.3
+          },
+          "actions": [
+            {
+              "type": "scroll-up",
+              "targetAtMs": 4000,
+              "actualAtMs": 3999.7561
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 6000,
+              "actualAtMs": 6009.683300000001
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 8000,
+              "actualAtMs": 8012.059000000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 10000,
+              "actualAtMs": 10009.3218
+            },
+            {
+              "type": "scroll-up",
+              "targetAtMs": 12000,
+              "actualAtMs": 12000.961000000001
+            },
+            {
+              "type": "scroll-down",
+              "targetAtMs": 14000,
+              "actualAtMs": 14005.5961
+            },
+            {
+              "type": "category-movie",
+              "targetAtMs": 17000,
+              "actualAtMs": 17013.0984
+            },
+            {
+              "type": "category-series",
+              "targetAtMs": 20000,
+              "actualAtMs": 20015.1116
+            },
+            {
+              "type": "category-anime",
+              "targetAtMs": 23000,
+              "actualAtMs": 23004.3153
+            },
+            {
+              "type": "category-home",
+              "targetAtMs": 26000,
+              "actualAtMs": 26012.0455
+            },
+            {
+              "type": "tab-history",
+              "targetAtMs": 29000,
+              "actualAtMs": 29004.8124
+            },
+            {
+              "type": "tab-profile",
+              "targetAtMs": 32000,
+              "actualAtMs": 32013.923
+            },
+            {
+              "type": "tab-home",
+              "targetAtMs": 35000,
+              "actualAtMs": 35009.8114
+            }
+          ]
+        }
+      ],
+      "aggregate": {
+        "totalPssMiB": {
+          "median": 568.19140625,
+          "min": 550.6669921875,
+          "max": 668.1396484375
+        },
+        "graphicsMiB": {
+          "median": 355.669921875,
+          "min": 341.24609375,
+          "max": 460.65234375
+        },
+        "decodedImageCacheMiB": {
+          "median": 52.58282470703125,
+          "min": 52.58282470703125,
+          "max": 52.58282470703125
+        },
+        "buildP95Ms": {
+          "median": 1.3665,
+          "min": 1.278,
+          "max": 1.609
+        },
+        "rasterP95Ms": {
+          "median": 9.302499999999998,
+          "min": 9.143,
+          "max": 9.952
+        }
+      }
+    }
+  },
+  "probes": {
+    "before": {
+      "count": 63,
+      "validImage": 57,
+      "urlRejected": 6,
+      "httpsCandidateValid": 6,
+      "requestMs": {
+        "p50": 539.891,
+        "p95": 1426.534
+      },
+      "samples": [
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 191.469,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 701.545,
+          "width": 269,
+          "height": 375,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 622.713,
+          "width": 270,
+          "height": 396,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 1426.534,
+          "width": 270,
+          "height": 360,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 525.285,
+          "width": 270,
+          "height": 400,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 160.454,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 1610.828,
+          "width": 270,
+          "height": 385,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 752.667,
+          "width": 270,
+          "height": 400,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "bftuvip.com",
+          "status": 200,
+          "error": null,
+          "ms": 847.217,
+          "width": 270,
+          "height": 404,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.202766.xyz",
+          "status": 200,
+          "error": null,
+          "ms": 566.886,
+          "width": 270,
+          "height": 338,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 905.415,
+          "width": 269,
+          "height": 378,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 713.333,
+          "width": 267,
+          "height": 391,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.202766.xyz",
+          "status": 200,
+          "error": null,
+          "ms": 1849.099,
+          "width": 270,
+          "height": 399,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 1375.984,
+          "width": 270,
+          "height": 400,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 66.258,
+          "width": 260,
+          "height": 364,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 785.242,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 746.677,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic0.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 166.676,
+          "width": 480,
+          "height": 270,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 714.291,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 949.855,
+          "width": 267,
+          "height": 392,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 230.561,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic.ry-pic.com",
+          "status": 200,
+          "error": null,
+          "ms": 663.07,
+          "width": 270,
+          "height": 386,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 888.7,
+          "width": 270,
+          "height": 405,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 1341.567,
+          "width": 270,
+          "height": 386,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 58.854,
+          "width": 960,
+          "height": 1280,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 916.378,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 719.832,
+          "width": 270,
+          "height": 402,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 539.891,
+          "width": 268,
+          "height": 376,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 702.655,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic.ry-pic.com",
+          "status": 200,
+          "error": null,
+          "ms": 525.487,
+          "width": 270,
+          "height": 402,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "0img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 161.893,
+          "width": 620,
+          "height": 866,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "2img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 174.475,
+          "width": 620,
+          "height": 866,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 757.881,
+          "width": 270,
+          "height": 405,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 115.735,
+          "width": 270,
+          "height": 404,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic6.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 129.392,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 155.477,
+          "width": 270,
+          "height": 365,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 63.829,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 553.452,
+          "width": 316,
+          "height": 377,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 899.278,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 712.178,
+          "width": 270,
+          "height": 385,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": null,
+          "status": null,
+          "error": "url-rejected",
+          "ms": null,
+          "width": null,
+          "height": null,
+          "httpsCandidateStatus": 200
+        },
+        {
+          "host": null,
+          "status": null,
+          "error": "url-rejected",
+          "ms": null,
+          "width": null,
+          "height": null,
+          "httpsCandidateStatus": 200
+        },
+        {
+          "host": "pic2.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 101.313,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic4.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 348.418,
+          "width": 579,
+          "height": 772,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 37.73,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic8.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 131.32,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic5.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 116.579,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "i0.hdslb.com",
+          "status": 200,
+          "error": null,
+          "ms": 69.481,
+          "width": 480,
+          "height": 640,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "3img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 271.991,
+          "width": 620,
+          "height": 866,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic0.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 259.308,
+          "width": 579,
+          "height": 772,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 613.597,
+          "width": 179,
+          "height": 251,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic8.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 112.048,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 187.516,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "bftuvip.com",
+          "status": 200,
+          "error": null,
+          "ms": 1014.756,
+          "width": 270,
+          "height": 405,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 878.431,
+          "width": 270,
+          "height": 378,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 35.766,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 265.097,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic7.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 231.047,
+          "width": 579,
+          "height": 772,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": null,
+          "status": null,
+          "error": "url-rejected",
+          "ms": null,
+          "width": null,
+          "height": null,
+          "httpsCandidateStatus": 200
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 40.153,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": null,
+          "status": null,
+          "error": "url-rejected",
+          "ms": null,
+          "width": null,
+          "height": null,
+          "httpsCandidateStatus": 200
+        },
+        {
+          "host": null,
+          "status": null,
+          "error": "url-rejected",
+          "ms": null,
+          "width": null,
+          "height": null,
+          "httpsCandidateStatus": 200
+        },
+        {
+          "host": null,
+          "status": null,
+          "error": "url-rejected",
+          "ms": null,
+          "width": null,
+          "height": null,
+          "httpsCandidateStatus": 200
+        }
+      ]
+    },
+    "after": {
+      "count": 63,
+      "validImage": 63,
+      "urlRejected": 0,
+      "httpsCandidateValid": 0,
+      "requestMs": {
+        "p50": 297.586,
+        "p95": 1413.602
+      },
+      "samples": [
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 569.498,
+          "width": 270,
+          "height": 400,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 368.278,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 1197.923,
+          "width": 270,
+          "height": 400,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 590.249,
+          "width": 270,
+          "height": 396,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 230.669,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 1061.283,
+          "width": 269,
+          "height": 375,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 1468.503,
+          "width": 270,
+          "height": 360,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 825.162,
+          "width": 270,
+          "height": 385,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 1734.559,
+          "width": 270,
+          "height": 400,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "bftuvip.com",
+          "status": 200,
+          "error": null,
+          "ms": 780.725,
+          "width": 270,
+          "height": 404,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.202766.xyz",
+          "status": 200,
+          "error": null,
+          "ms": 1003.301,
+          "width": 270,
+          "height": 338,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 861.18,
+          "width": 269,
+          "height": 378,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 549.273,
+          "width": 267,
+          "height": 391,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.202766.xyz",
+          "status": 200,
+          "error": null,
+          "ms": 617.155,
+          "width": 270,
+          "height": 399,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 121.002,
+          "width": 260,
+          "height": 364,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 446.824,
+          "width": 1080,
+          "height": 1515,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 297.586,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 775.285,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.jisuimage.com",
+          "status": 200,
+          "error": null,
+          "ms": 1399.308,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic0.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 167.377,
+          "width": 480,
+          "height": 270,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 343.45,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "2img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 189.896,
+          "width": 620,
+          "height": 866,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 745.076,
+          "width": 270,
+          "height": 405,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 69.898,
+          "width": 270,
+          "height": 404,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic.ry-pic.com",
+          "status": 200,
+          "error": null,
+          "ms": 669.594,
+          "width": 270,
+          "height": 386,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic6.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 100.124,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 710.365,
+          "width": 270,
+          "height": 405,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 39.54,
+          "width": 270,
+          "height": 365,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 1458.002,
+          "width": 270,
+          "height": 386,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 73.328,
+          "width": 960,
+          "height": 1280,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 538.738,
+          "width": 247,
+          "height": 343,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 714.957,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 576.899,
+          "width": 268,
+          "height": 376,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.dytt-tupian.com",
+          "status": 200,
+          "error": null,
+          "ms": 686.946,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "0img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 143.844,
+          "width": 342,
+          "height": 478,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic.ry-pic.com",
+          "status": 200,
+          "error": null,
+          "ms": 1207.049,
+          "width": 270,
+          "height": 402,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 710.253,
+          "width": 268,
+          "height": 375,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 703.127,
+          "width": 265,
+          "height": 372,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "0img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 146.451,
+          "width": 620,
+          "height": 866,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 93.271,
+          "width": 270,
+          "height": 337,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 44.657,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 59.659,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 62.891,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 58.897,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic7.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 112.236,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "4img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 167.88,
+          "width": 342,
+          "height": 478,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "vcover-vt-pic.puui.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 378.408,
+          "width": 770,
+          "height": 1080,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "2img.hitv.com",
+          "status": 200,
+          "error": null,
+          "ms": 145.124,
+          "width": 342,
+          "height": 478,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 52.036,
+          "width": 270,
+          "height": 381,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 79.844,
+          "width": 270,
+          "height": 380,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 1413.602,
+          "width": 270,
+          "height": 381,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "p1.meituan.net",
+          "status": 200,
+          "error": null,
+          "ms": 25.752,
+          "width": 400,
+          "height": 566,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "p0.meituan.net",
+          "status": 200,
+          "error": null,
+          "ms": 26.572,
+          "width": 400,
+          "height": 567,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "p.qpic.cn",
+          "status": 200,
+          "error": null,
+          "ms": 202.285,
+          "width": 212,
+          "height": 300,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 43.698,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic3.yzzyimg.online",
+          "status": 200,
+          "error": null,
+          "ms": 745.012,
+          "width": 268,
+          "height": 369,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "m.ykimg.com",
+          "status": 200,
+          "error": null,
+          "ms": 69.411,
+          "width": 448,
+          "height": 672,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "img.lzipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 115.85,
+          "width": 270,
+          "height": 402,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic5.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 105.666,
+          "width": 120,
+          "height": 160,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "p0.meituan.net",
+          "status": 200,
+          "error": null,
+          "ms": 26.497,
+          "width": 400,
+          "height": 533,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic9.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 211.073,
+          "width": 579,
+          "height": 772,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic4.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 248.547,
+          "width": 579,
+          "height": 772,
+          "httpsCandidateStatus": null
+        },
+        {
+          "host": "pic8.iqiyipic.com",
+          "status": 200,
+          "error": null,
+          "ms": 223.496,
+          "width": 579,
+          "height": 772,
+          "httpsCandidateStatus": null
+        }
+      ]
+    }
+  },
+  "artifacts": {
+    "duoscene-fixed-before-profile-20261029.apk": {
+      "sha256": "be897f0f0961376bf62bc9001e5df20080d536daec1367069b48049ccee91c77"
+    },
+    "duoscene-cap128-profile-20261029.apk": {
+      "sha256": "c46caa04b11ca0e4c9f09fc160e41bc14cb42c3b395e339c971e8123c536e0be"
+    },
+    "duoscene-fixed-after-profile-20261029.apk": {
+      "sha256": "83eb64a82a9b1db2e4059b05ad908379c2578b839ee0d25b96ef86c8925b9136"
+    },
+    "duoscene-optimized-profile-20261029.apk": {
+      "sha256": "37d81b87110c69dfee7346f0313ebc46c8e5d951b859cff4d928f14902b8f688",
+      "entry": "lib/main.dart",
+      "mode": "profile",
+      "includesMetadataFixture": false,
+      "installedOnDevice": true
+    }
+  },
+  "privateEvidenceDirectory": ".local/performance-20261029",
+  "excluded": [
+    {
+      "trial": "invalid-fixed-before-1",
+      "reason": "Test response default Latin1 encoding failed on Chinese JSON; catalog error screen, no valid populated scene. Preserved separately, excluded."
+    }
+  ],
+  "reverted": [
+    {
+      "trial": "paint",
+      "change": "Remove whole-page RepaintBoundary",
+      "reason": "No PSS reduction and worse median raster p95; restored original source."
+    }
+  ],
+  "verification": {
+    "flutterTests": 415,
+    "analyze": "No issues found",
+    "frozenMetadataContract": "PASS",
+    "normalApkSmoke": {
+      "status": "PASS",
+      "entry": "lib/main.dart",
+      "runs": 4,
+      "defaultEntry": "local guest; no login required",
+      "skiaBudgetBytes": 201326592,
+      "channelAcknowledged": true,
+      "sourceMetadata": "Live service, no fixture",
+      "uiEvidence": [
+        "native-optimized-home.png",
+        "native-optimized-anime.png",
+        "native-recovered-anime.png"
+      ],
+      "limits": "First normal run remains an outlier in Graphics/PSS; all valid runs retained."
+    },
+    "structure": {
+      "status": "FAIL_PREEXISTING",
+      "path": "apps/mobile/docs/playra-layout-reference.md",
+      "reason": "Existing unchanged working-tree document uses CRLF; structural check expects LF"
+    },
+    "finalLoggingChange": "Focused rendering_budget_test: 4 PASS; normal Profile APK compiled and channel executed on device",
+    "finalAnalyze": "No issues found",
+    "changedFileIntegrity": "PASS UTF-8/LF/no BOM/no replacement characters/JSON parse/git diff whitespace"
+  },
+  "limits": [
+    "Fixed metadata is an AppShell experiment, not production startup/API latency.",
+    "Images remain real remote HTTPS resources; network and dynamic refresh vary.",
+    "PSS and Graphics are end-of-scene snapshots, not peaks.",
+    "Flutter raster duration is not hardware GPU duration or FPS.",
+    "Early online baseline/images vs reliable/paint use changing source catalogs and cannot establish cross-batch memory causality.",
+    "Image probes run on the development host; response times include transfer but not on-device first-frame.",
+    "No video playback decoder or first-frame benchmark in this image scenario."
+  ],
+  "privateHarnessHashes": {
+    "native-run.mjs": "2644c074b5d09a354be7c00d2e88c9b046c194c45c5461679edcac6a35c55a1d",
+    "frozen-main.dart": "77dec575c558e2513a58e941fba369b61d8226d6f4953e9b1f8bc71eaed8177e",
+    "frozen-contract.dart": "4b3c94c8b4adae626224bc3ef6bbe8fd24b1d57e8b9ae75fd239afc9ff0661ee",
+    "catalog-stable-start.json": "87b55d1711b701d852b989f051e05f509402726f50aaacd6af2791a965ade0a2"
+  }
+}

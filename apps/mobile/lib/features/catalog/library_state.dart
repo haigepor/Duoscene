@@ -33,6 +33,9 @@ class WatchEntry {
 }
 
 class LibraryState extends ChangeNotifier {
+  LibraryState.guest({MediaProvider? provider})
+    : this(accountId: 'local-guest', provider: provider ?? WhiskletProvider());
+
   LibraryState({
     required this.accountId,
     this.session,
@@ -53,6 +56,7 @@ class LibraryState extends ChangeNotifier {
   final String accountId;
   final Session? session;
   final bool preview;
+  bool get isGuest => !preview && accountId == 'local-guest';
   final MediaProvider? provider;
   late final catalog = CatalogData(provider, remember);
   final Map<String, Film> snapshots = {};
@@ -80,8 +84,11 @@ class LibraryState extends ChangeNotifier {
   double movieVolume = .7, voiceVolume = .6;
   String scenario = 'normal';
   Future<void> _writes = Future.value();
-  String get displayName =>
-      preview ? '知夏' : session?.user?.displayName ?? '私有账户';
+  String get displayName => preview
+      ? '知夏'
+      : isGuest
+      ? '访客'
+      : session?.user?.displayName ?? '私有账户';
   String get initial => displayName.isEmpty
       ? '我'
       : String.fromCharCodes(displayName.runes.take(1));

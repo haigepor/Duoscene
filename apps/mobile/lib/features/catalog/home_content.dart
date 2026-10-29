@@ -5,12 +5,14 @@ import 'package:flutter/gestures.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/window_layout.dart';
 import 'catalog.dart';
 import 'detail_page.dart';
 import '../experience/experience_player.dart';
 import 'library_state.dart';
 import 'posters.dart';
 import 'search_page.dart';
+import 'tablet_feature_card.dart';
 
 class HomeCarousel extends StatefulWidget {
   const HomeCarousel({
@@ -28,7 +30,7 @@ class HomeCarousel extends StatefulWidget {
 
 class _HomeCarouselState extends State<HomeCarousel>
     with WidgetsBindingObserver {
-  final pager = PageController(viewportFraction: .8);
+  PageController pager = PageController(viewportFraction: .8);
   Timer? timer;
   int index = 0;
   bool foreground = true;
@@ -98,6 +100,13 @@ class _HomeCarouselState extends State<HomeCarousel>
       if (widget.items.isEmpty) return const SizedBox.shrink();
       final palette = DSPalette.of(context);
       final scaler = MediaQuery.textScalerOf(context);
+      final wide = WindowLayout.isWide(context);
+      final fraction = wide && constraints.maxWidth >= 1000 ? .5 : .8;
+      if (pager.viewportFraction != fraction) {
+        final previous = pager;
+        pager = PageController(initialPage: index, viewportFraction: fraction);
+        WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+      }
       final artHeight = (constraints.maxWidth * .385).clamp(122.0, 166.0);
       // 大字体将操作区纵向展开，画面与文字分区始终独立。
       final large = scaler.scale(14) > 20;
@@ -108,7 +117,12 @@ class _HomeCarouselState extends State<HomeCarousel>
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            height: artHeight + infoHeight,
+            height: wide
+                ? (scaler.scale(16) * 2.6 + scaler.scale(12) * 3 + 140).clamp(
+                    264.0,
+                    400.0,
+                  )
+                : artHeight + infoHeight,
             child: Listener(
               onPointerDown: (_) => timer?.cancel(),
               // 交互时暂缓，松手后重新计时，不再永久停止自动轮播。
@@ -131,6 +145,17 @@ class _HomeCarouselState extends State<HomeCarousel>
                       context,
                       DetailPage(film: film, library: widget.library),
                     );
+                    if (wide) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: TabletFeatureCard(
+                          film: film,
+                          onDetail: detail,
+                          onPlay: () =>
+                              openCatalogPlayer(context, film, widget.library),
+                        ),
+                      );
+                    }
                     final title = InkWell(
                       key: Key('home-detail-${film.id}'),
                       onTap: detail,
@@ -522,10 +547,14 @@ class CatalogSections extends StatelessWidget {
         ),
         SizedBox(
           height:
-              140 +
+              WindowLayout.shelfWidth(context) / (108 / 140) +
               16 +
-              MediaQuery.textScalerOf(context).scale(12) * 1.3 +
-              MediaQuery.textScalerOf(context).scale(10) * 1.5,
+              MediaQuery.textScalerOf(context)
+                      .scale(WindowLayout.isWide(context) ? 14 : 12) *
+                  1.3 +
+              MediaQuery.textScalerOf(context)
+                      .scale(WindowLayout.isWide(context) ? 12 : 10) *
+                  1.5,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 18),
             scrollDirection: Axis.horizontal,
@@ -534,7 +563,7 @@ class CatalogSections extends StatelessWidget {
             itemBuilder: (context, i) {
               final film = library.catalog.category(category).items[i];
               return SizedBox(
-                width: 108,
+                width: WindowLayout.shelfWidth(context),
                 child: FilmPoster(
                   film,
                   aspectRatio: 108 / 140,

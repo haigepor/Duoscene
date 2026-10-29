@@ -110,9 +110,9 @@ void main() {
   for (final url in <String?>[
     null,
     '',
-    'http://unverified.example/cover.jpg',
-    'http://m.ykimg.com.evil.example/cover.jpg',
-    'http://sub.pic7.iqiyipic.com/cover.jpg',
+    'http://unverified.example:8080/cover.jpg',
+    'http://user:secret@cdn.example/cover.jpg',
+    'http://cdn.example/cover.jpg#fragment',
     'https://account:secret@img2.doubanio.com/cover.jpg',
     'file:///storage/emulated/0/private.jpg',
     'data:image/png;base64,AA==',
@@ -131,6 +131,9 @@ void main() {
   for (final original in [
     'http://m.ykimg.com/058400006AD1B9FD13FA2B1479067535?width=480',
     'http://pic7.iqiyipic.com/image/20260909/47/13/a_101467435_m_601_579_772.jpg',
+    'http://pic4.iqiyipic.com/image/cover.jpg?size=579_772&version=2',
+    'http://pic8.iqiyipic.com/image/cover.jpg?size=579_772',
+    'http://pic9.iqiyipic.com/image/cover.jpg?size=579_772',
   ]) {
     test('provider upgrades verified artwork endpoint $original', () async {
       expect(
@@ -143,10 +146,7 @@ void main() {
   for (final url in <String?>[
     null,
     '',
-    'http://unverified.example/cover.jpg',
-    'http://m.ykimg.com.evil.example/cover.jpg',
-    'http://sub.m.ykimg.com/cover.jpg',
-    'http://sub.pic7.iqiyipic.com/cover.jpg',
+    'http://pic8.iqiyipic.com:8080/cover.jpg',
     'https://account:secret@img.lzipic.com/cover.jpg',
     'file:///storage/emulated/0/private.jpg',
     'data:image/png;base64,AA==',
@@ -156,6 +156,34 @@ void main() {
       expect((await _filmWithPoster(url)).posterUrl, isNull);
     });
   }
+
+  for (final sample in [
+    (
+      'http://new-cdn.example/cover.webp?token=a%2Fb%2Bc&quality=85',
+      'https://new-cdn.example/cover.webp?token=a%2Fb%2Bc&quality=85',
+    ),
+    (
+      '//pic9.iqiyipic.com/cover.jpg?width=579',
+      'https://pic9.iqiyipic.com/cover.jpg?width=579',
+    ),
+    (
+      'http://img1.doubanio.com.evil.example/cover.jpg',
+      'https://img1.doubanio.com.evil.example/cover.jpg',
+    ),
+  ]) {
+    test('provider automatically normalizes ${sample.$1}', () async {
+      expect((await _filmWithPoster(sample.$1)).posterUrl, sample.$2);
+    });
+  }
+  test('automatic HTTPS does not grant lookalike hosts trusted headers', () {
+    final request = ArtworkRequest.parse(
+      'http://img1.doubanio.com.evil.example/cover.jpg',
+    )!;
+    expect(request.uri.scheme, 'https');
+    expect(request.headers, isEmpty);
+    expect(ArtworkRequest.parse('//user:secret@cdn.example/a.jpg'), isNull);
+    expect(ArtworkRequest.parse('//cdn.example:8080/a.jpg'), isNull);
+  });
 
   for (final sample in [
     (

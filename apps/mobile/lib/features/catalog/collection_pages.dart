@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/window_layout.dart';
 import 'search_page.dart';
+import 'catalog.dart';
 import 'library_state.dart';
 import 'posters.dart';
 import 'detail_page.dart';
@@ -136,9 +138,14 @@ class _HistoryPageState extends State<HistoryPage> {
     );
     return widget.secondary
         ? Scaffold(
-            body: Forest(child: SafeArea(bottom: false, child: content)),
+            body: Forest(
+              child: SafeArea(
+                bottom: false,
+                child: ContentWidth(maxWidth: 840, child: content),
+              ),
+            ),
           )
-        : content;
+        : ContentWidth(maxWidth: 840, child: content);
   }
 
   Widget _historyRow(WatchEntry entry) {
@@ -603,6 +610,23 @@ class _FavoritesPageState extends State<FavoritesPage> {
   bool manage = false;
   bool deleting = false;
   final selected = <String>{};
+  Widget favoriteCard(Film film, {double? width}) => SizedBox(
+    key: Key('favorite-card-${film.id}'),
+    width: width,
+    child: FilmPoster(
+      film,
+      editorial: true,
+      aspectRatio: .72,
+      selected: manage ? selected.contains(film.id) : null,
+      onSelect: manage
+          ? () => setState(() {
+              if (!selected.remove(film.id)) selected.add(film.id);
+            })
+          : null,
+      onTap: () =>
+          openPage(context, DetailPage(film: film, library: widget.library)),
+    ),
+  );
   Future<void> removeSelected() async {
     if (deleting || selected.isEmpty) return;
     setState(() => deleting = true);
@@ -690,66 +714,87 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     : '看到喜欢的影片，点一下收藏。',
                 onBrowse: () => openPage(context, SearchPage(library: library)),
               )
-            : ListView(
-                padding: const EdgeInsets.fromLTRB(18, 22, 18, 32),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      children: [
-                        Text('已收藏', style: DS.label.copyWith(color: p.muted)),
-                        const Spacer(),
-                        Text(
-                          '${items.length} 部',
-                          style: DS.smallFor(context).copyWith(fontSize: 10),
-                        ),
-                      ],
+            : CustomScrollView(
+                key: const PageStorageKey('favorites-grid'),
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(18, 22, 18, 12),
+                    sliver: SliverToBoxAdapter(
+                      child: Row(
+                        children: [
+                          Text('已收藏', style: DS.label.copyWith(color: p.muted)),
+                          const Spacer(),
+                          Text(
+                            '${items.length} 部',
+                            style: DS.smallFor(context).copyWith(fontSize: 10),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final columns = _columns(context, constraints.maxWidth);
-                      final width =
-                          (constraints.maxWidth - 12 * (columns - 1)) / columns;
-                      return Wrap(
-                        spacing: 12,
-                        runSpacing: 18,
-                        children: [
-                          for (final film in items)
-                            SizedBox(
-                              key: Key('favorite-card-${film.id}'),
-                              width: width,
-                              child: FilmPoster(
-                                film,
-                                editorial: true,
-                                aspectRatio: .72,
-                                selected: manage
-                                    ? selected.contains(film.id)
-                                    : null,
-                                onSelect: manage
-                                    ? () => setState(() {
-                                        if (!selected.remove(film.id))
-                                          selected.add(film.id);
-                                      })
-                                    : null,
-                                onTap: () => openPage(
-                                  context,
-                                  DetailPage(film: film, library: library),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    sliver: SliverLayoutBuilder(
+                      builder: (context, constraints) {
+                        final wide = WindowLayout.isWide(context);
+                        final columns = wide
+                            ? WindowLayout.posterColumns(
+                                constraints.crossAxisExtent,
+                                MediaQuery.textScalerOf(context),
+                              )
+                            : _columns(context, constraints.crossAxisExtent);
+                        final spacing = wide ? 16.0 : 12.0;
+                        final width =
+                            (constraints.crossAxisExtent -
+                                spacing * (columns - 1)) /
+                            columns;
+                        if (wide) {
+                          final text = MediaQuery.textScalerOf(context);
+                          return SliverGrid(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: columns,
+                                  crossAxisSpacing: spacing,
+                                  mainAxisSpacing: 18,
+                                  mainAxisExtent:
+                                      width / .72 +
+                                      16 +
+                                      (text.scale(14) * 1.3).ceil() +
+                                      (text.scale(12) * 1.5).ceil(),
                                 ),
-                              ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) => favoriteCard(items[index]),
+                              childCount: items.length,
                             ),
-                        ],
-                      );
-                    },
+                          );
+                        }
+                        return SliverToBoxAdapter(
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 18,
+                            children: [
+                              for (final film in items)
+                                favoriteCard(film, width: width),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                  const _CollectionPrivacy(favorites: true),
+                  const SliverPadding(
+                    padding: EdgeInsets.fromLTRB(18, 24, 18, 32),
+                    sliver: SliverToBoxAdapter(
+                      child: _CollectionPrivacy(favorites: true),
+                    ),
+                  ),
                 ],
               ),
       );
       return Scaffold(
         backgroundColor: p.bg,
-        body: Forest(child: SafeArea(bottom: false, child: content)),
+        body: Forest(
+          child: SafeArea(bottom: false, child: ContentWidth(child: content)),
+        ),
       );
     },
   );
