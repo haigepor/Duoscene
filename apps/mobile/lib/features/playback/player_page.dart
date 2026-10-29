@@ -359,7 +359,7 @@ class _PlayerPageState extends State<PlayerPage> with WidgetsBindingObserver {
             top: !_fullscreen,
             bottom: !_fullscreen,
             child: AnimatedBuilder(
-              animation: s,
+              animation: s.presentationChanges,
               builder: (context, _) => LayoutBuilder(
                 builder: (context, constraints) {
                   final surface = PlayerSurface(

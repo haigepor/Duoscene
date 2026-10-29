@@ -21,6 +21,9 @@ class PlaybackSession extends ChangeNotifier {
   final panel = PlayerPanelController();
   final screenshots = PlayerScreenshotController();
   final _operations = AsyncSerialQueue();
+  final _presentationChanges = ChangeNotifier();
+  Listenable get presentationChanges => _presentationChanges;
+  Object? _lastState, _lastPresentation;
   late final core = PlayerPlaybackController(
     shaderAssetService: shaders,
     debug: debug,
@@ -61,8 +64,39 @@ class PlaybackSession extends ChangeNotifier {
 
   /// 房间会话把用户意图送往服务端；远端目标只通过 applyTarget/load(synchronized) 落地。
   Future<void> Function(String, Map<String, dynamic>)? remoteCommand;
+  Object get _presentationState => (
+    source,
+    generation,
+    loading,
+    error,
+    notice,
+    core.mediaPlayer,
+    core.videoController,
+    core.playerPlaying,
+    core.playerBuffering,
+    core.playerCompleted,
+    core.playerDuration,
+    core.playerSpeed,
+    panel.aspectRatioMode,
+    screenshots.candidates.length,
+    sleepAt,
+  );
+  Object _stateFor(Object presentation) => (
+    presentation,
+    core.playerPosition,
+    core.playerBuffer,
+    core.playerVolume,
+    core.superResolutionMode,
+    core.mediaPlayer?.state.track,
+    core.mediaPlayer?.state.tracks,
+  );
+
   void _changed() {
-    if (!_disposed) notifyListeners();
+    if (_disposed) return;
+    _lastPresentation = _presentationState;
+    _lastState = _stateFor(_lastPresentation!);
+    _presentationChanges.notifyListeners();
+    notifyListeners();
   }
 
   Future<void> prepare() {
@@ -78,10 +112,26 @@ class PlaybackSession extends ChangeNotifier {
     if (_disposed) return;
     _prepared = true;
     _poll = Timer.periodic(const Duration(milliseconds: 200), (_) {
-      if (_disposed) return;
-      core.syncPlaybackState();
-      _changed();
+      refreshState();
     });
+  }
+
+  /// 同步原生状态；独立入口供确定性测试复现 200ms 轮询。
+  @visibleForTesting
+  void refreshState() {
+    if (_disposed) return;
+    core.syncPlaybackState();
+    final presentation = _presentationState;
+    final state = _stateFor(presentation);
+    if (state == _lastState) return;
+    _lastState = state;
+    // 进度/缓冲只更新媒体控件；页面业务树仅随媒体、错误、时长等结构状态变化。
+    // https://docs.flutter.dev/perf/best-practices#control-build-cost
+    if (presentation != _lastPresentation) {
+      _lastPresentation = presentation;
+      _presentationChanges.notifyListeners();
+    }
+    notifyListeners();
   }
 
   Future<void> load(
@@ -268,6 +318,7 @@ class PlaybackSession extends ChangeNotifier {
     ++_generation;
     _poll?.cancel();
     _sleep?.cancel();
+    _presentationChanges.dispose();
     seeking.invalidateInteractiveSeek();
     await _errors?.cancel();
     await _operations.run(core.stop);
