@@ -21,7 +21,7 @@
 已有 Flutter 环境时，也可以在 `apps/mobile` 下直接运行：
 
 ```sh
-flutter run -d web-server -t web/main.dart --web-hostname 127.0.0.1 --web-port 7357 --dart-define=DUOSCENE_STYLE_PREVIEW=true
+flutter run -d web-server -t web/main.dart --no-web-resources-cdn --web-hostname 127.0.0.1 --web-port 7357 --dart-define=DUOSCENE_STYLE_PREVIEW=true
 ```
 
 ## 文件与边界
@@ -34,6 +34,8 @@ flutter run -d web-server -t web/main.dart --web-hostname 127.0.0.1 --web-port 7
 预览使用虚构片目和独立的示例身份，不接入真实账户或房间 API；
 `DUOSCENE_STYLE_PREVIEW=true` 阻止浏览器初始化原生播放器或选择真实媒体。
 已有页面交互仅用于检查样式，本目录不实现 Web 端业务功能。
+
+启动参数与 Playra 一致，使用 `--no-web-resources-cdn` 从本地 SDK 提供 CanvasKit，避免外部渲染资源下载拖慢首帧。字体回退仍可能联网；该选项不代表完整离线运行。
 
 这是开发预览，使用 `flutter run` 的默认 debug 模式。预览页保留 debug
 可见性限制，不作为正式 Web 产品发布，也不能直接双击 `index.html` 运行。
