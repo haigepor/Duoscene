@@ -1,0 +1,794 @@
+{
+  "date": "2026-10-23",
+  "timezone": "Asia/Singapore",
+  "device": {
+    "model": "TB711FU",
+    "android": 16,
+    "abi": "arm64-v8a",
+    "physicalResolution": "2560x3840",
+    "densityDpi": 480,
+    "refresh": "Dynamic; vsync intervals approximately 8.33ms and 16.67ms; end-of-run display reports 60Hz. Not locked."
+  },
+  "method": {
+    "flutter": "3.47.6",
+    "dart": "3.13.5",
+    "mode": "profile",
+    "defines": {
+      "API_BASE_URL": "http://127.0.0.1:31023",
+      "PERF_CAPTURE": true
+    },
+    "baselineSource": "c1a535547dcdb0826546d839d11122426f3da0f4",
+    "optimizedSource": "working tree on daaab37735bb10775485d7ad882af7d901f1da14; intervening commit changed README only",
+    "order": "baseline 1-3, optimized 1-3",
+    "scenario": "40s Flutter FrameTiming capture; fixed six vertical scrolls, four category selections, history/profile/home navigation; activity force-stopped before each run; no app data clear",
+    "cache": "Retained account/storage; process image cache recreated, OS/network caches not flushed. Not first installation or disk-cold startup.",
+    "frameMethod": "Each run computes nearest-rank percentiles. Summary median is median of 3 per-run values, not pooled-frame percentile.",
+    "memoryMethod": "dumpsys meminfo TOTAL PSS after 43.5s; decoded image bytes from Flutter cache at 40s; MiB = bytes / 1048576.",
+    "limits": [
+      "Activity TotalTime is Android activity startup, not catalog ready, first interactive, or media first frame.",
+      "Three sequential runs per version; small sample and no randomization, therefore direction is observational, not significance proof.",
+      "Dynamic refresh was not locked. Raw threshold exceed counts are not dropped-frame counts or FPS.",
+      "Homepage scenario does not measure long-video playback efficiency or long-duration memory leaks.",
+      "Real third-party cover/catalog content and network are not deterministic."
+    ]
+  },
+  "baseline": {
+    "runs": [
+      {
+        "variant": "baseline",
+        "run": 1,
+        "startedAt": "2026-10-23T06:49:23.334Z",
+        "mode": "profile",
+        "windowUs": 40003219,
+        "activityTotalTimeMs": 620,
+        "launchState": "COLD",
+        "build": {
+          "count": 808,
+          "p50Us": 677,
+          "p95Us": 1892,
+          "p99Us": 9395,
+          "maxUs": 31330,
+          "above8333": 10,
+          "above16667": 5
+        },
+        "raster": {
+          "count": 808,
+          "p50Us": 5030,
+          "p95Us": 8762,
+          "p99Us": 12988,
+          "maxUs": 29805,
+          "above8333": 47,
+          "above16667": 3
+        },
+        "decodedImageCacheBytes": 60535252,
+        "totalPssKiB": 619705,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 17,
+          "temperatureC": 29.1
+        },
+        "batteryAfter": {
+          "level": 17,
+          "temperatureC": 29.1
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4008.7237999999998
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6005.8463
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8008.9214
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10000.254
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12013.8996
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14012.9315
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 16999.5439
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 19999.704
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23001.356900000002
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 25999.5432
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29002.3893
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32015.2604
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 34999.554000000004
+          }
+        ]
+      },
+      {
+        "variant": "baseline",
+        "run": 2,
+        "startedAt": "2026-10-23T06:51:20.571Z",
+        "mode": "profile",
+        "windowUs": 40001738,
+        "activityTotalTimeMs": 659,
+        "launchState": "COLD",
+        "build": {
+          "count": 792,
+          "p50Us": 645,
+          "p95Us": 1629,
+          "p99Us": 14828,
+          "maxUs": 26367,
+          "above8333": 9,
+          "above16667": 3
+        },
+        "raster": {
+          "count": 792,
+          "p50Us": 4837,
+          "p95Us": 9881,
+          "p99Us": 15583,
+          "maxUs": 27491,
+          "above8333": 61,
+          "above16667": 4
+        },
+        "decodedImageCacheBytes": 60535252,
+        "totalPssKiB": 680395,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 17,
+          "temperatureC": 29.1
+        },
+        "batteryAfter": {
+          "level": 17,
+          "temperatureC": 29.1
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4001.3109
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6008.0698999999995
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8012.7415
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10000.7544
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12009.644699999999
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14013.6449
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17012.881
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20013.4063
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23008.1325
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26010.0213
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29012.7509
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32011.201399999998
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35009.6477
+          }
+        ]
+      },
+      {
+        "variant": "baseline",
+        "run": 3,
+        "startedAt": "2026-10-23T06:52:39.804Z",
+        "mode": "profile",
+        "windowUs": 40001745,
+        "activityTotalTimeMs": 663,
+        "launchState": "COLD",
+        "build": {
+          "count": 801,
+          "p50Us": 666,
+          "p95Us": 1933,
+          "p99Us": 7906,
+          "maxUs": 21684,
+          "above8333": 8,
+          "above16667": 5
+        },
+        "raster": {
+          "count": 801,
+          "p50Us": 5050,
+          "p95Us": 8513,
+          "p99Us": 12638,
+          "maxUs": 24345,
+          "above8333": 47,
+          "above16667": 4
+        },
+        "decodedImageCacheBytes": 60118372,
+        "totalPssKiB": 633507,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 17,
+          "temperatureC": 29.3
+        },
+        "batteryAfter": {
+          "level": 17,
+          "temperatureC": 29.3
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4012.4565999999995
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6000.1212
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8011.1694
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10014.164700000001
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12014.7865
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14014.3173
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17001.792299999997
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20015.8953
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23012.298899999998
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26013.1462
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29013.1131
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32010.6014
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35012.9033
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "activityColdMs": {
+        "min": 620,
+        "median": 659,
+        "max": 663
+      },
+      "buildP95Ms": {
+        "min": 1.629,
+        "median": 1.892,
+        "max": 1.933
+      },
+      "rasterP95Ms": {
+        "min": 8.513,
+        "median": 8.762,
+        "max": 9.881
+      },
+      "pssMiB": {
+        "min": 605.1806640625,
+        "median": 618.6591796875,
+        "max": 664.4482421875
+      },
+      "decodedImageMiB": {
+        "min": 57.33334732055664,
+        "median": 57.73091506958008,
+        "max": 57.73091506958008
+      }
+    }
+  },
+  "optimized": {
+    "runs": [
+      {
+        "variant": "optimized",
+        "run": 1,
+        "startedAt": "2026-10-23T06:54:06.341Z",
+        "mode": "profile",
+        "windowUs": 40003922,
+        "activityTotalTimeMs": 597,
+        "launchState": "COLD",
+        "build": {
+          "count": 788,
+          "p50Us": 657,
+          "p95Us": 1546,
+          "p99Us": 11637,
+          "maxUs": 31027,
+          "above8333": 8,
+          "above16667": 2
+        },
+        "raster": {
+          "count": 788,
+          "p50Us": 4851,
+          "p95Us": 9066,
+          "p99Us": 13754,
+          "maxUs": 35254,
+          "above8333": 51,
+          "above16667": 1
+        },
+        "decodedImageCacheBytes": 60535252,
+        "totalPssKiB": 621530,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 17,
+          "temperatureC": 29.3
+        },
+        "batteryAfter": {
+          "level": 16,
+          "temperatureC": 29.3
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4009.4345000000003
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6010.812
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8010.3872
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10010.688
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12006.695300000001
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14009.711700000002
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17009.5459
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20007.1695
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23000.1682
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26002.1738
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29002.2473
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32004.6107
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35002.6032
+          }
+        ]
+      },
+      {
+        "variant": "optimized",
+        "run": 2,
+        "startedAt": "2026-10-23T06:57:21.256Z",
+        "mode": "profile",
+        "windowUs": 40004176,
+        "activityTotalTimeMs": 632,
+        "launchState": "COLD",
+        "build": {
+          "count": 786,
+          "p50Us": 687,
+          "p95Us": 1671,
+          "p99Us": 9626,
+          "maxUs": 20910,
+          "above8333": 9,
+          "above16667": 5
+        },
+        "raster": {
+          "count": 786,
+          "p50Us": 5047,
+          "p95Us": 9389,
+          "p99Us": 14101,
+          "maxUs": 24167,
+          "above8333": 72,
+          "above16667": 3
+        },
+        "decodedImageCacheBytes": 60535252,
+        "totalPssKiB": 600460,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 16,
+          "temperatureC": 29.3
+        },
+        "batteryAfter": {
+          "level": 16,
+          "temperatureC": 29.3
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4000.8097
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 5999.8467
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8004.9709
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10000.159599999999
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12003.0542
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14001.4548
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17007.9877
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20001.198900000003
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23001.792500000003
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26003.1169
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29001.243000000002
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32002.030300000002
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35011.812600000005
+          }
+        ]
+      },
+      {
+        "variant": "optimized",
+        "run": 3,
+        "startedAt": "2026-10-23T06:58:48.462Z",
+        "mode": "profile",
+        "windowUs": 40004743,
+        "activityTotalTimeMs": 608,
+        "launchState": "COLD",
+        "build": {
+          "count": 809,
+          "p50Us": 657,
+          "p95Us": 1658,
+          "p99Us": 7530,
+          "maxUs": 25463,
+          "above8333": 8,
+          "above16667": 3
+        },
+        "raster": {
+          "count": 809,
+          "p50Us": 5037,
+          "p95Us": 9298,
+          "p99Us": 13750,
+          "maxUs": 33738,
+          "above8333": 64,
+          "above16667": 3
+        },
+        "decodedImageCacheBytes": 60535252,
+        "totalPssKiB": 630748,
+        "refreshRateHz": 60,
+        "thermalStatus": 0,
+        "batteryBefore": {
+          "level": 16,
+          "temperatureC": 29.3
+        },
+        "batteryAfter": {
+          "level": 16,
+          "temperatureC": 29.3
+        },
+        "actions": [
+          {
+            "type": "scroll-up",
+            "targetAtMs": 4000,
+            "actualAtMs": 4004.9592
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 6000,
+            "actualAtMs": 6007.0378
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 8000,
+            "actualAtMs": 8006.744900000001
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 10000,
+            "actualAtMs": 10008.1798
+          },
+          {
+            "type": "scroll-up",
+            "targetAtMs": 12000,
+            "actualAtMs": 12017.058299999999
+          },
+          {
+            "type": "scroll-down",
+            "targetAtMs": 14000,
+            "actualAtMs": 14007.000699999999
+          },
+          {
+            "type": "category-movie",
+            "targetAtMs": 17000,
+            "actualAtMs": 17005.8344
+          },
+          {
+            "type": "category-series",
+            "targetAtMs": 20000,
+            "actualAtMs": 20006.0219
+          },
+          {
+            "type": "category-anime",
+            "targetAtMs": 23000,
+            "actualAtMs": 23006.132100000003
+          },
+          {
+            "type": "category-home",
+            "targetAtMs": 26000,
+            "actualAtMs": 26006.2346
+          },
+          {
+            "type": "tab-history",
+            "targetAtMs": 29000,
+            "actualAtMs": 29006.4523
+          },
+          {
+            "type": "tab-profile",
+            "targetAtMs": 32000,
+            "actualAtMs": 32004.0445
+          },
+          {
+            "type": "tab-home",
+            "targetAtMs": 35000,
+            "actualAtMs": 35005.4682
+          }
+        ]
+      }
+    ],
+    "summary": {
+      "activityColdMs": {
+        "min": 597,
+        "median": 608,
+        "max": 632
+      },
+      "buildP95Ms": {
+        "min": 1.546,
+        "median": 1.658,
+        "max": 1.671
+      },
+      "rasterP95Ms": {
+        "min": 9.066,
+        "median": 9.298,
+        "max": 9.389
+      },
+      "pssMiB": {
+        "min": 586.38671875,
+        "median": 606.962890625,
+        "max": 615.96484375
+      },
+      "decodedImageMiB": {
+        "min": 57.73091506958008,
+        "median": 57.73091506958008,
+        "max": 57.73091506958008
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "variant": "baseline",
+      "file": "output/android/duoscene-baseline-profile-perf-20261023.apk",
+      "bytes": 104819938,
+      "sha256": "06c8558af280e14caa88d462096038c2b2d87cb896fb962a4cd6c4a8376a8a3f"
+    },
+    {
+      "variant": "optimized",
+      "file": "output/android/duoscene-optimized-profile-perf-20261023.apk",
+      "bytes": 104820514,
+      "sha256": "4286a5a5eef65486065091d94892dbc5394f4570fb528a56c45e74cb35c523bc"
+    }
+  ],
+  "playbackSmoke": {
+    "variant": "optimized",
+    "media": "Locally generated 640x360 24fps H264/AAC 32-second MP4; ADB reverse local HTTP",
+    "checks": [
+      "Real first image visible at 00:00/00:32",
+      "Progress and image advanced to approximately 00:20",
+      "Seek returned to approximately 00:15, then 00:05",
+      "Pause button changed room state to paused and controls to play at 00:05"
+    ],
+    "secondPeer": "Synthetic readiness-only authenticated WebSocket client without decoder; not a second physical-device sync or voice test",
+    "artifactsPrivate": [
+      "native-video-ready.png",
+      "native-video-moving.xml",
+      "native-video-seek.png",
+      "native-video-seek-pause.xml"
+    ],
+    "unmeasured": [
+      "Numeric media first-frame latency",
+      "Two-device synchronization drift",
+      "Voice/TURN and weak network",
+      "Long-duration battery or memory leak"
+    ],
+    "memorySnapshots": [
+      {
+        "stage": "playing",
+        "totalPssKiB": 736034,
+        "graphicsKiB": 449274
+      },
+      {
+        "stage": "returned-home",
+        "totalPssKiB": 719904,
+        "graphicsKiB": 461880
+      },
+      {
+        "stage": "home-later",
+        "totalPssKiB": 670696,
+        "graphicsKiB": 422524
+      },
+      {
+        "stage": "home-final",
+        "totalPssKiB": 670572,
+        "graphicsKiB": 422524
+      }
+    ],
+    "memoryCaveat": "Different media/cache history from startup scenario; decline after exit does not prove absence of a leak. No long-duration loop test."
+  },
+  "privateRawDirectory": ".local/performance-20261023/"
+}

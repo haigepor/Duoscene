@@ -122,7 +122,12 @@ class _ShortScrubLineState extends State<ShortScrubLine> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: widget.player.session,
+    builder: (context, _) => controls(context),
+  );
+
+  Widget controls(BuildContext context) {
     final session = widget.player.session;
     final core = session.core;
     final total = core.playerDuration.inMilliseconds;

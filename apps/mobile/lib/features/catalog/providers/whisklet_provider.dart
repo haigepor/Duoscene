@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import '../catalog.dart';
@@ -8,9 +9,22 @@ import 'whisklet_client.dart';
 import 'whisklet_codec.dart';
 
 class WhiskletProvider implements FilteredMediaProvider {
-  WhiskletProvider({WhiskletClient? client})
-    : client = client ?? WhiskletClient();
+  WhiskletProvider({
+    WhiskletClient? client,
+    this.detailTtl = const Duration(seconds: 30),
+    this.detailCacheCapacity = 24,
+    DateTime Function()? now,
+  }) : assert(detailCacheCapacity > 0),
+       assert(!detailTtl.isNegative),
+       client = client ?? WhiskletClient(),
+       _now = now ?? DateTime.now;
   final WhiskletClient client;
+  final Duration detailTtl;
+  final int detailCacheCapacity;
+  final DateTime Function() _now;
+  final _details = <String, ({DateTime at, MediaDetail value})>{};
+  final _pendingDetails = <String, Future<MediaDetail>>{};
+  bool _closed = false;
   @override
   String get id => 'whisklet';
   @override
@@ -216,20 +230,51 @@ class WhiskletProvider implements FilteredMediaProvider {
     return MediaLine(
       code: code,
       name: _plain(row['name']),
-      episodes: episodes,
+      episodes: List.unmodifiable(episodes),
       parser: parser,
       headers: Map.unmodifiable(headers),
     );
   }
 
   @override
-  Future<MediaDetail> detail(String filmId) async {
+  Future<MediaDetail> detail(String filmId, {bool refresh = false}) async {
+    if (_closed) throw const ProviderException('closed', '播放源已关闭');
+    _vodId(filmId);
+    final cached = _details.remove(filmId);
+    if (!refresh && cached != null) {
+      final age = _now().difference(cached.at);
+      if (!age.isNegative && age < detailTtl) {
+        _details[filmId] = cached;
+        return cached.value;
+      }
+    }
+    // 参照 Playra 的目录缓存与 pending 合并；不缓存解析后的时效媒体地址。
+    return _pendingDetails.putIfAbsent(filmId, () => _fetchDetail(filmId));
+  }
+
+  Future<MediaDetail> _fetchDetail(String filmId) async {
+    try {
+      final value = await _readDetail(filmId);
+      if (_closed) throw const ProviderException('closed', '播放源已关闭');
+      _details[filmId] = (at: _now(), value: value);
+      while (_details.length > detailCacheCapacity) {
+        _details.remove(_details.keys.first);
+      }
+      return value;
+    } finally {
+      // 失败不缓存；同键等待者收到同一个失败后，下一次可重新请求。
+      unawaited(_pendingDetails.remove(filmId));
+    }
+  }
+
+  Future<MediaDetail> _readDetail(String filmId) async {
     final response = await client.detail(_vodId(filmId));
     final info = (response['data'] as Map)['vod_info'];
     if (info is! Map<String, dynamic> ||
         _number(info['vod_id']) != _vodId(filmId) ||
         info['vod_url_with_player'] is! List)
       throw const ProviderException('protocol', '影片详情不完整，请重试');
+<<<<<<< HEAD
     final lines = <String, MediaLine>{};
     for (final row in info['vod_url_with_player'] as List) {
       if (row is! Map<String, dynamic>) continue;
@@ -237,6 +282,17 @@ class WhiskletProvider implements FilteredMediaProvider {
       lines[line.code] = line;
     }
     final usable = lines.values.where((line) => line.episodes.isNotEmpty).toList();
+=======
+    final byCode = <String, MediaLine>{};
+    for (final row in info['vod_url_with_player'] as List) {
+      if (row is! Map<String, dynamic>) continue;
+      final line = parseLine(row);
+      byCode[line.code] = line;
+    }
+    final lines = List<MediaLine>.unmodifiable(
+      byCode.values.where((line) => line.episodes.isNotEmpty),
+    );
+>>>>>>> 435fea310b21dfe7c5279ea88167a6a247ec0461
     return MediaDetail(
       _film(
         info,
@@ -377,5 +433,9 @@ class WhiskletProvider implements FilteredMediaProvider {
   }
 
   @override
-  void close() => client.close();
+  void close() {
+    _closed = true;
+    _details.clear();
+    client.close();
+  }
 }

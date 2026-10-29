@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-23",
+  "kind": "debug-static-preview-first-frame-not-android",
+  "browser": "Playwright Chromium",
+  "viewport": {
+    "width": 430,
+    "height": 900
+  },
+  "httpCacheDisabled": true,
+  "throttling": "none",
+  "baseline": [
+    {
+      "mode": "debug-cdn-cold",
+      "firstFrameMs": 3170,
+      "renderer": [
+        {
+          "path": "/flutter-canvaskit/692136cb6582dbfc5af3fb33c2515a069f2f66d0/chromium/canvaskit.wasm",
+          "origin": "https://www.gstatic.com",
+          "durationMs": 2370.9000000059605,
+          "transferBytes": 0
+        },
+        {
+          "path": "/flutter-canvaskit/692136cb6582dbfc5af3fb33c2515a069f2f66d0/chromium/canvaskit.js",
+          "origin": "https://www.gstatic.com",
+          "durationMs": 124.7999999821186,
+          "transferBytes": 0
+        }
+      ],
+      "semanticsCount": 61
+    },
+    {
+      "mode": "debug-cdn-cold",
+      "firstFrameMs": 1949.4000000059605,
+      "renderer": [
+        {
+          "origin": "https://www.gstatic.com",
+          "path": "/flutter-canvaskit/692136cb6582dbfc5af3fb33c2515a069f2f66d0/chromium/canvaskit.wasm",
+          "durationMs": 1592.5
+        },
+        {
+          "origin": "https://www.gstatic.com",
+          "path": "/flutter-canvaskit/692136cb6582dbfc5af3fb33c2515a069f2f66d0/chromium/canvaskit.js",
+          "durationMs": 107.59999999403954
+        }
+      ],
+      "semanticsCount": 61
+    },
+    {
+      "mode": "debug-cdn-cold",
+      "firstFrameMs": 2251.4000000059605,
+      "renderer": [
+        {
+          "origin": "https://www.gstatic.com",
+          "path": "/flutter-canvaskit/692136cb6582dbfc5af3fb33c2515a069f2f66d0/chromium/canvaskit.wasm",
+          "durationMs": 1864.5
+        },
+        {
+          "origin": "https://www.gstatic.com",
+          "path": "/flutter-canvaskit/692136cb6582dbfc5af3fb33c2515a069f2f66d0/chromium/canvaskit.js",
+          "durationMs": 326
+        }
+      ],
+      "semanticsCount": 61
+    }
+  ],
+  "after": [
+    {
+      "mode": "debug-local-renderer-cold",
+      "firstFrameMs": 1264.5,
+      "renderer": [
+        {
+          "origin": "http://127.0.0.1:7357",
+          "path": "/canvaskit/chromium/canvaskit.wasm",
+          "durationMs": 18.200000017881393
+        },
+        {
+          "origin": "http://127.0.0.1:7357",
+          "path": "/canvaskit/chromium/canvaskit.js",
+          "durationMs": 2.5999999940395355
+        }
+      ],
+      "semanticsCount": 61
+    },
+    {
+      "mode": "debug-local-renderer-cold",
+      "firstFrameMs": 673.8000000119209,
+      "renderer": [
+        {
+          "origin": "http://127.0.0.1:7357",
+          "path": "/canvaskit/chromium/canvaskit.wasm",
+          "durationMs": 18.099999994039536
+        },
+        {
+          "origin": "http://127.0.0.1:7357",
+          "path": "/canvaskit/chromium/canvaskit.js",
+          "durationMs": 1.5
+        }
+      ],
+      "semanticsCount": 61
+    },
+    {
+      "mode": "debug-local-renderer-cold",
+      "firstFrameMs": 675.1999999880791,
+      "renderer": [
+        {
+          "origin": "http://127.0.0.1:7357",
+          "path": "/canvaskit/chromium/canvaskit.wasm",
+          "durationMs": 28.5
+        },
+        {
+          "origin": "http://127.0.0.1:7357",
+          "path": "/canvaskit/chromium/canvaskit.js",
+          "durationMs": 1.600000023841858
+        }
+      ],
+      "semanticsCount": 61
+    }
+  ]
+}
