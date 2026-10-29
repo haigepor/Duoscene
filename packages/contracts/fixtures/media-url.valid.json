@@ -1,0 +1,12 @@
+{
+  "type": "media",
+  "commandId": "legacy-network-media",
+  "epoch": "room-epoch",
+  "expectedRevision": 0,
+  "media": {
+    "uri": "https://example.invalid/movie.m3u8",
+    "identity": "movie:legacy",
+    "title": "Legacy URL",
+    "hls": true
+  }
+}

@@ -81,6 +81,8 @@ class _AppShellState extends State<AppShell> {
     final request = ++selectionRequest;
     if (value == tab.value) {
       preparingTab.value = null;
+      // 再点当前标签：回到列表顶部，等同常见短视频/内容 App 的习惯动作。
+      library.requestScrollTop();
       return;
     }
     if (preparedTabs.contains(value) ||

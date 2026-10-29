@@ -20,13 +20,22 @@ Bearer POST `/api/v1/rooms/:roomId/realtime-ticket` → `{data:{ticket,expiresIn
 
 snapshot：`{type,epoch,revision,generation,media,rate,playing,wanted,positionMs,serverTime,ready,room,peers}`。
 
-`media={uri,identity,title,hls}`；仅共享 HTTP(S) 且无 userInfo/fragment 的地址，不接受本地文件或私有 header。两端独立拉流，服务端不代理视频。`peers=[{userId,displayName,connectionId,voice}]`；`ready` 按 userId 标记。room 为既有 REST 房间公开形态。
+`media` 支持两种互斥形态：
 
-控制公共字段：`{type,commandId,epoch,expectedRevision}`，附加字段 media/positionMs/rate 分别只用于 media/seek/rate；play/pause 无附加字段。positionMs 0–86400000，rate .25–8，媒体 URL 最长 4096。`ack={type:'ack',commandId}`；错误返回 commandId、code 和最新 snapshot，不静默覆盖新状态。同 epoch 最近 512 条用户命令去重，先去重再比 revision。
+- 既有地址形态：`{uri,identity,title,hls}`，仅接受无 userInfo/fragment 的 HTTP(S) 地址，不共享本地文件或私有 header。
+- 片目形态：`{provider:'whisklet',filmId,episode,lineCode?,identity,title}`。filmId 为 `whisklet:<正整数>`，最长 80；episode 为 1–100000；lineCode 最长 80，不含空白或控制字符。双方分别解析自己的短期 URL 和媒体请求头，这些传输资料不进入房间快照。明确指定线路时，不接受静默回退到另一线路。
+
+两端独立拉流，服务端不代理视频。`peers=[{userId,displayName,connectionId,voice}]`；`ready` 按 userId 标记。room 为既有 REST 房间公开形态。片目形态要求双方使用支持该形态的客户端；既有 URL 命令保持兼容。
+
+控制公共字段：`{type,commandId,epoch,expectedRevision}`；media 命令携带 media，并可选 positionMs，未提供时从 0 开始；seek 必须提供 positionMs；rate 必须提供 rate；play/pause 无附加字段。positionMs 0–86400000，rate .25–8，媒体 URL 最长 4096。换片与起点通过一条 media 命令原子提交，初始为暂停并重置双方 ready。`ack={type:'ack',commandId}`；错误返回 commandId、code 和最新已提交 snapshot，不静默覆盖新状态。同 epoch 最近 512 条用户命令去重，先去重再比 revision。
 
 ready：`{type:'ready',epoch,generation,ready:boolean}`。换片或 seek 增加 generation 且重置双方 ready，旧 generation 的 ready 忽略。服务端仅在 media 存在、在线 2 人、双方 ready、wanted=true 时播放。缓冲暂停保留 wanted；手动 pause 清除 wanted；断线清除 wanted，重连不自动播放。OWNER_ONLY 模式仅允许房主控制。
 
-每个房间串行处理事件，每秒广播快照校正漂移；客户端保留最新快照，按本地接收后的经过时间投影目标，漂移超过 1200ms 或新 generation 强制定位。MySQL 保存换片与控制后的快照，进程恢复使用新 epoch，默认暂停且重新准备。
+每个房间串行处理事件，每秒广播快照校正漂移；客户端保留最新快照，按本地接收后的经过时间投影目标，漂移超过 1200ms 或新 generation 强制定位。初次定位等待媒体具备有效时长，成功应用后才声明 ready。
+
+播放命令先在候选时间线上计算，再保存 MySQL；保存成功后才替换权威态、广播和 ack。保存失败时保留原权威态及去重记录，同一 commandId 可重试。播放过程中每 5 秒保存进度检查点，ready 变化、断线和服务关闭也保存当前位置；检查点失败保持 dirty 并重试，未保存的房间不清理。正常断线保存冻结位置；异常进程终止最多恢复至最近一次成功检查点，数据库持续故障期间不能承诺进度无损。恢复使用新 epoch，默认暂停且重新准备。
+
+个人邀请先初始化房间媒体和起点，再生成邀请码；重试遇到已有媒体时保留服务端状态。个人播放仅暂停，房间仍拥有独立播放会话。
 
 ## 私聊
 

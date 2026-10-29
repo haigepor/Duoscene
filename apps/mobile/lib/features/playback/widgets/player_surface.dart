@@ -204,7 +204,7 @@ class _PlayerSurfaceState extends State<PlayerSurface> {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: s,
+    animation: Listenable.merge([s, s.stateTick]),
     builder: (context, _) {
       final core = s.core;
       final controller = core.videoController;
@@ -505,27 +505,13 @@ class _PlayerSurfaceState extends State<PlayerSurface> {
                                       ? () => unawaited(s.next())
                                       : null,
                                 ),
-                                progressBuilder: (placement) => ProgressBar(
-                                  progress: _dragging
-                                      ? _preview
-                                      : core.playerPosition,
-                                  buffered: core.playerBuffer,
-                                  total: core.playerDuration,
-                                  barHeight: 3,
-                                  thumbRadius: 6,
-                                  timeLabelLocation: placement,
-                                  timeLabelTextStyle: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                  progressBarColor: DSPalette.of(context)
-                                      .primary,
-                                  thumbColor: DSPalette.of(context).primary,
-                                  baseBarColor: Colors.white24,
-                                  bufferedBarColor: Colors.white38,
-                                  onDragStart: enabled
-                                      ? (_) => _startSeek()
-                                      : null,
+                                progressBuilder: (placement) => _LiveProgress(
+                                  session: s,
+                                  dragging: _dragging,
+                                  preview: _preview,
+                                  placement: placement,
+                                  enabled: enabled,
+                                  onDragStart: enabled ? (_) => _startSeek() : null,
                                   onDragUpdate: (details) =>
                                       _previewSeek(details.timeStamp),
                                   onDragEnd: _reveal,
@@ -540,17 +526,10 @@ class _PlayerSurfaceState extends State<PlayerSurface> {
                                         }
                                       : null,
                                 ),
-                                timeLabel: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                  ),
-                                  child: Text(
-                                    '${durationToString(_dragging ? _preview : core.playerPosition)} / ${durationToString(core.playerDuration)}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                    ),
-                                  ),
+                                timeLabel: _LiveTimeLabel(
+                                  session: s,
+                                  dragging: _dragging,
+                                  preview: _preview,
                                 ),
                                 timePlacement:
                                     PlayerTimeLabelPlacement.forViewport(
@@ -680,4 +659,95 @@ class _PlayerSurfaceState extends State<PlayerSurface> {
       ),
     ),
   );
+}
+
+/// 进度条只订阅会话的轻量 position/buffer 通道：200ms 一拍仅重建进度条本体
+/// （外层 RepaintBoundary 钉住重绘范围），不再随整页状态走。
+class _LiveProgress extends StatelessWidget {
+  const _LiveProgress({
+    required this.session,
+    required this.dragging,
+    required this.preview,
+    required this.placement,
+    required this.enabled,
+    required this.onDragStart,
+    required this.onDragUpdate,
+    required this.onDragEnd,
+    required this.onSeek,
+  });
+  final PlaybackSession session;
+  final bool dragging;
+  final Duration preview;
+  final TimeLabelLocation placement;
+  final bool enabled;
+  final ValueChanged<ThumbDragDetails>? onDragStart;
+  final ValueChanged<ThumbDragDetails> onDragUpdate;
+  final VoidCallback onDragEnd;
+  final ValueChanged<Duration>? onSeek;
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: ValueListenableBuilder<Duration>(
+        valueListenable: session.positionTick,
+        builder: (context, position, _) => ValueListenableBuilder<Duration>(
+          valueListenable: session.bufferTick,
+          builder: (context, buffer, __) {
+            final core = session.core;
+            return ProgressBar(
+              progress: dragging ? preview : position,
+              buffered: dragging ? core.playerBuffer : buffer,
+              total: core.playerDuration,
+              barHeight: 3,
+              thumbRadius: 6,
+              timeLabelLocation: placement,
+              timeLabelTextStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
+              progressBarColor: DSPalette.of(context).primary,
+              thumbColor: DSPalette.of(context).primary,
+              baseBarColor: Colors.white24,
+              bufferedBarColor: Colors.white38,
+              onDragStart: onDragStart,
+              onDragUpdate: onDragUpdate,
+              onDragEnd: onDragEnd,
+              onSeek: onSeek,
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// 时间标签与进度条同通道：拖动中显示预览值。
+class _LiveTimeLabel extends StatelessWidget {
+  const _LiveTimeLabel({
+    required this.session,
+    required this.dragging,
+    required this.preview,
+  });
+  final PlaybackSession session;
+  final bool dragging;
+  final Duration preview;
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: ValueListenableBuilder<Duration>(
+        valueListenable: session.positionTick,
+        builder: (context, position, _) {
+          final core = session.core;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Text(
+              '${durationToString(dragging ? preview : position)} / ${durationToString(core.playerDuration)}',
+              style: const TextStyle(color: Colors.white, fontSize: 11),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

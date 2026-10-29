@@ -11,9 +11,13 @@ class AdaptiveWatchLayout extends StatelessWidget {
     required this.controls,
     required this.conversation,
     required this.showMedia,
+    this.mediaAspectRatio = 16 / 9,
+    this.mediaInset = 16,
   });
   final Widget header, media, controls, conversation;
   final bool showMedia;
+  final double mediaAspectRatio;
+  final double mediaInset;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -21,6 +25,8 @@ class AdaptiveWatchLayout extends StatelessWidget {
       delegate: _WatchLayout(
         split: showMedia && bounds.maxWidth >= 1100 && bounds.maxHeight >= 600,
         showMedia: showMedia,
+        mediaAspectRatio: mediaAspectRatio,
+        mediaInset: mediaInset,
         conversationMinimum:
             160 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.6),
       ),
@@ -47,9 +53,13 @@ class _WatchLayout extends MultiChildLayoutDelegate {
   _WatchLayout({
     required this.split,
     required this.showMedia,
+    required this.mediaAspectRatio,
+    required this.mediaInset,
     required this.conversationMinimum,
   });
   final bool split, showMedia;
+  final double mediaAspectRatio;
+  final double mediaInset;
   final double conversationMinimum;
 
   @override
@@ -69,11 +79,11 @@ class _WatchLayout extends MultiChildLayoutDelegate {
     );
     var videoHeight = showMedia
         ? math.min(
-            math.max(0.0, (videoWidth - 32) * 9 / 16),
+            math.max(0.0, (videoWidth - mediaInset * 2) / mediaAspectRatio),
             split
                 ? math.max(0.0, bodyHeight - controls.height)
                 : math.min(
-                    size.height * .4,
+                    size.height * (mediaAspectRatio < 1 ? .62 : .4),
                     math.max(
                       0.0,
                       bodyHeight - controls.height - conversationMinimum,
@@ -112,5 +122,7 @@ class _WatchLayout extends MultiChildLayoutDelegate {
   bool shouldRelayout(_WatchLayout oldDelegate) =>
       split != oldDelegate.split ||
       showMedia != oldDelegate.showMedia ||
+      mediaAspectRatio != oldDelegate.mediaAspectRatio ||
+      mediaInset != oldDelegate.mediaInset ||
       conversationMinimum != oldDelegate.conversationMinimum;
 }

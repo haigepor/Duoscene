@@ -70,7 +70,19 @@ void main() {
             session: session,
             presentation: (_, player, _) {
               builds++;
-              return ShortPlaybackControls(player: player);
+              // 原生初始化在集成测试验收；这里隔离初始化错误，只测进度与页面订阅边界。
+              return ShortScrubLine(
+                player: PlayerPresentation(
+                  session: player.session,
+                  settings: player.settings,
+                  network: player.network,
+                  local: player.local,
+                  screenshots: player.screenshots,
+                  capture: player.capture,
+                  pip: player.pip,
+                  toggle: player.toggle,
+                ),
+              );
             },
           ),
         ),
@@ -83,18 +95,12 @@ void main() {
         await tester.pump();
       }
       expect(builds, initial);
-      expect(
-        tester.widget<Slider>(find.byKey(const Key('short-seek'))).value,
-        5000,
-      );
+      expect(find.bySemanticsLabel('播放进度 0:05 / 1:00'), findsOneWidget);
       session.core.duration = const Duration(seconds: 120);
       session.refreshState();
       await tester.pump();
       expect(builds, initial + 1);
-      expect(
-        tester.widget<Slider>(find.byKey(const Key('short-seek'))).max,
-        120000,
-      );
+      expect(find.bySemanticsLabel('播放进度 0:05 / 2:00'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       await session.close();
       session.dispose();

@@ -11,7 +11,24 @@ const unauthorized = () => new ApiError(401, 'UNAUTHORIZED', 'Authentication req
 
 /** WS 在握手时验证 access，后续按会话撤销/过期/账号状态校验，允许正常 REST 凭据轮换。 */
 export async function validateConnection(db: Database, identity: Identity) {
-  if (!await authRepository(db).activeConnection(identity.sessionId, identity.id)) throw unauthorized();
+  // 会话撤销/过期在 WS 消息与心跳里逐条查库，房间热时每秒可达几十次；
+  // 用 3s TTL 缓存把频率压到最多 1 次/秒/会话，撤销最迟 3s 生效。
+  const cached = connectionCache.get(identity.sessionId);
+  const now = Date.now();
+  if (cached && cached.expires > now) {
+    if (!cached.ok) throw unauthorized();
+    return;
+  }
+  const ok = !!(await authRepository(db).activeConnection(identity.sessionId, identity.id));
+  connectionCache.set(identity.sessionId, { ok, expires: now + 3000 });
+  if (connectionCache.size > 4096) pruneConnectionCache();
+  if (!ok) throw unauthorized();
+}
+
+const connectionCache = new Map<string, { ok: boolean; expires: number }>();
+function pruneConnectionCache() {
+  const now = Date.now();
+  for (const [key, value] of connectionCache) if (value.expires <= now) connectionCache.delete(key);
 }
 
 export function createAuthService(db: Database) {

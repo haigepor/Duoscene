@@ -1,9 +1,30 @@
+import 'dart:io' show File, Platform;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'components.dart';
 import 'tokens.dart';
+
+/// 真机基线（docs/perf-baseline-20261023.zh.md）实测底栏实时模糊是 raster 瓶颈
+/// 的主要成本（首页滚动 46.6% / 播放中 56.6% 帧超 60Hz 预算）。低内存机型的
+/// GPU 撑不起逐帧背景重采样：改用更高不透明度的纯渐变（TikTok 底栏即半透明
+/// 实色），桌面与高内存机型保留玻璃模糊。
+final bool kLowTierGpu = _detectLowTierGpu();
+
+bool _detectLowTierGpu() {
+  // Web 预览没有 dart:io 的操作系统查询能力，先在平台边界短路。
+  if (kIsWeb || !Platform.isAndroid) return false;
+  try {
+    final meminfo = File('/proc/meminfo').readAsStringSync();
+    final total = RegExp(r'MemTotal:\s+(\d+) kB').firstMatch(meminfo);
+    if (total == null) return false;
+    return int.parse(total.group(1)!) < 5 * 1024 * 1024;
+  } catch (_) {
+    return false;
+  }
+}
 
 class DuosceneNavigation extends StatelessWidget {
   const DuosceneNavigation({
@@ -27,6 +48,24 @@ class DuosceneNavigation extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final selectedColor = onMedia ? Colors.white : p.primary;
     final mutedColor = onMedia ? Colors.white70 : p.muted;
+    final glass = !kLowTierGpu;
+    // 无实时模糊时抬高面板不透明度，保住底栏文字在任意画面上的对比度。
+    final panelTop = switch ((glass, onMedia, dark)) {
+      (false, true, _) => .58,
+      (false, false, true) => .72,
+      (false, false, false) => .78,
+      (_, true, _) => .28,
+      (_, false, true) => .42,
+      (_, false, false) => .48,
+    };
+    final panelBottom = switch ((glass, onMedia, dark)) {
+      (false, true, _) => .44,
+      (false, false, true) => .52,
+      (false, false, false) => .54,
+      (_, true, _) => .16,
+      (_, false, true) => .24,
+      (_, false, false) => .26,
+    };
     final itemHeight = (MediaQuery.textScalerOf(context).scale(10) * 1.2 + 30)
         .clamp(56.0, double.infinity);
     void choose(int i) {
@@ -52,29 +91,18 @@ class DuosceneNavigation extends StatelessWidget {
         child: ClipRRect(
           key: const Key('navigation-island'),
           borderRadius: BorderRadius.circular(28),
-          // 模糊限制在底栏内且强度固定，滑块动画只改变自己的位置。
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          // 模糊限制在底栏内且强度固定，滑块动画只改变自己的位置；低端机
+          // 跳过逐帧背景重采样（真机基线 raster 超预算的主因）。
+          child: _BlurGate(
+            enabled: glass,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    p.panel.withValues(
-                      alpha: onMedia
-                          ? .28
-                          : dark
-                          ? .42
-                          : .48,
-                    ),
-                    p.panel.withValues(
-                      alpha: onMedia
-                          ? .16
-                          : dark
-                          ? .24
-                          : .26,
-                    ),
+                    p.panel.withValues(alpha: panelTop),
+                    p.panel.withValues(alpha: panelBottom),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(28),
@@ -220,4 +248,20 @@ class DuosceneNavigation extends StatelessWidget {
         ? SizedBox(width: 80, height: itemHeight * 4 + 16, child: navigation)
         : navigation;
   }
+}
+
+/// 背景实时模糊的开关壳：低端机不进 BackdropFilter，省掉整层的 saveLayer 重采样。
+class _BlurGate extends StatelessWidget {
+  const _BlurGate({required this.enabled, required this.child});
+
+  final bool enabled;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => enabled
+      ? BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          child: child,
+        )
+      : child;
 }

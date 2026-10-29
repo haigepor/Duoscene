@@ -45,6 +45,39 @@ class WhiskletProvider implements FilteredMediaProvider {
     return int.parse(value.split(':').last);
   }
 
+  /// 同一线路同一集的直链短时缓存：上游 ajiami 解析耗时且波动大（重试
+  /// 至多 8 轮），看门狗重试、换线再换回、连播回跳都是同一地址，命中即免
+  /// 整段解析往返。容量很小，超出按插入序淘汰。
+  final _resolvedCache = <String, PlaybackSource>{};
+  static const _resolvedCacheLimit = 12;
+  static const _resolvedCacheTtl = Duration(minutes: 10);
+  final _resolvedCacheAt = <String, DateTime>{};
+
+  PlaybackSource? _cacheGet(String identity) {
+    final at = _resolvedCacheAt[identity];
+    final value = _resolvedCache[identity];
+    if (at == null || value == null) return null;
+    if (DateTime.now().difference(at) > _resolvedCacheTtl) {
+      _resolvedCache.remove(identity);
+      _resolvedCacheAt.remove(identity);
+      return null;
+    }
+    return value;
+  }
+
+  void _cachePut(String identity, PlaybackSource source) {
+    if (_resolvedCache.length >= _resolvedCacheLimit &&
+        !_resolvedCache.containsKey(identity)) {
+      final oldest = _resolvedCacheAt.entries
+          .reduce((a, b) => a.value.isBefore(b.value) ? a : b)
+          .key;
+      _resolvedCache.remove(oldest);
+      _resolvedCacheAt.remove(oldest);
+    }
+    _resolvedCache[identity] = source;
+    _resolvedCacheAt[identity] = DateTime.now();
+  }
+
   static String _plain(Object? value) => (value?.toString() ?? '')
       .replaceAll(RegExp(r'<[^>]*>'), '')
       .replaceAll('&nbsp;', ' ')
@@ -241,18 +274,27 @@ class WhiskletProvider implements FilteredMediaProvider {
         _number(info['vod_id']) != _vodId(filmId) ||
         info['vod_url_with_player'] is! List)
       throw const ProviderException('protocol', '影片详情不完整，请重试');
-    final byCode = <String, MediaLine>{};
+    final lines = <String, MediaLine>{};
     for (final row in info['vod_url_with_player'] as List) {
       if (row is! Map<String, dynamic>) continue;
       final line = parseLine(row);
-      byCode[line.code] = line;
+      lines[line.code] = line;
     }
-    final lines = List<MediaLine>.unmodifiable(
-      byCode.values.where((line) => line.episodes.isNotEmpty),
+    final usable = List<MediaLine>.unmodifiable(
+      lines.values.where((line) => line.episodes.isNotEmpty),
     );
     return MediaDetail(
-      _film(info, episodes: lines.isEmpty ? 1 : lines.first.episodes.length),
-      lines,
+      _film(
+        info,
+        // 各线路集数表不齐，集数统一以拥有最新集数的线路为准（取最大值），
+        // 播放侧由 resolve 按集号跨线路落点，展示层不再按当前线路收窄。
+        episodes: usable.isEmpty
+            ? 1
+            : usable
+                  .map((line) => line.episodes.length)
+                  .reduce((a, b) => a > b ? a : b),
+      ),
+      usable,
     );
   }
 
@@ -261,13 +303,64 @@ class WhiskletProvider implements FilteredMediaProvider {
     String filmId, {
     required int episode,
     String? lineCode,
+    MediaDetail? cachedDetail,
   }) async {
-    final current = await detail(filmId);
-    final selected = current.lines
-        .where((line) => lineCode == null || line.code == lineCode)
-        .firstOrNull;
-    if (selected == null || episode < 1 || episode > selected.episodes.length)
+    // 上游详情接口较慢：调用方已持有详情（详情页/选集切换）时直接复用，
+    // 省掉一次重复的网络往返。
+    final current = cachedDetail ?? await detail(filmId);
+    // 各线路集数表独立；只有真正拥有该集的线路才参与解析。
+    final playable = current.lines
+        .where((line) => episode >= 1 && episode <= line.episodes.length)
+        .toList();
+    if (playable.isEmpty)
       throw const ProviderException('unavailable', '线路或剧集已更新，请重新选择');
+    final selected = lineCode == null
+        ? playable.first
+        : playable.where((line) => line.code == lineCode).firstOrNull ??
+              playable.first;
+    // 同线路同集命中短时缓存直接返回（直链短时有效，TTL 10 分钟内）。
+    final identity = '$filmId:${selected.code}:$episode';
+    final cached = _cacheGet(identity);
+    if (cached != null) return cached;
+    // 上游 ajiami 解析会随机返回截断参数（2026-10-23 实测仅约 16% 为有效长度），
+    // 首选线路重试耗尽时依次落到其余可用线路，全部失败才上抛首选线路的错误。
+    final candidates = [
+      selected,
+      ...playable.where((line) => line.code != selected.code),
+    ];
+    ProviderException? primaryFailure;
+    for (final candidate in candidates) {
+      try {
+        final source = await _resolveOn(current, candidate, filmId, episode);
+        if (identical(candidate, selected)) _cachePut(identity, source);
+        return source;
+      } on ProviderException catch (error) {
+        if (identical(candidate, selected)) primaryFailure = error;
+        // 连接与协议层故障换线同样会失败，立即上抛而不是逐线重试。
+        if (const {
+          'network',
+          'timeout',
+          'http',
+          'size',
+          'business',
+          'protocol',
+          'closed',
+          'input',
+          'identity',
+        }.contains(error.code)) {
+          rethrow;
+        }
+      }
+    }
+    throw primaryFailure!;
+  }
+
+  Future<PlaybackSource> _resolveOn(
+    MediaDetail current,
+    MediaLine selected,
+    String filmId,
+    int episode,
+  ) async {
     final entry = selected.episodes[episode - 1];
     String url = entry.token;
     if (!selected.direct) {

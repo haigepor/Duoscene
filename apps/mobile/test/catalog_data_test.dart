@@ -50,6 +50,12 @@ class _FilterProvider extends _SearchProvider implements FilteredMediaProvider {
   }) => browse(category, page: page);
 }
 
+class _SkeletonProvider extends _SearchProvider {
+  final pending = Completer<MediaDetail>();
+  @override
+  Future<MediaDetail> detail(String filmId) => pending.future;
+}
+
 class _SlowHomeProvider extends _FilterProvider {
   final home = Completer<List<Film>>();
   @override
@@ -141,14 +147,43 @@ void main() {
         find.byKey(const Key('category-film-whisklet:42')),
         findsOneWidget,
       );
-      await tester.tap(find.byKey(const Key('category-filter-toggle')));
-      await tester.pumpAndSettle();
       expect(find.text('100 分钟以内'), findsNothing);
       await tester.tap(find.byKey(const Key('category-year-2026')));
       await tester.pumpAndSettle();
       expect(selected?.parameters, {'class': '喜剧', 'year': '2026'});
       expect(find.text('本页片名'), findsOneWidget);
       expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'filtered loading shows a skeleton grid instead of a progress bar',
+    (tester) async {
+      final library = LibraryState(accountId: 'catalog-skeleton');
+      addTearDown(library.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: duosceneTheme,
+          home: Scaffold(
+            body: CatalogDiscovery(
+              library: library,
+              kind: '电影',
+              selection: CatalogSelection()..genre = '喜剧',
+              header: const SizedBox(),
+              remoteFilters: true,
+              filterOptions: const {
+                'class': ['喜剧'],
+              },
+              items: const [],
+              loading: true,
+            ),
+          ),
+        ),
+      );
+      // 骨架呼吸动画常驻，不能用 pumpAndSettle
+      await tester.pump();
+      expect(find.byKey(const Key('catalog-skeleton')), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(find.text('正在加载…'), findsNothing);
     },
   );
   test(
@@ -322,6 +357,34 @@ void main() {
       expect(search.results, [films[2], films[3]]);
       expect(search.hasMore, isFalse);
       search.dispose();
+    },
+  );
+  testWidgets(
+    'remote detail loading shows a skeleton that real sections replace',
+    (tester) async {
+      final provider = _SkeletonProvider();
+      final library = LibraryState(accountId: 'skeleton', provider: provider);
+      addTearDown(library.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: duosceneTheme,
+          home: Scaffold(
+            body: DetailPage(film: _SearchProvider.sample, library: library),
+          ),
+        ),
+      );
+      await tester.pump();
+      // 加载中：骨架占位替代进度条，标题保持真实文案
+      expect(find.byKey(const Key('detail-skeleton')), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(find.text('剧情简介'), findsOneWidget);
+      expect(find.text('你可能也喜欢'), findsNothing);
+      // 详情到达：骨架让位给真实内容
+      provider.pending.complete(const MediaDetail(_SearchProvider.sample, []));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('detail-skeleton')), findsNothing);
+      expect(find.text('当前片目暂无可用播放线路'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
 }

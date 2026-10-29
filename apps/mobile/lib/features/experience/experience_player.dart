@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../core/widgets.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import '../../design/motion.dart';
 import '../../design/adaptive_watch_layout.dart';
+import '../../design/window_layout.dart';
 import '../playback/widgets/player_library_view.dart';
 import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
@@ -17,9 +19,12 @@ import 'chat_panel.dart';
 import 'episode_sheet.dart';
 import 'invite_pages.dart';
 import 'settings_pages.dart';
+import 'short_feed.dart';
 import 'conversation.dart';
 import 'watch_controls.dart';
 
+/// 首页等入口的快速播放：先落播放器页再解析，把网络等待放进播放器的加载态，
+/// 避免入口按钮长时间转圈、页面无响应的空窗。
 Future<void> openCatalogPlayer(
   BuildContext context,
   Film film,
@@ -29,33 +34,18 @@ Future<void> openCatalogPlayer(
     await openPage(context, ExperiencePlayer(film: film, library: library));
     return;
   }
-  try {
-    final provider = library.provider!;
-    final detail = await provider.detail(film.id);
-    final line =
-        detail.lines.where((line) => line.direct).firstOrNull ??
-        detail.lines.firstOrNull;
-    if (line == null || line.episodes.isEmpty) throw StateError('暂无可用片源');
-    final source = await provider.resolve(
-      film.id,
-      episode: 1,
-      lineCode: line.code,
-    );
-    if (!context.mounted) return;
-    library.remember([detail.film]);
+  // 短剧是竖屏信息流：任何入口点击观看都进短剧播放器，横屏播放器只留给长视频。
+  if (film.short) {
     await openPage(
       context,
-      ExperiencePlayer(
-        film: detail.film.withEpisodes(line.episodes.length),
-        library: library,
-        initialSource: source,
-        lineCode: line.code,
-        lines: detail.lines,
-      ),
+      ShortFeed(library: library, active: true, initialFilm: film),
     );
-  } catch (_) {
-    if (context.mounted) tell(context, '片源解析失败，请进入详情重试。');
+    return;
   }
+  await openPage(
+    context,
+    ExperiencePlayer(film: film, library: library, autoResolve: true),
+  );
 }
 
 class ExperiencePlayer extends StatefulWidget {
@@ -68,6 +58,7 @@ class ExperiencePlayer extends StatefulWidget {
     this.initialSource,
     this.lineCode,
     this.lines = const [],
+    this.autoResolve = false,
   });
   final Film? film;
   final LibraryState library;
@@ -76,27 +67,79 @@ class ExperiencePlayer extends StatefulWidget {
   final PlaybackSource? initialSource;
   final String? lineCode;
   final List<MediaLine> lines;
+
+  /// 无预解析源时进入页面自动选线解析（首页轮播等快速入口）。
+  final bool autoResolve;
   @override
   State<ExperiencePlayer> createState() => _ExperiencePlayerState();
 }
 
 class _ExperiencePlayerState extends State<ExperiencePlayer> {
-  Film get film => widget.film!.withEpisodes(
-    widget.lines
-            .where((line) => line.code == lineCode)
-            .firstOrNull
-            ?.episodes
-            .length ??
-        widget.film!.episodes,
-  );
+  // 集数统一为最多集数线路的数量，切换线路时展示层不再收窄。
+  Film? _resolvedFilm;
+  Film get film => _resolvedFilm ?? widget.film!;
   late String? lineCode = widget.lineCode;
   int tab = 0;
   late int episode = widget.episode;
   int? resumedGeneration;
   int? volumeGeneration;
   bool applyResume = true, selectingEpisode = false;
+  bool _autoResolving = false;
+  List<MediaLine> _autoLines = const [];
   PlayerPresentation? player;
   final controlsKey = GlobalKey<WatchControlsState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // 详情页已加载过线路时复用（免重复请求）；否则进入页面后解析一次。
+    if (widget.autoResolve &&
+        widget.initialSource == null &&
+        film.remote &&
+        widget.lines.isEmpty) {
+      unawaited(_autoResolve());
+    }
+  }
+
+  /// 拉详情选线并解析第 1 集，完成后替换播放源；失败交给「选择视频」空态。
+  Future<void> _autoResolve() async {
+    if (_autoResolving) return;
+    _autoResolving = true;
+    try {
+      final provider = widget.library.provider;
+      if (provider == null) return;
+      final detail = await provider.detail(film.id);
+      if (!mounted) return;
+      final line = preferredPlaybackLine(detail.lines);
+      // 快速入口也以详情线路更新集数；解析失败时仍保留已知片目和可换线路。
+      widget.library.remember([detail.unifiedFilm]);
+      setState(() {
+        _resolvedFilm = detail.unifiedFilm;
+        _autoLines = detail.lines;
+        lineCode = line?.code;
+      });
+      if (line == null || line.episodes.isEmpty) return;
+      final source = await provider.resolve(
+        film.id,
+        episode: 1,
+        lineCode: line.code,
+        cachedDetail: detail,
+      );
+      if (!mounted) return;
+      setState(() {
+        _autoLines = detail.lines;
+        lineCode = line.code;
+        episode = 1;
+        applyResume = false;
+      });
+      await player?.session.setPlaylist([source]);
+    } catch (_) {
+      // 保留「选择视频」空态；用户可进详情页看具体错误并换线。
+    } finally {
+      _autoResolving = false;
+    }
+  }
+
   late final intent = WatchIntent()
     ..manuallyPaused = widget.library.scenario == 'manual-pause'
     ..peerReady = ![
@@ -139,6 +182,8 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
       library: widget.library,
       episode: episode,
       position: player?.session.core.playerPosition.inSeconds ?? 0,
+      lineCode: lineCode,
+      sourceIdentity: player?.session.source?.identity,
     );
   }
 
@@ -188,10 +233,21 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
               unawaited(s.seek(Duration(seconds: widget.resume!.seconds)));
             }
             final p = DSPalette.of(context);
+            // 竖屏源（AI 漫剧/短剧）按视频自身比例展示；宽高未知时回落 16:9。
+            final vp = s.core.mediaPlayer?.state.videoParams;
+            final videoW = vp?.w ?? 0;
+            final videoH = vp?.h ?? 0;
+            final portrait = videoW > 0 && videoH > 0 && videoW < videoH;
+            // 手机沿用上游通铺媒体，平板分栏保留内容边距；固定槽位不变。
+            final mediaInset = WindowLayout.isWide(context)
+                ? DS.pageInset
+                : 0.0;
             return Forest(
               child: LayoutBuilder(
                 builder: (context, bounds) => AdaptiveWatchLayout(
                   showMedia: !composing && bounds.maxHeight >= 400,
+                  mediaAspectRatio: portrait ? videoW / videoH : 16 / 9,
+                  mediaInset: mediaInset,
                   header: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: DS.space4,
@@ -234,18 +290,21 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                     ),
                   ),
                   media: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DS.pageInset,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: mediaInset),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(
                           maxHeight: double.infinity,
                         ),
                         child: AspectRatio(
-                          aspectRatio: 16 / 9,
+                          aspectRatio: portrait ? videoW / videoH : 16 / 9,
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(DS.panelRadius),
+                            clipBehavior: mediaInset > 0
+                                ? Clip.antiAlias
+                                : Clip.none,
+                            borderRadius: BorderRadius.circular(
+                              mediaInset > 0 ? DS.panelRadius : 0,
+                            ),
                             child: s.source == null
                                 ? WatchCover(
                                     cover: homeArtwork(film, landscape: true),
@@ -285,7 +344,9 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                           shared: shared,
                           status: _status(),
                           onInvite: invite,
-                          lines: widget.lines,
+                          lines: widget.lines.isEmpty
+                              ? _autoLines
+                              : widget.lines,
                           lineCode: lineCode,
                           onLine: _selectLine,
                           onPeerReady: !intent.peerReady
@@ -326,54 +387,48 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                             type: MaterialType.transparency,
                             child: Column(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: DS.pageInset + DS.space12,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: DSTabs(
-                                          labels: const ['交流', '简介'],
-                                          index: tab,
-                                          onChanged: (i) {
-                                            FocusScope.of(context).unfocus();
-                                            setState(() => tab = i);
-                                          },
-                                        ),
+                                // 标签条通铺到屏幕边缘，不留左右间距。
+                                Row(
+                                  children: [
+                                    // 标签条与「私密交流」按 2:1 分栏：两枚标签与
+                                    // 私密交流各自居中在三分之一处，间距均匀。
+                                    Expanded(
+                                      flex: 2,
+                                      child: DSTabs(
+                                        labels: const ['交流', '简介'],
+                                        index: tab,
+                                        dense: true,
+                                        onChanged: (i) {
+                                          FocusScope.of(context).unfocus();
+                                          setState(() => tab = i);
+                                        },
                                       ),
-                                      const SizedBox(width: DS.space8),
-                                      Expanded(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            DSIcon(
-                                              'lock-keyhole',
-                                              size: DS.chevronSize,
-                                              color: p.muted,
+                                    ),
+                                    Expanded(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          DSIcon(
+                                            'lock-keyhole',
+                                            size: DS.chevronSize,
+                                            color: p.muted,
+                                          ),
+                                          const SizedBox(width: DS.space4),
+                                          Flexible(
+                                            child: Text(
+                                              '私密交流',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: DS.smallFor(context),
                                             ),
-                                            const SizedBox(width: DS.space4),
-                                            Flexible(
-                                              child: Text(
-                                                '私密交流',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: DS.smallFor(context),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: DS.pageInset + DS.space12,
-                                  ),
-                                  child: Divider(height: 1),
-                                ),
+                                const Divider(height: 1),
                                 Expanded(
                                   child: MotionTabs(
                                     index: tab,
@@ -445,35 +500,42 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
       setState(() => episode = next);
       return;
     }
-    selectingEpisode = true;
+    setState(() => selectingEpisode = true);
     try {
       final source = await widget.library.provider!.resolve(
         film.id,
         episode: next,
         lineCode: lineCode,
+        // 线路表已在手，跳过 resolve 内部的详情往返。
+        cachedDetail: MediaDetail(
+          film,
+          widget.lines.isEmpty ? _autoLines : widget.lines,
+        ),
       );
       if (!mounted) return;
       applyResume = false;
       await player?.session.setPlaylist([source]);
       if (mounted) setState(() => episode = next);
     } catch (error) {
-      if (mounted) tell(context, error.toString());
+      if (mounted) tell(context, friendlyError(error));
     } finally {
-      selectingEpisode = false;
+      if (mounted) setState(() => selectingEpisode = false);
     }
   }
 
   Future<void> _selectLine(String code) async {
     if (selectingEpisode || code == lineCode) return;
-    final line = widget.lines.where((line) => line.code == code).firstOrNull;
+    final lines = widget.lines.isEmpty ? _autoLines : widget.lines;
+    final line = lines.where((line) => line.code == code).firstOrNull;
     if (line == null || line.episodes.isEmpty) return;
-    selectingEpisode = true;
+    setState(() => selectingEpisode = true);
     try {
       final next = episode.clamp(1, line.episodes.length);
       final source = await widget.library.provider!.resolve(
         film.id,
         episode: next,
         lineCode: code,
+        cachedDetail: MediaDetail(film, lines),
       );
       if (!mounted) return;
       applyResume = false;
@@ -486,16 +548,21 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
     } catch (_) {
       if (mounted) tell(context, '切换片源失败，请重试。');
     } finally {
-      selectingEpisode = false;
+      if (mounted) setState(() => selectingEpisode = false);
     }
   }
 
-  String _status() => switch (widget.library.scenario) {
-    'peer-buffering' => '小满正在缓冲 · 等待准备',
-    'peer-offline' => '小满已断线 · 等待重连',
-    'manual-pause' => '已手动暂停 · 等待你点击播放',
-    _ => shared ? '你和小满 · 预览同看状态' : '个人观看 · 尚未加入房间',
-  };
+  String _status() {
+    // 换集/换线解析中给一个明确反馈，避免弹层关闭后界面静默无响应。
+    if (selectingEpisode) return '正在解析片源，请稍候…';
+    return switch (widget.library.scenario) {
+      'peer-buffering' => '小满正在缓冲 · 等待准备',
+      'peer-offline' => '小满已断线 · 等待重连',
+      'manual-pause' => '已手动暂停 · 等待你点击播放',
+      _ => shared ? '你和小满 · 预览同看状态' : '个人观看 · 尚未加入房间',
+    };
+  }
+
   Future<void> _more(PlayerPresentation p) => showDSSheet<void>(
     context: context,
     isScrollControlled: true,

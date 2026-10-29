@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import type { RowDataPacket } from 'mysql2/promise';
 import type { Database } from '../shared/database.ts';
 
-export const migrationDirectory = new URL('../../migrations/', import.meta.url);
+import { listMigrationNames, migrationDirectory } from '../shared/migrations.ts';
+export { migrationDirectory } from '../shared/migrations.ts';
 
 export async function migrate(db: Database) {
   const connection = await db.pool.getConnection();
@@ -20,7 +21,7 @@ export async function migrate(db: Database) {
       state ENUM('APPLYING', 'APPLIED', 'FAILED') NOT NULL,
       applied_at DATETIME(3) NULL
     ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`);
-    const names = (await readdir(migrationDirectory)).filter((name) => /^\d{4}_[a-z_]+\.sql$/.test(name)).sort();
+    const names = await listMigrationNames();
     const applied: string[] = [];
     for (const name of names) {
       const sql = await readFile(new URL(name, migrationDirectory), 'utf8');

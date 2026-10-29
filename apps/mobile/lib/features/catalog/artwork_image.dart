@@ -21,8 +21,11 @@ class ArtworkImage extends ImageProvider<ArtworkImage> {
     ImageDecoderCallback decode,
   ) => MultiFrameImageStreamCompleter(codec: _load(decode), scale: 1);
 
+  // 共享 Client：海报网格一次十几张图，keep-alive 复用连接，避免每图一条 TLS 握手。
+  static final http.Client _sharedClient = http.Client();
+
   Future<ui.Codec> _load(ImageDecoderCallback decode) async {
-    final client = http.Client();
+    final client = _sharedClient;
     final abort = Completer<void>();
     final timer = Timer(const Duration(seconds: 12), () {
       if (!abort.isCompleted) abort.complete();
@@ -59,7 +62,6 @@ class ArtworkImage extends ImageProvider<ArtworkImage> {
     } finally {
       timer.cancel();
       if (!abort.isCompleted) abort.complete();
-      client.close();
     }
   }
 

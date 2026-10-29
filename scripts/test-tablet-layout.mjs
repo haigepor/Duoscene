@@ -19,6 +19,7 @@ const adb=process.env.ADB_BIN||join(process.env.ANDROID_SDK_ROOT||process.env.AN
 const execute=promisify(execFile);
 const shell=async args=>(await execute(adb,['-s',device,'shell',...args],{windowsHide:true,maxBuffer:8*1024*1024})).stdout.trim();
 const original=(await shell(['cmd','window','user-rotation'])).split(/\s+/);
+const originalStayOn=await shell(['settings','get','global','stay_on_while_plugged_in']);
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const header=randomBytes(18).toString('hex');
 let requests=0,result;
@@ -34,6 +35,7 @@ const server=createServer(async(req,res)=>{
     }
     if(req.method==='POST'&&path.startsWith('/phase/')){
       const phase=path.slice('/phase/'.length);
+      console.log('TABLET_PHASE:'+phase);
       if(['portrait','landscape'].includes(phase)){
         await shell(['cmd','window','user-rotation','lock',phase==='portrait'?'0':'1']);
         await pause(1000);
@@ -68,6 +70,13 @@ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const port=server.address().port,defines=join(output,'native-video-defines.json');
 let reversed=false;
 try{
+  // 构建/安装期间也要保持测试屏幕可绘制，避免息屏让 LiveTest 的帧等待挂起。
+  await shell(['svc','power','stayon','true']);
+  await shell(['input','keyevent','KEYCODE_WAKEUP']);
+  await shell(['wm','dismiss-keyguard']);
+  await pause(500);
+  const keyguard=(await shell(['dumpsys','window','policy'])).split('KeyguardStateMonitor')[1]?.split('Looper state:')[0]||'';
+  assert.ok(!/mIsShowing=true/.test(keyguard),'Unlock the tablet manually before running native layout tests');
   await execute(adb,['-s',device,'reverse',`tcp:${port}`,`tcp:${port}`],{windowsHide:true});reversed=true;
   await writeFile(defines,JSON.stringify({MEDIA_FIXTURE_BASE:`http://127.0.0.1:${port}`,TEST_MEDIA_HEADER:header})+'\n','utf8');
   const flutter=process.env.FLUTTER_BIN||'flutter.bat';
@@ -79,6 +88,9 @@ try{
   console.log('TABLET_NATIVE_RESULT:'+JSON.stringify({...result,fixtureRequests:requests}));
 }finally{
   await shell(['cmd','window','user-rotation',...original]).catch(()=>{});
+  await shell(originalStayOn==='null'
+    ? ['settings','delete','global','stay_on_while_plugged_in']
+    : ['settings','put','global','stay_on_while_plugged_in',originalStayOn]).catch(()=>{});
   if(reversed)await execute(adb,['-s',device,'reverse','--remove',`tcp:${port}`],{windowsHide:true}).catch(()=>{});
   await unlink(defines).catch(()=>{});
   server.closeAllConnections();await new Promise(resolve=>server.close(resolve));

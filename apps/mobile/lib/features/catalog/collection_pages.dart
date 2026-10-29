@@ -33,6 +33,28 @@ class _HistoryPageState extends State<HistoryPage> {
   bool manage = false;
   bool deleting = false;
   final selected = <String>{};
+  final historyScroll = ScrollController();
+  VoidCallback? unbindScrollTop;
+
+  @override
+  void initState() {
+    super.initState();
+    // 只有主壳层里的“记录”页响应双击回顶；好友记录等二级页不抢信号。
+    if (!widget.secondary) {
+      unbindScrollTop = bindScrollTop(
+        widget.library.scrollTopRequest,
+        historyScroll,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    unbindScrollTop?.call();
+    historyScroll.dispose();
+    super.dispose();
+  }
+
   Future<void> removeSelected() async {
     if (deleting || selected.isEmpty) return;
     if (!await confirm(context, '删除本机记录？', '只删除所选记录，不影响好友和其他设备。', action: '删除'))
@@ -108,32 +130,37 @@ class _HistoryPageState extends State<HistoryPage> {
                   : '看过的故事，会在这里等你。',
               onBrowse: widget.onBrowse,
             )
-          : ListView(
+          : ListView.builder(
               key: const PageStorageKey('history'),
+              controller: historyScroll,
               padding: EdgeInsets.fromLTRB(
                 18,
                 22,
                 18,
                 24 + MediaQuery.paddingOf(context).bottom,
               ),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: [
-                      Text('最近观看', style: DS.label.copyWith(color: p.muted)),
-                      const Spacer(),
-                      Text(
-                        '${entries.length} 条',
-                        style: DS.smallFor(context).copyWith(fontSize: 10),
-                      ),
-                    ],
-                  ),
-                ),
-                for (final entry in entries) _historyRow(entry),
-                const SizedBox(height: 20),
-                const _CollectionPrivacy(),
-              ],
+              itemCount: entries.length + 2, // 标题行 + 记录行 + 隐私说明
+              itemBuilder: (context, i) {
+                if (i == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      children: [
+                        Text('最近观看', style: DS.label.copyWith(color: p.muted)),
+                        const Spacer(),
+                        Text(
+                          '${entries.length} 条',
+                          style: DS.smallFor(context).copyWith(fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                if (i <= entries.length) return _historyRow(entries[i - 1]);
+                return const Column(
+                  children: [SizedBox(height: 20), _CollectionPrivacy()],
+                );
+              },
             ),
     );
     return widget.secondary
@@ -583,7 +610,7 @@ class _CollectionPrivacy extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        DSIcon('lock-keyhole', size: 13, color: color),
+        DSIcon('lock-keyhole', size: DS.chevronSize, color: color),
         const SizedBox(width: 8),
         Flexible(
           child: Text(

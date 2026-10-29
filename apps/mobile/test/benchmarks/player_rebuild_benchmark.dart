@@ -34,7 +34,19 @@ void main() {
             session: session,
             presentation: (_, player, _) {
               builds++;
-              return ShortPlaybackControls(player: player);
+              // 只测确定性的重建次数，不把宿主缺少原生播放器当作媒体错误。
+              return ShortScrubLine(
+                player: PlayerPresentation(
+                  session: player.session,
+                  settings: player.settings,
+                  network: player.network,
+                  local: player.local,
+                  screenshots: player.screenshots,
+                  capture: player.capture,
+                  pip: player.pip,
+                  toggle: player.toggle,
+                ),
+              );
             },
           ),
         ),
@@ -48,8 +60,7 @@ void main() {
       }
       final progressBuilds = builds - initialBuilds;
       final progressNotifications = notifications;
-      final slider = tester.widget<Slider>(find.byKey(const Key('short-seek')));
-      expect(slider.value, 5000);
+      expect(find.bySemanticsLabel('播放进度 0:05 / 1:00'), findsOneWidget);
       for (var tick = 0; tick < 25; tick++) {
         session.refreshState();
         await tester.pump();
@@ -59,7 +70,7 @@ void main() {
         'pageBuildsWhileIdle': builds - initialBuilds - progressBuilds,
         'sessionNotificationsProgress': progressNotifications,
         'sessionNotificationsIdle': notifications - progressNotifications,
-        'finalSliderPositionMs': slider.value.round(),
+        'finalProgressPositionMs': session.positionTick.value.inMilliseconds,
       });
       await tester.pumpWidget(const SizedBox.shrink());
       await session.close();

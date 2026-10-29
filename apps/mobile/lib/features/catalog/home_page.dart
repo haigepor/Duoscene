@@ -32,11 +32,24 @@ class _WatchHomeState extends State<WatchHome> {
   int category = 0;
   final selections = <int, CatalogSelection>{};
   final categoryNavigationKey = GlobalKey();
+  final homeScroll = ScrollController();
+  late final VoidCallback unbindScrollTop;
 
   @override
   void initState() {
     super.initState();
     widget.library.catalog.load();
+    unbindScrollTop = bindScrollTop(
+      widget.library.scrollTopRequest,
+      homeScroll,
+    );
+  }
+
+  @override
+  void dispose() {
+    unbindScrollTop();
+    homeScroll.dispose();
+    super.dispose();
   }
 
   Widget discoveryHeader() => Column(
@@ -205,60 +218,74 @@ class _WatchHomeState extends State<WatchHome> {
               onRetryFilters: l.catalog.loadFilters,
               onFilter: (filter) => l.catalog.filter(kind, filter),
             )
-          : ListView(
-              key: const PageStorageKey('watch-home'),
-              padding: EdgeInsets.zero,
-              children: [
-                discoveryHeader(),
-                if (l.scenario == 'home-loading' ||
-                    feed.loading && feed.items.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(18),
-                    child: Panel(
-                      child: SizedBox(
-                        height: 290,
-                        child: Center(child: Text('正在加载片库…')),
+          : RefreshIndicator(
+              color: DSPalette.of(context).primary,
+              onRefresh: () => feed.load(refresh: true),
+              child: ListView(
+                key: const PageStorageKey('watch-home'),
+                controller: homeScroll,
+                // 片库很短时也要能下拉触发刷新。
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                children: [
+                  discoveryHeader(),
+                  if (l.scenario == 'home-loading' ||
+                      feed.loading && feed.items.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(18),
+                      child: Panel(
+                        child: SizedBox(
+                          height: 290,
+                          child: Center(child: Text('正在加载片库…')),
+                        ),
                       ),
+                    )
+                  else if (l.scenario == 'home-source-error' ||
+                      feed.error != null && feed.items.isEmpty)
+                    EmptyView(
+                      '暂时无法加载片库',
+                      '检查网络后重试',
+                      icon: 'wifi-off',
+                      action: '重试',
+                      onTap: () {
+                        l.scenario = 'normal';
+                        l.changed();
+                        l.catalog.load();
+                      },
+                    )
+                  else if (category == 0) ...[
+                    HomeCarousel(
+                      items: selected,
+                      library: l,
+                      active: widget.active,
                     ),
-                  )
-                else if (l.scenario == 'home-source-error' ||
-                    feed.error != null && feed.items.isEmpty)
-                  EmptyView(
-                    '暂时无法加载片库',
-                    '检查网络后重试',
-                    icon: 'wifi-off',
-                    action: '重试',
-                    onTap: () {
-                      l.scenario = 'normal';
-                      l.changed();
-                      l.catalog.load();
-                    },
-                  )
-                else if (category == 0) ...[
-                  HomeCarousel(
-                    items: selected,
-                    library: l,
-                    active: widget.active,
-                  ),
-                  if (l.history.isNotEmpty)
+                    if (l.history.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          18,
+                          DS.space12,
+                          18,
+                          0,
+                        ),
+                        child: ContinueCard(library: l),
+                      ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(18, DS.space12, 18, 0),
-                      child: ContinueCard(library: l),
+                      child: WatchTogetherPanel(
+                        onCreate: () => openRoom(false),
+                        onJoin: () => openRoom(true),
+                      ),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(18, DS.space12, 18, 0),
-                    child: WatchTogetherPanel(
-                      onCreate: () => openRoom(false),
-                      onJoin: () => openRoom(true),
-                    ),
+                    CatalogSections(library: l),
+                  ],
+                  PreviewLabel(
+                    text: l.provider == null
+                        ? '设计预览 · 虚构片目，无在线片源'
+                        : '片库内容由播放源提供',
                   ),
-                  CatalogSections(library: l),
+                  SizedBox(height: 16 + MediaQuery.paddingOf(context).bottom),
                 ],
-                PreviewLabel(
-                  text: l.provider == null ? '设计预览 · 虚构片目，无在线片源' : '片库内容由播放源提供',
-                ),
-                SizedBox(height: 16 + MediaQuery.paddingOf(context).bottom),
-              ],
+              ),
             ),
     );
   }
@@ -359,7 +386,11 @@ class WatchTogetherPanel extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (join)
-                      const DSIcon('link', size: 15, color: DSPalette.onMedia)
+                      const DSIcon(
+                        'link',
+                        size: DS.iconSmall,
+                        color: DSPalette.onMedia,
+                      )
                     else
                       const Icon(
                         Icons.add_circle,

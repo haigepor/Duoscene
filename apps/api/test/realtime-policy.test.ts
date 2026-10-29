@@ -29,3 +29,25 @@ test('commands reject extra fields, invalid media, unbounded payload and stale e
   assert.equal(validateCommand({ type: 'media', commandId: 'x', epoch: 'e', expectedRevision: 1, media: { uri: 'file:///secret', identity: 'a', title: 'a', hls: false } }), false);
   assert.equal(validateCommand({ type: 'rate', commandId: 'x', epoch: 'e', expectedRevision: 1, rate: -1 }), false);
 });
+
+test('provider media hands off episode and progress atomically without exposing resolved URLs', () => {
+  const timeline = new RoomTimeline(() => 1000);
+  timeline.connect('owner'); timeline.connect('guest');
+  const media = { provider: 'whisklet', filmId: 'whisklet:123', episode: 7, lineCode: 'primary', identity: 'whisklet:123:7', title: 'Episode 7' } as const;
+  const command = { type: 'media', commandId: 'handoff', epoch: timeline.epoch, expectedRevision: timeline.revision, media, positionMs: 123456 };
+  assert.equal(validateCommand(command), true);
+  timeline.command('owner', command);
+  const state = timeline.snapshot();
+  assert.deepEqual(state.media, media);
+  assert.equal(state.positionMs, 123456);
+  assert.equal(state.playing, false);
+  assert.equal(state.wanted, false);
+  assert.equal(state.generation, 1);
+  assert.deepEqual(state.ready, { owner: false, guest: false });
+  assert.equal(validateCommand({ ...command, media: { ...media, uri: 'https://signed.example/video' } }), false);
+  assert.equal(validateCommand({ ...command, media: { ...media, episode: 0 } }), false);
+  assert.equal(validateCommand({ ...command, media: { ...media, filmId: 'whisklet:01' } }), false);
+  assert.equal(validateCommand({ ...command, media: { ...media, lineCode: 'bad line' } }), false);
+  assert.equal(validateCommand({ ...command, media: { ...media, lineCode: 'line\u0000' } }), false);
+  assert.equal(validateCommand({ ...command, positionMs: 86400001 }), false);
+});

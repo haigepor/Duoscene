@@ -7,12 +7,15 @@ import '../../design/components.dart';
 import '../../design/motion.dart';
 import '../../design/tokens.dart';
 import '../auth/session.dart';
+import '../catalog/media_provider.dart';
+import '../catalog/providers/whisklet_provider.dart';
 import '../playback/playback_session.dart';
 import '../playback/player_page.dart';
 import '../playback/widgets/player_library_view.dart';
 import '../voice/room_voice.dart';
 import 'room_connection.dart';
 import 'room_playback.dart';
+import 'room_media.dart';
 
 class RoomWatchPage extends StatefulWidget {
   const RoomWatchPage({
@@ -22,12 +25,14 @@ class RoomWatchPage extends StatefulWidget {
     this.connection,
     this.playback,
     this.voice,
+    this.provider,
   });
   final Room room;
   final Session auth;
   final RoomConnection? connection;
   final PlaybackSession? playback;
   final RoomVoice? voice;
+  final MediaProvider? provider;
   @override
   State<RoomWatchPage> createState() => _RoomWatchPageState();
 }
@@ -38,14 +43,29 @@ class _RoomWatchPageState extends State<RoomWatchPage>
       widget.connection ?? RoomConnection(widget.auth, widget.room.id);
   late final playback = widget.playback ?? PlaybackSession();
   late final voice = widget.voice ?? RoomVoice(room);
-  late final sync = RoomPlayback(room, playback);
+  late final provider = widget.provider ?? WhiskletProvider();
+  late final sync = RoomPlayback(
+    room,
+    playback,
+    resolveMedia: (media) => resolveRoomMedia(media, provider: provider),
+  );
   int tab = 0;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    room.addListener(_flushPeerNotice);
     sync;
     if (!room.connected) unawaited(room.connect());
+  }
+
+  /// 同伴进出提示：由连接层打标，这里在帧后弹出，避免在构建过程中改状态。
+  void _flushPeerNotice() {
+    final value = room.consumePeerNotice();
+    if (value == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) tell(context, value);
+    });
   }
 
   @override
@@ -59,7 +79,9 @@ class _RoomWatchPageState extends State<RoomWatchPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    room.removeListener(_flushPeerNotice);
     unawaited(sync.dispose());
+    if (widget.provider == null) provider.close();
     if (widget.voice == null) voice.dispose();
     if (widget.connection == null) room.dispose();
     if (widget.playback == null) playback.dispose();
@@ -111,10 +133,24 @@ class _RoomWatchPageState extends State<RoomWatchPage>
       ),
     ),
   );
+  /// 退出房间是社交场景的高损失误触（断连、中断对方观看），返回键先确认。
+  Future<bool> _confirmLeave() async => confirm(
+    context,
+    '退出房间？',
+    '退出后双方将断开同看连接，好友会停留在当前画面。',
+    action: '退出',
+  );
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: Listenable.merge([room, voice]),
-    builder: (context, _) => PlayerPage(
+    builder: (context, _) => PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (popped, _) async {
+        if (popped) return;
+        if (await _confirmLeave() && mounted) Navigator.pop(context);
+      },
+      child: PlayerPage(
       roomId: widget.room.id,
       roomName: widget.room.name,
       session: playback,
@@ -133,7 +169,11 @@ class _RoomWatchPageState extends State<RoomWatchPage>
                     IconTap(
                       'arrow-left',
                       '返回房间',
-                      () => Navigator.maybePop(context),
+                      () async {
+                        if (await _confirmLeave() && context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      },
                     ),
                     Expanded(
                       child: Text(
@@ -288,6 +328,7 @@ class _RoomWatchPageState extends State<RoomWatchPage>
           ),
         );
       },
+      ),
     ),
   );
 }
@@ -444,100 +485,109 @@ class _LiveRoomChatState extends State<LiveRoomChat> {
                 followGeneration++;
                 return false;
               },
-              child: ListView(
+              // builder 化：长会话滚动只 build 可见气泡，消息列表不再全量重建。
+              child: ListView.builder(
                 controller: scroll,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
                 ),
-                children: [
-                  Center(
-                    child: TextButton(
-                      onPressed: room.connected && room.messages.length >= 50
-                          ? older
-                          : null,
-                      child: const Text('查看更早消息'),
+                itemCount: 1 + rows.length,
+                itemBuilder: (context, i) {
+                  if (i == 0) {
+                    return Column(
+                      children: [
+                        Center(
+                          child: TextButton(
+                            onPressed:
+                                room.connected && room.messages.length >= 50
+                                ? older
+                                : null,
+                            child: const Text('查看更早消息'),
+                          ),
+                        ),
+                        if (rows.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Text(
+                              '只有房间内的两个人可见。说说此刻的想法。',
+                              style: DS.smallFor(context),
+                            ),
+                          ),
+                      ],
+                    );
+                  }
+                  final m = rows[i - 1];
+                  return Align(
+                    key: messageKeys.putIfAbsent(
+                      (m['id'] ?? m['clientMessageId']).toString(),
+                      GlobalKey.new,
                     ),
-                  ),
-                  if (rows.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Text(
-                        '只有房间内的两个人可见。说说此刻的想法。',
-                        style: DS.smallFor(context),
-                      ),
-                    ),
-                  for (final m in rows)
-                    Align(
-                      key: messageKeys.putIfAbsent(
-                        (m['id'] ?? m['clientMessageId']).toString(),
-                        GlobalKey.new,
-                      ),
-                      alignment: m['userId'] == room.auth.user?.id
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Column(
-                          crossAxisAlignment: m['userId'] == room.auth.user?.id
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
-                          children: [
-                            if (m['userId'] != room.auth.user?.id)
-                              Text(
-                                m['displayName']?.toString() ?? '好友',
-                                style: DS.smallFor(context),
-                              ),
-                            Container(
-                              constraints: BoxConstraints(
-                                maxWidth:
-                                    MediaQuery.sizeOf(context).width * .76,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 9,
-                              ),
-                              decoration: BoxDecoration(
-                                color: m['userId'] == room.auth.user?.id
-                                    ? DSPalette.of(context).tint
-                                    : DSPalette.of(context).panel,
-                                borderRadius: BorderRadius.circular(
-                                  DS.radiusMedium,
-                                ),
-                              ),
-                              child: Text(
-                                m['text'] as String,
-                                style: TextStyle(
-                                  color: m['userId'] == room.auth.user?.id
-                                      ? DSPalette.of(context).onTint
-                                      : DSPalette.of(context).ink,
-                                ),
+                    alignment: m['userId'] == room.auth.user?.id
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Column(
+                        crossAxisAlignment: m['userId'] == room.auth.user?.id
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
+                        children: [
+                          if (m['userId'] != room.auth.user?.id)
+                            Text(
+                              m['displayName']?.toString() ?? '好友',
+                              style: DS.smallFor(context),
+                            ),
+                          Container(
+                            constraints: BoxConstraints(
+                              maxWidth:
+                                  MediaQuery.sizeOf(context).width * .76,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 9,
+                            ),
+                            decoration: BoxDecoration(
+                              color: m['userId'] == room.auth.user?.id
+                                  ? DSPalette.of(context).tint
+                                  : DSPalette.of(context).panel,
+                              borderRadius: BorderRadius.circular(
+                                DS.radiusMedium,
                               ),
                             ),
-                            if (m['delivery'] == 'failed')
-                              TextButton(
-                                onPressed: room.connected
-                                    ? () {
-                                        room.chat(
-                                          m['text'] as String,
-                                          retryId:
-                                              m['clientMessageId'] as String,
-                                        );
-                                        bottom();
-                                      }
-                                    : null,
-                                child: const Text('发送失败，点击重试'),
-                              )
-                            else if (m['userId'] == room.auth.user?.id)
-                              Text(
-                                m['delivery'] == 'sending' ? '发送中…' : '已发送',
-                                style: DS.smallFor(context),
+                            child: Text(
+                              m['text'] as String,
+                              style: TextStyle(
+                                color: m['userId'] == room.auth.user?.id
+                                    ? DSPalette.of(context).onTint
+                                    : DSPalette.of(context).ink,
                               ),
-                          ],
-                        ),
+                            ),
+                          ),
+                          if (m['delivery'] == 'failed')
+                            TextButton(
+                              onPressed: room.connected
+                                  ? () {
+                                      room.chat(
+                                        m['text'] as String,
+                                        retryId:
+                                            m['clientMessageId'] as String,
+                                      );
+                                      bottom();
+                                    }
+                                  : null,
+                              child: const Text('发送失败，点击重试'),
+                            )
+                          else if (m['userId'] == room.auth.user?.id)
+                            Text(
+                              m['delivery'] == 'sending' ? '发送中…' : '已发送',
+                              style: DS.smallFor(context),
+                            ),
+                        ],
                       ),
                     ),
-                ],
+                  );
+                },
               ),
             ),
           ),

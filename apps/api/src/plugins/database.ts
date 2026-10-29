@@ -2,15 +2,12 @@ import type { FastifyInstance } from 'fastify';
 import type { DatabaseConfig } from '../config/env.ts';
 import { Database } from '../shared/database.ts';
 import type { RowDataPacket } from 'mysql2/promise';
+import { listMigrationNames } from '../shared/migrations.ts';
 
 export type Readiness = 'ready' | 'disabled' | 'unavailable';
 export type ProbeDatabase = () => Promise<Readiness>;
 
-export const migrationNames = [
-  '0001_users.sql', '0002_auth_sessions.sql', '0003_auth_refresh_tokens.sql',
-  '0004_rooms.sql', '0005_room_members.sql', '0006_room_invites.sql',
-  '0007_chat_messages.sql', '0008_room_playback.sql',
-];
+export const migrationNames = await listMigrationNames();
 
 export function attachDatabase(app: FastifyInstance, config: DatabaseConfig) {
   if (config.mode === 'disabled') return { database: null, probe: async (): Promise<Readiness> => 'disabled' };

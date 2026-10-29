@@ -57,10 +57,31 @@ class PlaybackSession extends ChangeNotifier {
   String? error;
   String? notice;
   Timer? _poll;
+  Duration _lastPollPosition = Duration.zero;
   Timer? _sleep;
   DateTime? sleepAt;
   StreamSubscription<String>? _errors;
   Future<void>? _closing;
+
+  /// 进度走轻量通道：进度条局部订阅 ValueNotifier，不再让 200ms 轮询
+  /// 把整页 UI 拉起来重建（弱 GPU 设备上 raster 超预算的主因）。
+  final positionTick = ValueNotifier<Duration>(Duration.zero);
+  final bufferTick = ValueNotifier<Duration>(Duration.zero);
+  final stateTick = ValueNotifier<int>(0); // 播放/缓冲等状态号，变化即局部重建
+
+  int _stateSignature = -1;
+  int _stateSnapshot() => Object.hash(
+    core.playerPlaying,
+    core.playerBuffering,
+    core.playerCompleted,
+    core.playerDuration,
+    core.mediaPlayer != null,
+    loading,
+    error,
+    notice,
+    source?.identity,
+    generation,
+  );
 
   /// 房间会话把用户意图送往服务端；远端目标只通过 applyTarget/load(synchronized) 落地。
   Future<void> Function(String, Map<String, dynamic>)? remoteCommand;
@@ -93,6 +114,10 @@ class PlaybackSession extends ChangeNotifier {
 
   void _changed() {
     if (_disposed) return;
+    positionTick.value = core.playerPosition;
+    bufferTick.value = core.playerBuffer;
+    _stateSignature = _stateSnapshot();
+    stateTick.value++;
     _lastPresentation = _presentationState;
     _lastState = _stateFor(_lastPresentation!);
     _presentationChanges.notifyListeners();
@@ -121,6 +146,23 @@ class PlaybackSession extends ChangeNotifier {
   void refreshState() {
     if (_disposed) return;
     core.syncPlaybackState();
+    final position = core.playerPosition;
+    // 合并两侧通知契约：进度控件使用轻量通道，页面只订阅结构状态。
+    // 播放位置继续前进时清除 mpv 瞬时报错，真正停滞或装载失败仍保留错误。
+    if (error != null &&
+        !loading &&
+        core.playerPlaying &&
+        position > _lastPollPosition) {
+      error = null;
+    }
+    _lastPollPosition = position;
+    positionTick.value = position;
+    bufferTick.value = core.playerBuffer;
+    final signature = _stateSnapshot();
+    if (signature != _stateSignature) {
+      _stateSignature = signature;
+      stateTick.value++;
+    }
     final presentation = _presentationState;
     final state = _stateFor(presentation);
     if (state == _lastState) return;
@@ -327,6 +369,9 @@ class PlaybackSession extends ChangeNotifier {
     } catch (_) {
       // 初始化失败也要释放设置订阅，不能让退出页面留下悬空异常。
     }
+    positionTick.dispose();
+    bufferTick.dispose();
+    stateTick.dispose();
     screenshots.dispose();
     await preferences.dispose();
   }();

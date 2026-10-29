@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -362,28 +363,28 @@ class ArrowAction extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => TextButton(
-    style: TextButton.styleFrom(
-      padding: const EdgeInsets.only(left: DS.space8),
-      minimumSize: const Size(DS.touchTarget, DS.touchTarget),
-      textStyle: DS.label,
-      overlayColor: Colors.transparent,
-      splashFactory: NoSplash.splashFactory,
-    ),
-    onPressed: onTap,
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label),
-        const SizedBox(width: DS.space4),
-        DSIcon(
-          'arrow-right',
-          size: DS.iconSmall,
-          color: DSPalette.of(context).primary,
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final p = DSPalette.of(context);
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.only(left: DS.space8),
+        minimumSize: const Size(DS.touchTarget, DS.touchTarget),
+        textStyle: DS.label,
+        // 设计系统整体去水波纹；这里保留一层极浅的按压底色作为触觉反馈。
+        overlayColor: p.ink.withValues(alpha: .06),
+        splashFactory: NoSplash.splashFactory,
+      ),
+      onPressed: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          const SizedBox(width: DS.space4),
+          DSIcon('arrow-right', size: DS.iconSmall, color: p.primary),
+        ],
+      ),
+    );
+  }
 }
 
 class SectionHeading extends StatelessWidget {
@@ -510,6 +511,28 @@ Future<void> openPage(BuildContext context, Widget page) =>
       context,
       MaterialPageRoute<void>(builder: (_) => page),
     );
+
+/// 订阅壳层的“回顶”信号：双击当前底栏标签时把列表滚回顶部。
+/// 页面只需在 initState 调用一次，返回的函数在 dispose 里调用即可解绑。
+VoidCallback bindScrollTop(
+  ValueListenable<int> signal,
+  ScrollController controller,
+) {
+  void onRequest() {
+    if (!controller.hasClients) return;
+    final position = controller.position;
+    // 已经接近顶部就不必再动画，避免连续双击抖动。
+    if (position.pixels <= 0) return;
+    controller.animateTo(
+      0,
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  signal.addListener(onRequest);
+  return () => signal.removeListener(onRequest);
+}
 
 class PreviewLabel extends StatelessWidget {
   const PreviewLabel({super.key, this.text = '设计预览 · 虚构片目，无在线片源'});

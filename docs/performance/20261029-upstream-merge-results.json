@@ -1,0 +1,572 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-29",
+  "codeIntegrationStatus": "PASS",
+  "branch": "codex/merge-upstream-20261029",
+  "originalHead": "435fea310b21dfe7c5279ea88167a6a247ec0461",
+  "localCheckpoint": "5390ba45b3fbcc46a8037402d63bc931c1988312",
+  "remoteTarget": "06a52492dbf0caaa2f24d070bdf0c8ab2d976dfb",
+  "originalDirtyFiles": 45,
+  "upstreamCommitCount": 14,
+  "upstreamChangedFileCount": 97,
+  "explicitConflictFiles": [
+    "apps/mobile/lib/design/bottom_navigation.dart",
+    "apps/mobile/lib/features/catalog/artwork_request.dart",
+    "apps/mobile/lib/features/catalog/category_discovery.dart",
+    "apps/mobile/lib/features/catalog/detail_page.dart",
+    "apps/mobile/lib/features/catalog/profile_page.dart",
+    "apps/mobile/lib/features/experience/experience_player.dart",
+    "apps/mobile/lib/features/experience/short_feed.dart",
+    "apps/mobile/test/provider_artwork_test.dart"
+  ],
+  "committedUpstreamConflictResidues": [
+    "apps/mobile/lib/features/playback/playback_session.dart",
+    "apps/mobile/lib/features/catalog/providers/whisklet_provider.dart",
+    "apps/mobile/test/catalog_data_test.dart"
+  ],
+  "verification": {
+    "flutterTests": 522,
+    "flutterLog": ".local/upstream-integration-20261029/flutter-delivery.log",
+    "matrix": {
+      "cases": 135,
+      "errorCount": 0,
+      "sha256": "b597f500c0b2414cdb6e0808505819402ab50043533a322b99742894586678b1",
+      "raw": ".local/upstream-integration-20261029/layout-matrix.json"
+    },
+    "analyze": "No issues found",
+    "apiTypecheck": "PASS",
+    "apiBuild": "PASS",
+    "apiTests": 31,
+    "contractTests": 6,
+    "structure": "PASS",
+    "goldens": "Unmodified from remote target; all visual comparisons pass",
+    "upstreamApiAndContracts": "Byte-identical Git content to remote target",
+    "newBehaviorRegression": "upstream_merge_regression_test.dart",
+    "noUnmergedIndexEntries": true
+  },
+  "native": {
+    "status": "DEFERRED_BY_USER",
+    "reason": "System Keyguard showing and input-restricted; user confirmed device cannot be unlocked now and requested code merge first.",
+    "successfulRunThisTurn": false,
+    "previousPassReusedAsCurrentEvidence": false,
+    "attemptLogs": [
+      ".local/upstream-integration-20261029/native-first.log",
+      ".local/upstream-integration-20261029/native-second.log",
+      ".local/upstream-integration-20261029/native-third.log"
+    ],
+    "device": {
+      "model": "TB711FU",
+      "android": 16,
+      "rotationRestored": "lock 0",
+      "stayOnWhilePluggedInRestored": 0,
+      "adbReversePorts": []
+    },
+    "privateDefineRemoved": true,
+    "normalApkReinstalled": true
+  },
+  "artifact": {
+    "path": "output/android/duoscene-merged-profile-20261029.apk",
+    "sha256": "a6b8c6e44ff905ff2df119993ff6cbae55909ad7259b0252e68859e3b7898c35",
+    "bytes": 104558374,
+    "entrypoint": "lib/main.dart",
+    "mode": "Profile",
+    "abi": "arm64-v8a",
+    "installedSha256Verified": true,
+    "usesFixtureMetadata": false
+  },
+  "tooling": {
+    "flutter": "3.47.6",
+    "dart": "3.13.5",
+    "node": "24.14.0"
+  },
+  "scope": {
+    "modifiedComparedWithLocalCheckpoint": [
+      {
+        "path": ".gitignore",
+        "sha256": "7842d31f1e788dd99487e2042d4e8d6b13cba794cf4f826d207c51913f1a5c39"
+      },
+      {
+        "path": "apps/api/src/app.ts",
+        "sha256": "0ac0a25a9a2d343e994d9df645b422e915bff6c4fee42caa7234abc37aca1a64"
+      },
+      {
+        "path": "apps/api/src/commands/migrate.ts",
+        "sha256": "3fd7af66b10ca642236441b3be9099ef249b1f555ff50cbaa610e111fe61d585"
+      },
+      {
+        "path": "apps/api/src/config/env.ts",
+        "sha256": "f5eeda73996547eb11fec4c3969e61cb2e649ef0c8df4f5180c4bfed13a580fc"
+      },
+      {
+        "path": "apps/api/src/modules/auth/service.ts",
+        "sha256": "3720d4e5dac0cea6e3a0c8494ba0150f0b96cedab85429623fa2e8bc9bc35f73"
+      },
+      {
+        "path": "apps/api/src/modules/realtime/hub.ts",
+        "sha256": "7540e5835365197608ff12db3cbce1daadf6a77ab57d8ec5f11e029f0f127483"
+      },
+      {
+        "path": "apps/api/src/modules/realtime/playback.ts",
+        "sha256": "c6bbcb95dbe0516a98e67469540eb4d859b4d7614d2a8be3dacd9f88b0f89256"
+      },
+      {
+        "path": "apps/api/src/modules/realtime/timeline.ts",
+        "sha256": "7ec1a30c676e080c92d55b82233c2eaf3d64afc4075e7a2bc6581e5b16a689c9"
+      },
+      {
+        "path": "apps/api/src/plugins/database.ts",
+        "sha256": "33e968d44afa77dd38d5a4032a51b8709463856488b04655d14145ba7bcaa81f"
+      },
+      {
+        "path": "apps/api/src/shared/database.ts",
+        "sha256": "d32bfd1a329dc37f4911008893cf22edc28265c1d9092a1a7ac4644769c971e3"
+      },
+      {
+        "path": "apps/api/src/shared/migrations.ts",
+        "sha256": "7e71746fc8fe57e0b120f8aa3b8791d4b39e1f9d56b7cb84ec6a9a0dda6492b6"
+      },
+      {
+        "path": "apps/api/test/app.test.ts",
+        "sha256": "ae99b9d9908929bd1ee3ffc9110f3d3018f671bc61bed8fa58dc893da325a9d9"
+      },
+      {
+        "path": "apps/api/test/playback-persistence.test.ts",
+        "sha256": "b21cb4c31ca411c4219981e8ea29b738b76bcb6cf01d3f208df850022b82e555"
+      },
+      {
+        "path": "apps/api/test/realtime-persistence.test.ts",
+        "sha256": "69bca3ed5364f824e5231297172d5dddfeb3d3d56e1b0665cac0a66b8cb363fa"
+      },
+      {
+        "path": "apps/api/test/realtime-policy.test.ts",
+        "sha256": "933ae502ffa2422830cf2327f906eb71e35bc77abe628a77ce9b04df1476c46c"
+      },
+      {
+        "path": "apps/api/test/realtime.integration.ts",
+        "sha256": "ca630011b0c925bc7a569c3a9d5e649ba7b504fb1b6e7cd596577244f71bf1b5"
+      },
+      {
+        "path": "apps/mobile/integration_test/README.md",
+        "sha256": "0e25f19515c8f8793bd36781488063302785d4f36bb29805fb7c1da4192bf660"
+      },
+      {
+        "path": "apps/mobile/integration_test/tablet_player_layout_test.dart",
+        "sha256": "c25ff0fb4e0388362d7e521f69be125b86b2da835c844a64203ae52b2289e540"
+      },
+      {
+        "path": "apps/mobile/lib/app/theme.dart",
+        "sha256": "7c59b7a9d8e2631d183bf2334cd5c005ad1ed24d2271bd595e9930c5c64f5918"
+      },
+      {
+        "path": "apps/mobile/lib/design/adaptive_watch_layout.dart",
+        "sha256": "1a39af0bbb3e334fc5a7e49983c8d3b1745ceda04cd86f18f8d9f2d2a223484b"
+      },
+      {
+        "path": "apps/mobile/lib/design/bottom_navigation.dart",
+        "sha256": "ebd900b5ce09cbd5d81abd58d163dd82420c7429603c0854fb884555c5bbe6ca"
+      },
+      {
+        "path": "apps/mobile/lib/design/components.dart",
+        "sha256": "f7a8849808f95dd97a71247da173e4d3c9fdc63603faf8a8908c0f400e49787d"
+      },
+      {
+        "path": "apps/mobile/lib/design/motion.dart",
+        "sha256": "2236936cf1cc08d4175d27c9fa9ba8c764e960d658788a55256dd144a8599174"
+      },
+      {
+        "path": "apps/mobile/lib/features/auth/login_page.dart",
+        "sha256": "c6be7a6bf2aab94f1e585241cc8883a4c36e2a6166e2b9344e6bd779082b8779"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/app_shell.dart",
+        "sha256": "3df07e0f5d920688c5c991a7400141b74d237127a3950c40de4b3960a37d858a"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/artwork_image.dart",
+        "sha256": "656eb3bb65eef1452d8e4abc6c4a0447162831274df9dedc33529d095d1ecf29"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/artwork_request.dart",
+        "sha256": "55e7f7b9bb01bbf4e3385fdfa967b1ebc98715f67d2061b07be0c9d9e357ee73"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/category_discovery.dart",
+        "sha256": "39e753e38aaff1b067771ff264cdbcfceebcc3fa6996a49e70eabdfb3bd4d8bd"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/collection_pages.dart",
+        "sha256": "8695b10002a67908a379cd47375f0115285f618c197f154de0614d3c36a3faa9"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/detail_page.dart",
+        "sha256": "e78ac44aee231b4ee5f725bd0b3cb550680a4f796b3724b63080f271dc6de138"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/home_content.dart",
+        "sha256": "e4f37e667ca52109b30d07f07cec9da43a6249880ea79be91af4fff2e9eaec7b"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/home_page.dart",
+        "sha256": "7cc511af86c003665ed9c365f3857532956c75745db1328ca3cf5c503c957680"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/library_state.dart",
+        "sha256": "0beeece9f8e22d299951c71dbd52c016a48b34833336753d5846a324c657a196"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/media_provider.dart",
+        "sha256": "a9050c37d3b2541167ebd7fa271f91734e65bd6806e0d756666cb6c882e67f86"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/posters.dart",
+        "sha256": "f3a8cea6fa72f2947b28be1dda2b2e6138a371bd76856a01b330d1963c7dc619"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/profile_page.dart",
+        "sha256": "312e4076d392e4094377dfd065e0bf98cf45f496494045abad05b25161d87a87"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/providers/whisklet_provider.dart",
+        "sha256": "327fadca85e76fe3ef0a2ef7f52af12a96ea9e7a89c33f2bf41e763283e8625f"
+      },
+      {
+        "path": "apps/mobile/lib/features/catalog/search_page.dart",
+        "sha256": "4bc079204d387c8b9488637d655185fbcf91b2dca09819dd8e196cb901af6b90"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/appearance_page.dart",
+        "sha256": "9f7da62d30e7e2e00a75d711ec97f5a3ec3af1aad560a41d9b2874701f013463"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/chat_panel.dart",
+        "sha256": "afdbbd05eb4302729df64f7617df07faaeabb5d854768370b6c5f921cf6b2f50"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/episode_sheet.dart",
+        "sha256": "d16cf5c55ca71b71322766e0da0e8272d1b1dbe04c0c4298e3b0aa19b3e1c8dc"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/experience_player.dart",
+        "sha256": "6960f32f4f9cc878427c79221368fbe79acfd1f89779f5238d7e30d81c949e4f"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/invite_pages.dart",
+        "sha256": "6ff18594c2016c2e1983cb446902be5f0caa325598a1bf513e669cbfceba2eec"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/short_feed.dart",
+        "sha256": "561175572b323ee0b4f9de442d61c21e3c09d20aa88c8719787e61899fb8dd67"
+      },
+      {
+        "path": "apps/mobile/lib/features/experience/short_playback.dart",
+        "sha256": "d55f77dc89b6a9506e29a9d18dfc889069b3cfffd49663a87c6817dbbd206d06"
+      },
+      {
+        "path": "apps/mobile/lib/features/playback/playback_session.dart",
+        "sha256": "7280fbfdebe70d458641a8fb26c0a793164528af245e52065ece184b6bad502b"
+      },
+      {
+        "path": "apps/mobile/lib/features/playback/player_page.dart",
+        "sha256": "8f39b98620cfece0af9317dd819ef32e5835aafcc97a95f21f998a5ea2e41c51"
+      },
+      {
+        "path": "apps/mobile/lib/features/playback/widgets/player_surface.dart",
+        "sha256": "d1a1e1b6c90c312b2348a5aef04e7164a700f7d1feeaf0f0204d0c4b6ff2b474"
+      },
+      {
+        "path": "apps/mobile/lib/features/realtime/room_connection.dart",
+        "sha256": "de51b1d4fb1d1c2ec4e8635907363062600c6091df3978292b943e30f2096fa5"
+      },
+      {
+        "path": "apps/mobile/lib/features/realtime/room_media.dart",
+        "sha256": "6b5bf84b5a6394d8fa701abb3da74110f530cb0c9b0d2d0b1bf4c7592f480400"
+      },
+      {
+        "path": "apps/mobile/lib/features/realtime/room_playback.dart",
+        "sha256": "e5e42e223adae722cae8c5431bbfaee1de2678c8ba12875a76014021ddd3a840"
+      },
+      {
+        "path": "apps/mobile/lib/features/realtime/room_watch_page.dart",
+        "sha256": "c5459680d35ea683008b05f9fe0ce74b0b952ab5fba91fc676114f4576035e23"
+      },
+      {
+        "path": "apps/mobile/lib/main.dart",
+        "sha256": "e548e295d6833000d204fb3ebed43ac2eecef4a3d69af36b9d800bcc2d9ac304"
+      },
+      {
+        "path": "apps/mobile/test/backend_integration_test.dart",
+        "sha256": "92e303db116124bfe2055a6775f846a9cd8e8112d351150738c22601b493bdb4"
+      },
+      {
+        "path": "apps/mobile/test/benchmarks/player_rebuild_benchmark.dart",
+        "sha256": "2d6afaf9a49ca24c504f0679320ccae56e60a2d3e89842c23604e322a999ad09"
+      },
+      {
+        "path": "apps/mobile/test/catalog_data_test.dart",
+        "sha256": "203ca68aa076926c5a2ee019b9864e2f7fd8ca493c1146e7361ecdccc98c3892"
+      },
+      {
+        "path": "apps/mobile/test/category_discovery_test.dart",
+        "sha256": "919a3ade7f9cf9a4e8e9d12ee0c6648ce520fafdc7aede4b0173209e89164251"
+      },
+      {
+        "path": "apps/mobile/test/episode_binge_test.dart",
+        "sha256": "dc3baf8d528f863d340c2e03d591ed4b41582715bcbc42a7a1cc637d0c680b46"
+      },
+      {
+        "path": "apps/mobile/test/goldens/short_feed_refinement/dark-02.png",
+        "sha256": "cefc86a5accfdc8391b7ac156b8a8f36d0695b752ec40cbd317e2184c3910608"
+      },
+      {
+        "path": "apps/mobile/test/goldens/short_feed_refinement/dark-07.png",
+        "sha256": "4d0d19d13922cfe36dd8efd6022f57b894f273e6ed07f695dc35df09b041b017"
+      },
+      {
+        "path": "apps/mobile/test/goldens/short_feed_refinement/dark-10.png",
+        "sha256": "a8ce31f84a0f07736331ec3e424ff3003b06160dba04e4e902c91ac614ef4c44"
+      },
+      {
+        "path": "apps/mobile/test/goldens/short_feed_refinement/light-02.png",
+        "sha256": "cefc86a5accfdc8391b7ac156b8a8f36d0695b752ec40cbd317e2184c3910608"
+      },
+      {
+        "path": "apps/mobile/test/goldens/short_feed_refinement/light-07.png",
+        "sha256": "2da9d82b94f058d7207b8230b977d0f1a78628697c32e9a61e7329d6ebd008d3"
+      },
+      {
+        "path": "apps/mobile/test/goldens/short_feed_refinement/light-10.png",
+        "sha256": "8c8f6fe3054a85175ea4d07314eb17faafaf53b6573925113604d211d36fe098"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-01.png",
+        "sha256": "fa5ba96ecdb6922d246cc19a53768810f662f138aa48990ebc8bd0c6243e678b"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-03.png",
+        "sha256": "b9836c888b42f7f883b3567b8987fac0ffbf3086f5531d9bf19df749b38c9426"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-05.png",
+        "sha256": "47883476cbbc662fbc5deab1abdc9f7037de5be51316a4891fb17b1e171885d0"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-06.png",
+        "sha256": "a1b14f96aa17e3dc254bf31ef5a0dc7aa4c43087543e640e01f913479b1346bc"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-08.png",
+        "sha256": "62d7452be53d75e2a4629447ce72224f07fa891d48b68de9d6f9de657c764ea7"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-09.png",
+        "sha256": "ee9df9f5a5a9fc88677dbfe3293ec74c850f9bba8a01be94a34dd799cea1d04f"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/dark-13.png",
+        "sha256": "68a5e107a2ea78cef776969e420645ae096cb225ddad6d44533edb5160b287d6"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-01.png",
+        "sha256": "346d585e3190ebee79d6472ead699a1b323460af1c7c41879f4daf71189ced49"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-03.png",
+        "sha256": "ace4ec9c2808f939ddbd1a62fcd51a5cfb83baaa4d806b22813c7243a1826c76"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-05.png",
+        "sha256": "23bbf714f209a4dda0478634b24d9185453d76fea1ce54bc1c3794ed681d04e9"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-06.png",
+        "sha256": "b9d52c8c4770f3c7e8fec996155aeb101d182a4d4d0282c77ca2f94cc02ece67"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-08.png",
+        "sha256": "b85d2a8c4ade77fa1968d620623dddebe68eba77082537a1e9c645146bedb5ae"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-09.png",
+        "sha256": "465fa2db86c07d0e8cbf0a966f86b446a78c8c5192dd4cd33d3d2cda2a99f8d1"
+      },
+      {
+        "path": "apps/mobile/test/goldens/style_reference/light-13.png",
+        "sha256": "ac7e5ad33f81d8e05f8b0fd5daa636c24d40553e20cbb334c35e334968969433"
+      },
+      {
+        "path": "apps/mobile/test/home_content_test.dart",
+        "sha256": "38bd8a431b79cf4cad13d2f0b5e878d6d1620047397e5260c8e5630ccc264458"
+      },
+      {
+        "path": "apps/mobile/test/interaction_polish_test.dart",
+        "sha256": "95d187a54e6d3e712491a22918edbde2aa507bd53136bd109c8153aea96e6799"
+      },
+      {
+        "path": "apps/mobile/test/line_preference_test.dart",
+        "sha256": "990018b286aefd5305f53edb610d541141afaa1eb82eacc3300a9089fc6fd3a2"
+      },
+      {
+        "path": "apps/mobile/test/playback_notifications_test.dart",
+        "sha256": "c6e7f51b599e9831f800765bb142a4b4e6869f6c18d44035235047c9bdd5bb23"
+      },
+      {
+        "path": "apps/mobile/test/provider_artwork_test.dart",
+        "sha256": "834acd2b381773e7e0700717f8524b344e5d78d0ad4ca7b609903ce5fcef62be"
+      },
+      {
+        "path": "apps/mobile/test/provider_resolve_test.dart",
+        "sha256": "275f5b5d747fbd29375da3fed757b19e2c0714aec1fc8e38dd0a5664d0b6ceb8"
+      },
+      {
+        "path": "apps/mobile/test/room_invite_handoff_test.dart",
+        "sha256": "dae3ada32ac8f64e4b6bbdc43843285228d5639443f9d262da89e20f1d84fc20"
+      },
+      {
+        "path": "apps/mobile/test/room_media_test.dart",
+        "sha256": "8dd978eff0e70f5eb6b74589f6773aa7a33c22cf84cb833af3f5d04dbf864c50"
+      },
+      {
+        "path": "apps/mobile/test/room_playback_test.dart",
+        "sha256": "a7b8fb645e69777e5a032800aff8ed110fd84d2313425688bcf30092dd197a58"
+      },
+      {
+        "path": "apps/mobile/test/short_anchor_test.dart",
+        "sha256": "d31c69e0b31081a40ff82201b29af32d25ca518dc57baaa2d0a8a5f7517675c6"
+      },
+      {
+        "path": "apps/mobile/test/short_playback_test.dart",
+        "sha256": "c500d90bdf748417f6603744ae0c37af10b0fc63dd2915d22103c96ef36a252b"
+      },
+      {
+        "path": "apps/mobile/test/style_provider_binding_test.dart",
+        "sha256": "69de455ee33c21a887b77890e5af5837e77583f5d33a43b42096932ca0800177"
+      },
+      {
+        "path": "apps/mobile/test/upstream_merge_regression_test.dart",
+        "sha256": "1ce5937fdf2617db2a4f48d0323bb7b499e4ac63ab4c03cef54533053b9913e1"
+      },
+      {
+        "path": "apps/mobile/test/watch_layout_test.dart",
+        "sha256": "839706df4908d6d85afe5037ddb9e6a86dc0049e1ecf321cbb9f401049e621b2"
+      },
+      {
+        "path": "apps/mobile/test/whisklet_provider_test.dart",
+        "sha256": "1b617dfa8bc2751fc9e3b6a8311b9796352b96dbd60dd6dbba7e72f22753f8d0"
+      },
+      {
+        "path": "docs/perf-baseline-20261023.zh.md",
+        "sha256": "7f91daf611652e3797a39a997346bb1617c11e2dff10265cb50aec7dc75656b0"
+      },
+      {
+        "path": "docs/upstream-integration-20261029.zh.md",
+        "sha256": "70711a53f5e706b2de4f15e62b353988a8508990ea50579aca3704e6221cba6b"
+      },
+      {
+        "path": "docs/watch-handoff-reliability-20261025.zh.md",
+        "sha256": "ff6b9edcb7e427ecbfad1e248af7d3ce0c195ccc0356eb5875cb3a3ed296d467"
+      },
+      {
+        "path": "packages/contracts/README.md",
+        "sha256": "3b596a48e2b34be55a4eaee20cb1f376f32dbc92d6c20c4c3668f21daceeb6aa"
+      },
+      {
+        "path": "packages/contracts/fixtures/media-provider.invalid.json",
+        "sha256": "df0f463252ee74b359796d7c35bf62481dcefff515cb7529c2f324bbdd0ddd8b"
+      },
+      {
+        "path": "packages/contracts/fixtures/media-provider.valid.json",
+        "sha256": "adc23ee391a1c293c9d182f847d13b6a843743ced10930527df40f01d7206efd"
+      },
+      {
+        "path": "packages/contracts/fixtures/media-url.valid.json",
+        "sha256": "31928a3afed688e538a1b265964289d434b2df59c5473c94eab8b77899753f3d"
+      },
+      {
+        "path": "packages/contracts/test/contracts.test.mjs",
+        "sha256": "4b0b89be25d3860a2b94c6f0fe9f83f0fecf10bc8bc6f81e6e3cd73dc1881d28"
+      },
+      {
+        "path": "packages/contracts/websocket/README.md",
+        "sha256": "78fa64b608c3c0ecd97b7cf9f498954e1a695f97d1f8f1c297edf487714659f1"
+      },
+      {
+        "path": "packages/contracts/websocket/commands.schema.json",
+        "sha256": "fad3509bdc88725e4d849b904f10749fe2677252bd453b647051579e9fccaf06"
+      },
+      {
+        "path": "scripts/perf-baseline.mjs",
+        "sha256": "4d30cb167459fdd440dfaef96d6b62cd757505b0c01e91abb4644d7df8b3fbfe"
+      },
+      {
+        "path": "scripts/test-tablet-layout.mjs",
+        "sha256": "f9f07d569e88c7ba5c20c9326861f40603d83df90f63736c1ed5a3f3cb9619e6"
+      }
+    ],
+    "sourceAndTestsComparedWithRemote": [
+      "apps/mobile/README.md",
+      "apps/mobile/integration_test/README.md",
+      "apps/mobile/integration_test/tablet_player_layout_test.dart",
+      "apps/mobile/lib/app/duoscene_app.dart",
+      "apps/mobile/lib/core/rendering_budget.dart",
+      "apps/mobile/lib/design/adaptive_app_frame.dart",
+      "apps/mobile/lib/design/adaptive_watch_layout.dart",
+      "apps/mobile/lib/design/bottom_navigation.dart",
+      "apps/mobile/lib/design/components.dart",
+      "apps/mobile/lib/design/window_layout.dart",
+      "apps/mobile/lib/features/catalog/app_shell.dart",
+      "apps/mobile/lib/features/catalog/artwork_request.dart",
+      "apps/mobile/lib/features/catalog/category_discovery.dart",
+      "apps/mobile/lib/features/catalog/collection_pages.dart",
+      "apps/mobile/lib/features/catalog/detail_page.dart",
+      "apps/mobile/lib/features/catalog/home_content.dart",
+      "apps/mobile/lib/features/catalog/home_page.dart",
+      "apps/mobile/lib/features/catalog/library_state.dart",
+      "apps/mobile/lib/features/catalog/posters.dart",
+      "apps/mobile/lib/features/catalog/profile_page.dart",
+      "apps/mobile/lib/features/catalog/providers/whisklet_provider.dart",
+      "apps/mobile/lib/features/catalog/search_page.dart",
+      "apps/mobile/lib/features/catalog/tablet_feature_card.dart",
+      "apps/mobile/lib/features/experience/experience_player.dart",
+      "apps/mobile/lib/features/experience/invite_pages.dart",
+      "apps/mobile/lib/features/experience/settings_pages.dart",
+      "apps/mobile/lib/features/experience/short_feed.dart",
+      "apps/mobile/lib/features/playback/playback_session.dart",
+      "apps/mobile/test/app_test.dart",
+      "apps/mobile/test/artwork_decode_test.dart",
+      "apps/mobile/test/artwork_loading_test.dart",
+      "apps/mobile/test/benchmarks/README.md",
+      "apps/mobile/test/benchmarks/artwork_live_probe.dart",
+      "apps/mobile/test/benchmarks/player_rebuild_benchmark.dart",
+      "apps/mobile/test/catalog_data_test.dart",
+      "apps/mobile/test/guest_entry_test.dart",
+      "apps/mobile/test/navigation_polish_test.dart",
+      "apps/mobile/test/playback_notifications_test.dart",
+      "apps/mobile/test/provider_artwork_test.dart",
+      "apps/mobile/test/rendering_budget_test.dart",
+      "apps/mobile/test/tablet_content_layout_test.dart",
+      "apps/mobile/test/tablet_layout_test.dart",
+      "apps/mobile/test/tablet_media_layout_test.dart",
+      "apps/mobile/test/upstream_merge_regression_test.dart",
+      "docs/performance/20261029-image-gpu-results.json",
+      "docs/performance/20261029-tablet-layout-audit.json",
+      "docs/performance/20261029-tablet-layout-results.json",
+      "docs/performance/20261029-upstream-merge-results.json",
+      "docs/playra-image-gpu-optimization-20261029.zh.md",
+      "docs/tablet-layout-audit-20261029.zh.md",
+      "docs/tablet-layout-implementation-20261029.zh.md",
+      "docs/upstream-integration-20261029.zh.md",
+      "scripts/test-tablet-layout.mjs"
+    ],
+    "backup": ".local/upstream-integration-20261029/baseline/",
+    "gitDiffAtStart": ".local/upstream-integration-20261029/tracked-worktree.patch",
+    "noDependencyVersionChanges": true,
+    "noGlobalControlPlaneChanges": true,
+    "noDatabaseWrites": true,
+    "noPush": true
+  },
+  "limitations": [
+    "Native interaction and real video after the merge are deferred pending manual device unlock.",
+    "No isolated MySQL or two-device room integration run in this turn; API tests use controlled local transports and persistence fault injection.",
+    "No new physical-device before/after performance comparison; old performance measurements describe the previous version."
+  ]
+}

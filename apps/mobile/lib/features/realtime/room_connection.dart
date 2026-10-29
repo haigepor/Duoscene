@@ -27,6 +27,14 @@ class RoomConnection extends ChangeNotifier {
       terminal = false;
   int _attempt = 0, _generation = 0;
   String? notice, connectionId;
+
+  /// 最近一次同伴加入/离开的提示文本；页面消费后调用 [consumePeerNotice] 清空。
+  String? peerNotice;
+  String? consumePeerNotice() {
+    final value = peerNotice;
+    peerNotice = null;
+    return value;
+  }
   Map<String, dynamic>? snapshot;
   List<dynamic> iceServers = [];
   bool relayOnly = false;
@@ -125,6 +133,7 @@ class RoomConnection extends ChangeNotifier {
             (event['revision'] as num) < (previous['revision'] as num))
           return;
         snapshot = event;
+        _announcePeers(previous, event);
       case 'welcome':
         connectionId = event['connectionId'] as String;
         iceServers = event['iceServers'] as List;
@@ -153,6 +162,26 @@ class RoomConnection extends ChangeNotifier {
     }
     events.add(event);
     changed();
+  }
+
+  /// 同伴进出提示：两次快照的 peers 集合做差，只对“别人”发通知，
+  /// 自己连接时的替换不算进出，避免刚进房就看到“你离开了”。
+  void _announcePeers(
+    Map<String, dynamic>? previous,
+    Map<String, dynamic> next,
+  ) {
+    Set<String> names(Map<String, dynamic>? value) => {
+      for (final peer in (value?['peers'] as List? ?? const []))
+        if (peer is Map && peer['userId'] != auth.user?.id)
+          '${peer['displayName'] ?? '好友'}',
+    };
+    final before = names(previous), after = names(next);
+    for (final name in after.difference(before)) {
+      peerNotice = '$name 加入了房间';
+    }
+    for (final name in before.difference(after)) {
+      peerNotice = '$name 离开了房间';
+    }
   }
 
   void _merge(Map<String, dynamic> message) {

@@ -16,10 +16,33 @@ import 'detail_page.dart';
 import 'collection_pages.dart';
 import '../experience/appearance_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.library, this.previewTools});
   final LibraryState library;
   final Widget? previewTools;
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  LibraryState get library => widget.library;
+  Widget? get previewTools => widget.previewTools;
+  final scroll = ScrollController();
+  late final VoidCallback unbindScrollTop;
+
+  @override
+  void initState() {
+    super.initState();
+    unbindScrollTop = bindScrollTop(library.scrollTopRequest, scroll);
+  }
+
+  @override
+  void dispose() {
+    unbindScrollTop();
+    scroll.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final overview = <Widget>[
@@ -260,6 +283,7 @@ class ProfilePage extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, bounds) => ListView(
             key: const PageStorageKey('profile'),
+            controller: scroll,
             padding: EdgeInsets.fromLTRB(
               16,
               DS.toolbarHeight,

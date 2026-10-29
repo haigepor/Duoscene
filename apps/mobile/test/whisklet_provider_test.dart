@@ -355,6 +355,119 @@ void main() {
     );
   });
 
+  test('resolve 复用 cachedDetail 免重复详情请求，同线路同集命中短时缓存', () async {
+    var details = 0, parses = 0;
+    final codec = WhiskletCodec();
+    final provider = WhiskletProvider(
+      client: WhiskletClient(
+        transport: MockClient((request) async {
+          final body = codec.decryptRequest(request.body);
+          if (body['method'] == 'video_detail') {
+            details++;
+            return http.Response(
+              jsonEncode({
+                'code': 1,
+                'data': {
+                  'vod_info': {
+                    'vod_id': 88,
+                    'vod_name': '缓存样本',
+                    'vod_remarks': '2集全',
+                    'vod_url_with_player': [
+                      {
+                        'code': 'direct',
+                        'name': '正片',
+                        'url': [
+                          '第1集\$https://cdn.example/e1.m3u8',
+                          '第2集\$https://cdn.example/e2.m3u8',
+                        ].join('#'),
+                      },
+                    ],
+                  },
+                },
+              }),
+              200,
+              headers: {'content-type': 'application/json; charset=utf-8'},
+            );
+          }
+          // parse 直链模板不会走到；只有 secret_parse 计数。
+          expect(body['method'], 'secret_parse_api_url');
+          parses++;
+          return http.Response(jsonEncode({'code': 1, 'data': 'B' * 80}), 200);
+        }),
+      ),
+    );
+    addTearDown(provider.close);
+    final detail = await provider.detail('whisklet:88');
+    final first = await provider.resolve(
+      'whisklet:88',
+      episode: 1,
+      lineCode: 'direct',
+      cachedDetail: detail,
+    );
+    final second = await provider.resolve(
+      'whisklet:88',
+      episode: 1,
+      lineCode: 'direct',
+      cachedDetail: detail,
+    );
+    // 直链线路不消耗解析；两次 resolve 共享缓存命中同一实例。
+    expect(details, 1);
+    expect(parses, 0);
+    expect(identical(first, second), isTrue);
+    expect(second.identity, 'whisklet:88:direct:1');
+  });
+
+  test('缓存按线路与集数区分，不同集不互相命中', () async {
+    final codec = WhiskletCodec();
+    final provider = WhiskletProvider(
+      client: WhiskletClient(
+        transport: MockClient((request) async {
+          final body = codec.decryptRequest(request.body);
+          expect(body['method'], 'video_detail');
+          return http.Response(
+            jsonEncode({
+              'code': 1,
+              'data': {
+                'vod_info': {
+                  'vod_id': 89,
+                  'vod_name': '缓存区分样本',
+                  'vod_remarks': '2集全',
+                  'vod_url_with_player': [
+                    {
+                      'code': 'direct',
+                      'name': '正片',
+                      'url': [
+                        '第1集\$https://cdn.example/f1.m3u8',
+                        '第2集\$https://cdn.example/f2.m3u8',
+                      ].join('#'),
+                    },
+                  ],
+                },
+              },
+            }),
+            200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          );
+        }),
+      ),
+    );
+    addTearDown(provider.close);
+    final detail = await provider.detail('whisklet:89');
+    final one = await provider.resolve(
+      'whisklet:89',
+      episode: 1,
+      cachedDetail: detail,
+    );
+    final two = await provider.resolve(
+      'whisklet:89',
+      episode: 2,
+      cachedDetail: detail,
+    );
+    expect(one.identity, 'whisklet:89:direct:1');
+    expect(two.identity, 'whisklet:89:direct:2');
+    expect(identical(one, two), isFalse);
+  });
+
   test('platform retries truncated params at most eight times with selected player code', () async {
     var params = 0;
     final codec = WhiskletCodec();
@@ -434,4 +547,50 @@ void main() {
       expect(source.isHls, isTrue);
     },
   );
+
+  test('detail 集数统一以拥有最新集数的线路为准（取最大而非第一条）', () async {
+    final provider = WhiskletProvider(
+      client: WhiskletClient(
+        transport: MockClient((request) async {
+          final body = WhiskletCodec().decryptRequest(request.body);
+          expect(body['method'], 'video_detail');
+          return http.Response(
+            jsonEncode({
+              'code': 1,
+              'data': {
+                'vod_info': {
+                  'vod_id': 77,
+                  'vod_name': '集数不齐样本',
+                  'vod_remarks': '3集全',
+                  'vod_url_with_player': [
+                    {
+                      'code': 'main',
+                      'name': '正片',
+                      'url': [
+                        for (var i = 1; i <= 3; i++) '第${i}集\$https://cdn.example/m$i.m3u8',
+                      ].join('#'),
+                    },
+                    {
+                      'code': 'cache',
+                      'name': '备用①',
+                      'url': [
+                        for (var i = 1; i <= 5; i++) '第${i}集\$https://cdn.example/b$i.m3u8',
+                      ].join('#'),
+                    },
+                  ],
+                },
+              },
+            }),
+            200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          );
+        }),
+      ),
+    );
+    addTearDown(provider.close);
+    final detail = await provider.detail('whisklet:77');
+    // 第一条线路只有 3 集，统一后的集数应取最多线路的 5 集。
+    expect(detail.lines.first.episodes.length, 3);
+    expect(detail.film.episodes, 5);
+  });
 }

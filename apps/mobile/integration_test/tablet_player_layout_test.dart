@@ -27,11 +27,18 @@ void main() {
       const header = String.fromEnvironment('TEST_MEDIA_HEADER');
       expect(base, isNotEmpty, reason: 'Run scripts/test-tablet-layout.mjs');
       Future<void> phase(String name) async {
+        debugPrint('TABLET_NATIVE_PHASE:$name');
         expect(
-          (await http.post(Uri.parse('$base/phase/$name'))).statusCode,
+          (await http
+                  .post(Uri.parse('$base/phase/$name'))
+                  .timeout(const Duration(seconds: 20)))
+              .statusCode,
           204,
         );
-        await t.pump(const Duration(milliseconds: 700));
+        debugPrint('TABLET_NATIVE_PHASE_READY:$name');
+        await t
+            .pump(const Duration(milliseconds: 700))
+            .timeout(const Duration(seconds: 15));
       }
 
       Future<void> until(bool Function() ready, String reason) async {
@@ -46,6 +53,10 @@ void main() {
         accountId: 'tablet-native-layout-fixture',
         preview: true,
       )..movieVolume = 0;
+      // 先挂载可绘制根节点，再旋转；空测试树在 LiveTest 中可能永远等不到下一帧。
+      await t
+          .pumpWidget(const MaterialApp(home: SizedBox.shrink()))
+          .timeout(const Duration(seconds: 15));
       await phase('landscape');
       await t.pumpWidget(
         MaterialApp(
@@ -81,6 +92,20 @@ void main() {
       );
       await session.core.videoController!.waitUntilFirstFrameRendered.timeout(
         const Duration(seconds: 20),
+      );
+      // 两套轮询合并后，真实播放恢复必须同时撤下瞬时报错并继续发布进度。
+      await session.pause();
+      session.refreshState();
+      session.error = 'Synthetic transient fragment error';
+      session.refreshState();
+      expect(session.error, isNotNull);
+      final beforeRecovery = session.core.playerPosition;
+      await session.play();
+      await until(
+        () =>
+            session.error == null &&
+            session.positionTick.value > beforeRecovery,
+        'Progress or transient error recovery did not resume',
       );
       await session.pause();
       await session.seek(const Duration(seconds: 12));
@@ -203,6 +228,7 @@ void main() {
       }
       final result = {
         'nativeFirstFrame': true,
+        'transientErrorRecovery': true,
         'sourceDimensions': [
           session.debug.playerWidth,
           session.debug.playerHeight,

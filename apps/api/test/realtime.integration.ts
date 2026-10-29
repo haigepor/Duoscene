@@ -65,6 +65,13 @@ test('real authenticated WS: two seats, playback, durable chat, reconnect and re
     for (const p of [a,b]) p.send({ type: 'ready', epoch: seek.epoch, generation: seek.generation, ready: true });
     await a.wait(e => e.type === 'snapshot' && e.generation === seek.generation && Object.values(e.ready).every(Boolean));
     await a.command('rate', { rate: 1.5 }); await b.wait(e => e.type === 'snapshot' && e.rate === 1.5);
+    const providerMedia = { provider: 'whisklet', filmId: 'whisklet:123', episode: 7, lineCode: 'main', identity: 'whisklet:123:7', title: '第七集' };
+    await a.command('media', { media: providerMedia, positionMs: 123456 });
+    const handoff = await b.wait(e => e.type === 'snapshot' && e.media?.identity === providerMedia.identity);
+    assert.deepEqual(handoff.media, providerMedia);
+    assert.equal(handoff.positionMs, 123456);
+    assert.equal(handoff.playing, false);
+    assert.equal(handoff.wanted, false);
     const id = randomUUID(); a.send({ type: 'chat', clientMessageId: id, text: '你好，已经同步了' });
     const message = await b.wait(e => e.type === 'chat' && e.message.clientMessageId === id);
     a.send({ type: 'chat', clientMessageId: id, text: '不会重复插入' });
@@ -74,6 +81,8 @@ test('real authenticated WS: two seats, playback, durable chat, reconnect and re
     const restored = await connect(1);
     await restored.wait(e => e.type === 'history' && e.messages.some((m: any) => m.id === message.message.id));
     assert.equal(restored.state.playing, false);
+    assert.deepEqual(restored.state.media, providerMedia);
+    assert.equal(restored.state.positionMs, 123456);
     await app.inject({ method: 'DELETE', url: `/api/v1/rooms/${room.id}/members/${ids[1]}`, headers: { authorization: `Bearer ${credentials[0]!.accessToken}` } });
     await a.wait(e => e.type === 'snapshot' && e.peers.length === 1 && e.room.members.length === 1);
     assert.equal((await ticket(1)).statusCode, 404);
