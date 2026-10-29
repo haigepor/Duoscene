@@ -15,20 +15,27 @@ class CatalogFeed extends ChangeNotifier {
   String? error;
   int page = 0;
   int _generation = 0;
+  Future<void>? _pending;
 
   Future<void> replace(Future<CatalogPage> Function(int page) loader) async {
     ++_generation;
     fetch = loader;
     items = const [];
     loading = loaded = hasMore = false;
+    _pending = null;
     page = 0;
     error = null;
     await load();
   }
 
-  Future<void> load({bool next = false, bool refresh = false}) async {
-    if (_disposed || fetch == null || loading) return;
-    if (next ? !hasMore : loaded && !refresh) return;
+  Future<void> load({bool next = false, bool refresh = false}) {
+    if (_disposed || fetch == null) return Future.value();
+    if (loading) return _pending ?? Future.value();
+    if (next ? !hasMore : loaded && !refresh) return Future.value();
+    return _pending = _load(next: next);
+  }
+
+  Future<void> _load({required bool next}) async {
     loading = true;
     final request = ++_generation;
     error = null;
@@ -50,6 +57,7 @@ class CatalogFeed extends ChangeNotifier {
     } finally {
       if (!_disposed && request == _generation) {
         loading = false;
+        _pending = null;
         notifyListeners();
       }
     }
@@ -98,6 +106,7 @@ class CatalogData extends ChangeNotifier {
   final MediaProvider? provider;
   final filterOptions = <int, Map<String, List<String>>>{};
   bool _disposed = false, _navLoading = false;
+  Future<void>? _loading;
   String? navigationError;
   bool get remoteFilters => provider is FilteredMediaProvider;
   final categories = <String, CatalogFeed>{};
@@ -130,10 +139,18 @@ class CatalogData extends ChangeNotifier {
     );
   }
 
-  Future<void> load() async {
-    await Future.wait([home.load(), loadFilters()]);
-    if (_disposed) return;
+  Future<void> load() {
+    if (_disposed) return Future.value();
+    return _loading ??= Future.wait([_loadContent(), loadFilters()])
+        .then<void>((_) {})
+        .whenComplete(() => _loading = null);
+  }
+
+  Future<void> _loadContent() async {
+    // 参照 Playra 首屏优先：推荐先发布，分类逐条预热；筛选元数据独立完成。
+    await home.load();
     for (final feed in categories.values) {
+      if (_disposed) return;
       await feed.load();
     }
   }

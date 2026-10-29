@@ -50,7 +50,55 @@ class _FilterProvider extends _SearchProvider implements FilteredMediaProvider {
   }) => browse(category, page: page);
 }
 
+class _SlowHomeProvider extends _FilterProvider {
+  final home = Completer<List<Film>>();
+  @override
+  Future<List<Film>> recommendations() => home.future;
+}
+
 void main() {
+  test('slow filter metadata does not block category prewarming', () async {
+    final provider = _FilterProvider();
+    final catalog = CatalogData(provider, (_) {});
+    addTearDown(catalog.dispose);
+    final loading = catalog.load();
+    await Future<void>.delayed(Duration.zero);
+    final started = List.of(provider.browsed);
+    provider.navigation.complete(const [MediaCategory(1, '电影')]);
+    await loading;
+    expect(started, contains(1));
+  });
+
+  test('repeated bootstrap waits for the same first-screen work', () async {
+    final provider = _SlowHomeProvider();
+    final catalog = CatalogData(provider, (_) {});
+    addTearDown(catalog.dispose);
+    final first = catalog.load();
+    final second = catalog.load();
+    await Future<void>.delayed(Duration.zero);
+    final premature = List.of(provider.browsed);
+    provider.home.complete([_SearchProvider.sample]);
+    provider.navigation.complete(const [MediaCategory(1, '电影')]);
+    await Future.wait([first, second]);
+    expect(premature, isEmpty);
+    expect(provider.browsed, [1, 2, 4, 21]);
+  });
+
+  test('concurrent feed load callers wait for the actual page', () async {
+    final page = Completer<CatalogPage>();
+    final feed = CatalogFeed(fetch: (_) => page.future);
+    addTearDown(feed.dispose);
+    final first = feed.load();
+    var secondDone = false;
+    final second = feed.load().then((_) => secondDone = true);
+    await Future<void>.delayed(Duration.zero);
+    final premature = secondDone;
+    page.complete(const CatalogPage([], page: 1, pages: 1));
+    await Future.wait([first, second]);
+    expect(premature, isFalse);
+    expect(feed.loaded, isTrue);
+  });
+
   test('slow filter metadata does not block home recommendations', () async {
     final provider = _FilterProvider();
     final catalog = CatalogData(provider, (_) {});
