@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../core/widgets.dart';
 import '../../design/components.dart';
 import '../../design/tokens.dart';
 import '../../design/window_layout.dart';
@@ -35,7 +35,7 @@ class _DetailPageState extends State<DetailPage> {
   late int episode = widget.resume?.episode ?? 1;
   MediaDetail? detail;
   String? lineCode, loadError;
-  bool loading = false, resolving = false;
+  bool loading = false;
   MediaLine? get line => detail?.lines
       .where((line) => lineCode == null || line.code == lineCode)
       .firstOrNull;
@@ -102,44 +102,20 @@ class _DetailPageState extends State<DetailPage> {
       );
       return;
     }
-    if (resolving) return;
-    setState(() => resolving = true);
-    try {
-      String? resolvedLine;
-      final source = f.remote
-          ? await widget.library.provider!.resolve(
-              f.id,
-              episode: episode,
-              lineCode: lineCode,
-              // resolve 内部不再重复拉详情，解析只留必要耗时。
-              cachedDetail: detail,
-            )
-          : designSource(f);
-      if (!mounted) return;
-      // 请求的线路没有该集时 resolve 会跨线落点；按 identity 回填实际线路，
-      // 状态行与线路选择器不再显示过期线路。
-      final identity = f.remote ? source?.identity : null;
-      if (identity != null && identity.startsWith('${f.id}:')) {
-        resolvedLine = identity.split(':')[2];
-      }
-      if (!mounted) return;
-      await openPage(
-        context,
-        ExperiencePlayer(
-          film: f,
-          library: widget.library,
-          episode: episode,
-          resume: widget.resume?.episode == episode ? widget.resume : null,
-          initialSource: source,
-          lineCode: resolvedLine ?? lineCode,
-          lines: detail?.lines ?? const [],
-        ),
-      );
-    } catch (error) {
-      if (mounted) tell(context, friendlyError(error));
-    } finally {
-      if (mounted) setState(() => resolving = false);
-    }
+    // 点击立即观看直接打开播放页，将解析网络等待转移至播放页内部进行，免除等待阻塞。
+    await openPage(
+      context,
+      ExperiencePlayer(
+        film: f,
+        library: widget.library,
+        episode: episode,
+        resume: widget.resume?.episode == episode ? widget.resume : null,
+        initialSource: f.remote ? null : designSource(f),
+        lineCode: lineCode,
+        lines: detail?.lines ?? const [],
+        autoResolve: f.remote,
+      ),
+    );
   }
 
   @override
@@ -147,8 +123,7 @@ class _DetailPageState extends State<DetailPage> {
     final f = film, l = widget.library;
     final unavailable =
         l.scenario == 'media-unavailable' ||
-        resolving ||
-        (f.remote && (loading || loadError != null || line == null));
+        (!f.remote && designSource(f) == null);
     final heroHeight = (MediaQuery.sizeOf(context).height * .36).clamp(
       240.0,
       320.0,
@@ -346,68 +321,106 @@ class _DetailPageState extends State<DetailPage> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: Container(
-                    color: DSPalette.of(context).bg.withValues(alpha: .96),
-                    child: SafeArea(
-                      top: false,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: ContentWidth(
-                          maxWidth: 720,
-                          wideInset: 0,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: FilledButton.icon(
-                                  onPressed: unavailable ? null : watch,
-                                  icon: resolving || loading
-                                      ? SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: DSPalette.of(context)
-                                                .onPrimary,
-                                          ),
-                                        )
-                                      : DSIcon(
-                                          'play',
-                                          color: DSPalette.of(context)
-                                              .onPrimary,
-                                          size: 18,
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: (Theme.of(context).brightness == Brightness.dark
+                                  ? DSPalette.of(context).panel.withValues(alpha: .75)
+                                  : DSPalette.of(context).bg.withValues(alpha: .82)),
+                          border: Border(
+                            top: BorderSide(
+                              color: (Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.white.withValues(alpha: .10)
+                                      : DSPalette.of(context).line.withValues(alpha: .80)),
+                              width: .6,
+                            ),
+                          ),
+                        ),
+                        child: SafeArea(
+                          top: false,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            child: ContentWidth(
+                              maxWidth: 720,
+                              wideInset: 0,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: FilledButton.icon(
+                                      style: FilledButton.styleFrom(
+                                        shape: const StadiumBorder(),
+                                        minimumSize: const Size.fromHeight(42),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
                                         ),
-                                  label: Text(
-                                    resolving
-                                        ? '正在解析…'
-                                        : loading
-                                        ? '正在加载…'
-                                        : unavailable
-                                        ? '片源暂不可用'
-                                        : !f.remote && designSource(f) == null
-                                        ? '选择视频观看'
-                                        : widget.resume != null
-                                        ? '继续观看'
-                                        : '立即观看',
+                                        elevation: 0,
+                                      ),
+                                      onPressed: unavailable ? null : watch,
+                                      icon: DSIcon(
+                                        'play',
+                                        color: DSPalette.of(context)
+                                            .onPrimary,
+                                        size: 16,
+                                      ),
+                                      label: Text(
+                                        unavailable
+                                            ? '片源暂不可用'
+                                            : !f.remote && designSource(f) == null
+                                            ? '选择视频观看'
+                                            : widget.resume != null
+                                            ? '继续观看'
+                                            : '立即观看',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: unavailable
-                                      ? null
-                                      : () => showInvite(
-                                          context,
-                                          film: f,
-                                          library: l,
-                                          episode: episode,
-                                          position: widget.resume?.seconds ?? 0,
-                                          lineCode: lineCode,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: OutlinedButton(
+                                      style: OutlinedButton.styleFrom(
+                                        shape: const StadiumBorder(),
+                                        minimumSize: const Size.fromHeight(42),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
                                         ),
-                                  child: const Text('邀请一起看'),
-                                ),
+                                        side: BorderSide(
+                                          color: DSPalette.of(context)
+                                              .outline
+                                              .withValues(alpha: .35),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      onPressed: unavailable || (f.remote && line == null)
+                                          ? null
+                                          : () => showInvite(
+                                              context,
+                                              film: f,
+                                              library: l,
+                                              episode: episode,
+                                              position: widget.resume?.seconds ?? 0,
+                                              lineCode: lineCode,
+                                            ),
+                                      child: Text(
+                                        '邀请一起看',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: DSPalette.of(context).ink,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),

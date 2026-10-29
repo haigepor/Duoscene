@@ -85,6 +85,8 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
   int? volumeGeneration;
   bool applyResume = true, selectingEpisode = false;
   bool _autoResolving = false;
+  String? _resolveError;
+  PlaybackSource? _pendingAutoSource;
   List<MediaLine> _autoLines = const [];
   PlayerPresentation? player;
   final controlsKey = GlobalKey<WatchControlsState>();
@@ -92,51 +94,71 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
   @override
   void initState() {
     super.initState();
-    // 详情页已加载过线路时复用（免重复请求）；否则进入页面后解析一次。
+    // 快速入口或详情页立即进入：无预解析源且是远程片源时，进入播放器后自动解析
     if (widget.autoResolve &&
         widget.initialSource == null &&
-        film.remote &&
-        widget.lines.isEmpty) {
+        film.remote) {
       unawaited(_autoResolve());
     }
   }
 
-  /// 拉详情选线并解析第 1 集，完成后替换播放源；失败交给「选择视频」空态。
+  /// 拉详情选线并解析目标集，完成后替换播放源；解析中及失败均有明确界面反馈。
   Future<void> _autoResolve() async {
     if (_autoResolving) return;
-    _autoResolving = true;
+    setState(() {
+      _autoResolving = true;
+      _resolveError = null;
+    });
     try {
       final provider = widget.library.provider;
       if (provider == null) return;
-      final detail = await provider.detail(film.id);
-      if (!mounted) return;
-      final line = preferredPlaybackLine(detail.lines);
-      // 快速入口也以详情线路更新集数；解析失败时仍保留已知片目和可换线路。
-      widget.library.remember([detail.unifiedFilm]);
-      setState(() {
-        _resolvedFilm = detail.unifiedFilm;
-        _autoLines = detail.lines;
-        lineCode = line?.code;
-      });
+      final lines = widget.lines.isNotEmpty ? widget.lines : _autoLines;
+      MediaDetail detail;
+      if (lines.isNotEmpty) {
+        detail = MediaDetail(film, lines);
+      } else {
+        detail = await provider.detail(film.id);
+        if (!mounted) return;
+        widget.library.remember([detail.unifiedFilm]);
+        setState(() {
+          _resolvedFilm = detail.unifiedFilm;
+          _autoLines = detail.lines;
+        });
+      }
+      final currentLines = detail.lines;
+      final line = (lineCode != null
+              ? currentLines.where((l) => l.code == lineCode).firstOrNull
+              : null) ??
+          preferredPlaybackLine(currentLines) ??
+          (currentLines.isNotEmpty ? currentLines.first : null);
       if (line == null || line.episodes.isEmpty) return;
+      final targetEpisode = episode.clamp(1, line.episodes.length);
       final source = await provider.resolve(
         film.id,
-        episode: 1,
+        episode: targetEpisode,
         lineCode: line.code,
         cachedDetail: detail,
       );
       if (!mounted) return;
+      String? actualLine = line.code;
+      final identity = source.identity;
+      if (identity.startsWith('${film.id}:')) {
+        actualLine = identity.split(':')[2];
+      }
       setState(() {
-        _autoLines = detail.lines;
-        lineCode = line.code;
-        episode = 1;
-        applyResume = false;
+        if (_autoLines.isEmpty) _autoLines = detail.lines;
+        lineCode = actualLine;
+        episode = targetEpisode;
       });
-      await player?.session.setPlaylist([source]);
-    } catch (_) {
-      // 保留「选择视频」空态；用户可进详情页看具体错误并换线。
+      if (player != null) {
+        await player!.session.setPlaylist([source]);
+      } else {
+        _pendingAutoSource = source;
+      }
+    } catch (e) {
+      if (mounted) setState(() => _resolveError = friendlyError(e));
     } finally {
-      _autoResolving = false;
+      if (mounted) setState(() => _autoResolving = false);
     }
   }
 
@@ -187,136 +209,132 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
     );
   }
 
+  String _formatSubtitle(Film f, int ep) {
+    if (f.episodes > 1) {
+      return '${f.genre} · 第 $ep 集 · 共 ${f.episodes} 集';
+    }
+    if (f.remote) {
+      return '${f.genre} · ${f.meta}';
+    }
+    return '${f.genre} · ${f.minutes} 分钟';
+  }
+
   @override
-  Widget build(BuildContext context) => widget.film == null
-      ? const PlayerPage(roomName: '个人观看')
-      : PlayerPage(
-          roomName: film.title,
-          initialSource: widget.initialSource ?? designSource(film),
-          onManualPause: () {
-            intent.pause();
-            if (mounted)
-              setState(() => widget.library.scenario = 'manual-pause');
-          },
-          canStartPlayback: () {
-            if (!intent.peerReady) {
-              tell(context, '等待好友准备，当前为同步状态预览。');
-              return false;
-            }
-            intent.play();
-            return true;
-          },
-          presentation: (context, controls, surface) {
-            // 输入法展开时收起媒体区，为输入框和消息列表保留可用高度。
-            // Scaffold 的内容区可能已消费 MediaQuery 键盘内边距，同时检查原始视图。
-            final composing =
-                MediaQuery.viewInsetsOf(context).bottom > 0 ||
-                View.of(context).viewInsets.bottom > 0;
-            player = controls;
-            final s = controls.session;
-            if (!s.loading &&
-                s.source != null &&
-                s.core.mediaPlayer != null &&
-                volumeGeneration != s.generation) {
-              volumeGeneration = s.generation;
-              unawaited(
-                s.core.mediaPlayer!.setVolume(widget.library.movieVolume * 100),
-              );
-            }
-            if (applyResume &&
-                widget.resume != null &&
-                !s.loading &&
-                s.source != null &&
-                s.core.playerDuration > Duration.zero &&
-                resumedGeneration != s.generation) {
-              resumedGeneration = s.generation;
-              unawaited(s.seek(Duration(seconds: widget.resume!.seconds)));
-            }
-            final p = DSPalette.of(context);
-            // 竖屏源（AI 漫剧/短剧）按视频自身比例展示；宽高未知时回落 16:9。
-            final vp = s.core.mediaPlayer?.state.videoParams;
-            final videoW = vp?.w ?? 0;
-            final videoH = vp?.h ?? 0;
-            final portrait = videoW > 0 && videoH > 0 && videoW < videoH;
-            // 手机沿用上游通铺媒体，平板分栏保留内容边距；固定槽位不变。
-            final mediaInset = WindowLayout.isWide(context)
-                ? DS.pageInset
-                : 0.0;
-            return Forest(
-              child: LayoutBuilder(
-                builder: (context, bounds) => AdaptiveWatchLayout(
-                  showMedia: !composing && bounds.maxHeight >= 400,
-                  mediaAspectRatio: portrait ? videoW / videoH : 16 / 9,
-                  mediaInset: mediaInset,
-                  header: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DS.space4,
-                      vertical: DS.space4,
-                    ),
-                    child: Row(
-                      children: [
-                        IconTap(
-                          'arrow-left',
-                          '返回',
-                          () => Navigator.pop(context),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                s.source?.title ?? film.title,
-                                key: const Key('watch-header-title'),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: DS.toolbar,
-                              ),
-                              const SizedBox(height: DS.space2),
-                              Text(
-                                '${film.genre} · ${film.episodes > 1
-                                    ? '第 $episode 集 · 共 ${film.episodes} 集'
-                                    : film.remote
-                                    ? film.meta
-                                    : '${film.minutes} 分钟'}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: DS.smallFor(context),
-                              ),
-                            ],
+  Widget build(BuildContext context) {
+    final filmTitle = player?.session.source?.title ?? film.title;
+    final filmSubtitle = _formatSubtitle(film, episode);
+    return widget.film == null
+        ? const PlayerPage(roomName: '个人观看')
+        : PlayerPage(
+            roomName: film.title,
+            title: filmTitle,
+            subtitle: filmSubtitle,
+            onMore: () {
+              if (player != null) _more(player!);
+            },
+            initialSource: widget.initialSource ?? designSource(film),
+            onManualPause: () {
+              intent.pause();
+              if (mounted)
+                setState(() => widget.library.scenario = 'manual-pause');
+            },
+            canStartPlayback: () {
+              if (!intent.peerReady) {
+                tell(context, '等待好友准备，当前为同步状态预览。');
+                return false;
+              }
+              intent.play();
+              return true;
+            },
+            presentation: (context, controls, surface) {
+              // 输入法展开时收起媒体区，为输入框和消息列表保留可用高度。
+              // Scaffold 的内容区可能已消费 MediaQuery 键盘内边距，同时检查原始视图。
+              final composing =
+                  MediaQuery.viewInsetsOf(context).bottom > 0 ||
+                  View.of(context).viewInsets.bottom > 0;
+              player = controls;
+              if (_pendingAutoSource != null) {
+                final pending = _pendingAutoSource!;
+                _pendingAutoSource = null;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  controls.session.setPlaylist([pending]);
+                });
+              }
+              final s = controls.session;
+              if (!s.loading &&
+                  s.source != null &&
+                  s.core.mediaPlayer != null &&
+                  volumeGeneration != s.generation) {
+                volumeGeneration = s.generation;
+                unawaited(
+                  s.core.mediaPlayer!.setVolume(widget.library.movieVolume * 100),
+                );
+              }
+              if (applyResume &&
+                  widget.resume != null &&
+                  !s.loading &&
+                  s.source != null &&
+                  s.core.playerDuration > Duration.zero &&
+                  resumedGeneration != s.generation) {
+                resumedGeneration = s.generation;
+                unawaited(s.seek(Duration(seconds: widget.resume!.seconds)));
+              }
+              final p = DSPalette.of(context);
+              // 竖屏源（AI 漫剧/短剧）按视频自身比例展示；宽高未知时回落 16:9。
+              final vp = s.core.mediaPlayer?.state.videoParams;
+              final videoW = vp?.w ?? 0;
+              final videoH = vp?.h ?? 0;
+              final portrait = videoW > 0 && videoH > 0 && videoW < videoH;
+              // 手机沿用上游通铺媒体，平板分栏保留内容边距；固定槽位不变。
+              final mediaInset = WindowLayout.isWide(context)
+                  ? DS.pageInset
+                  : 0.0;
+              final currentSubtitle = _formatSubtitle(film, episode);
+              return Forest(
+                child: LayoutBuilder(
+                  builder: (context, bounds) => AdaptiveWatchLayout(
+                    showMedia: !composing && bounds.maxHeight >= 400,
+                    mediaAspectRatio: portrait ? videoW / videoH : 16 / 9,
+                    mediaInset: mediaInset,
+                    header: const SizedBox.shrink(),
+                    media: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: mediaInset),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: double.infinity,
                           ),
-                        ),
-                        IconTap('ellipsis', '播放器更多功能', () => _more(controls)),
-                      ],
-                    ),
-                  ),
-                  media: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: mediaInset),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxHeight: double.infinity,
-                        ),
-                        child: AspectRatio(
-                          aspectRatio: portrait ? videoW / videoH : 16 / 9,
-                          child: ClipRRect(
-                            clipBehavior: mediaInset > 0
-                                ? Clip.antiAlias
-                                : Clip.none,
-                            borderRadius: BorderRadius.circular(
-                              mediaInset > 0 ? DS.panelRadius : 0,
+                          child: AspectRatio(
+                            aspectRatio: portrait ? videoW / videoH : 16 / 9,
+                            child: ClipRRect(
+                              clipBehavior: mediaInset > 0
+                                  ? Clip.antiAlias
+                                  : Clip.none,
+                              borderRadius: BorderRadius.circular(
+                                mediaInset > 0 ? DS.panelRadius : 0,
+                              ),
+                              child: s.source == null
+                                  ? WatchCover(
+                                      cover: homeArtwork(film, landscape: true),
+                                      onChoose: () => controlsKey.currentState
+                                          ?.chooseSource(),
+                                      film: film,
+                                      resolving: _autoResolving,
+                                      error: _resolveError,
+                                      onRetry: () =>
+                                          unawaited(_autoResolve()),
+                                      episode: episode,
+                                      title: s.source?.title ?? film.title,
+                                      subtitle: currentSubtitle,
+                                      onBack: () => Navigator.pop(context),
+                                      onMore: () => _more(controls),
+                                    )
+                                  : surface,
                             ),
-                            child: s.source == null
-                                ? WatchCover(
-                                    cover: homeArtwork(film, landscape: true),
-                                    onChoose: () => controlsKey.currentState
-                                        ?.chooseSource(),
-                                  )
-                                : surface,
                           ),
                         ),
                       ),
                     ),
-                  ),
                   controls: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -491,9 +509,10 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
             );
           },
         );
+  }
 
   Future<void> _selectEpisode() async {
-    if (selectingEpisode) return;
+    if (selectingEpisode || _autoResolving) return;
     final next = await showEpisodes(context, film, episode, shared: shared);
     if (next == null || !mounted || next == episode) return;
     if (!film.remote) {
@@ -524,7 +543,7 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
   }
 
   Future<void> _selectLine(String code) async {
-    if (selectingEpisode || code == lineCode) return;
+    if (selectingEpisode || _autoResolving || code == lineCode) return;
     final lines = widget.lines.isEmpty ? _autoLines : widget.lines;
     final line = lines.where((line) => line.code == code).firstOrNull;
     if (line == null || line.episodes.isEmpty) return;
@@ -553,8 +572,8 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
   }
 
   String _status() {
-    // 换集/换线解析中给一个明确反馈，避免弹层关闭后界面静默无响应。
-    if (selectingEpisode) return '正在解析片源，请稍候…';
+    // 换集/换线/自动解析中给一个明确反馈，避免弹层关闭后界面静默无响应。
+    if (selectingEpisode || _autoResolving) return '正在解析片源，请稍候…';
     return switch (widget.library.scenario) {
       'peer-buffering' => '小满正在缓冲 · 等待准备',
       'peer-offline' => '小满已断线 · 等待重连',

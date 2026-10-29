@@ -32,10 +32,16 @@ class PlayerSurface extends StatefulWidget {
     required this.onSeek,
     required this.onRate,
     this.pictureInPicture = false,
+    this.title,
+    this.subtitle,
+    this.onMore,
   });
   final PlaybackSession session;
   final bool fullscreen;
   final bool pictureInPicture;
+  final String? title;
+  final String? subtitle;
+  final VoidCallback? onMore;
   final VoidCallback onFullscreen;
   final VoidCallback onBack;
   final Future<void> Function() onSettings;
@@ -377,7 +383,7 @@ class _PlayerSurfaceState extends State<PlayerSurface> {
                         ),
                       ),
                     ),
-                  if (!_locked && widget.fullscreen)
+                  if (!_locked)
                     Positioned(
                       top: 0,
                       left: 0,
@@ -389,42 +395,102 @@ class _PlayerSurfaceState extends State<PlayerSurface> {
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.black87, Colors.transparent],
+                              colors: [
+                                Color(0xCC000000),
+                                Color(0x66000000),
+                                Colors.transparent,
+                              ],
                             ),
                           ),
                           child: SafeArea(
+                            top: widget.fullscreen,
                             bottom: false,
-                            child: Row(
-                              children: [
-                                _icon(
-                                  '返回',
-                                  Icons.arrow_back_ios_new_rounded,
-                                  widget.onBack,
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    s.source?.title ?? 'Duoscene 播放器',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              child: Row(
+                                children: [
+                                  _icon(
+                                    '返回',
+                                    Icons.arrow_back_ios_new_rounded,
+                                    widget.onBack,
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          (s.source?.title != null &&
+                                                  s.source!.title.isNotEmpty)
+                                              ? s.source!.title
+                                              : (widget.title ??
+                                                  'Duoscene 播放器'),
+                                          key: const Key('watch-header-title'),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            shadows: [
+                                              Shadow(
+                                                offset: Offset(0, 1),
+                                                blurRadius: 3,
+                                                color: Colors.black54,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (widget.subtitle != null &&
+                                            widget.subtitle!.isNotEmpty) ...[
+                                          const SizedBox(height: 1),
+                                          Text(
+                                            widget.subtitle!,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.8),
+                                              fontSize: 11,
+                                              shadows: const [
+                                                Shadow(
+                                                  offset: Offset(0, 1),
+                                                  blurRadius: 3,
+                                                  color: Colors.black54,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
-                                ),
-                                if (!compact)
-                                  PlayerScreenshotControls(
-                                    controller: s.screenshots,
-                                    onCapture: () => unawaited(s.capture()),
-                                    onReview: () =>
-                                        unawaited(_hold(widget.onScreenshots)),
-                                  ),
-                                _icon(
-                                  '播放设置',
-                                  Icons.tune_rounded,
-                                  () => unawaited(_hold(widget.onSettings)),
-                                ),
-                              ],
+                                  if (!compact)
+                                    PlayerScreenshotControls(
+                                      controller: s.screenshots,
+                                      onCapture: () => unawaited(s.capture()),
+                                      onReview: () => unawaited(
+                                        _hold(widget.onScreenshots),
+                                      ),
+                                    ),
+                                  if (widget.onMore != null)
+                                    _icon(
+                                      '播放器更多功能',
+                                      Icons.more_horiz_rounded,
+                                      widget.onMore!,
+                                    )
+                                  else
+                                    _icon(
+                                      '播放设置',
+                                      Icons.tune_rounded,
+                                      () => unawaited(_hold(widget.onSettings)),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

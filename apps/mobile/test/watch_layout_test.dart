@@ -57,7 +57,8 @@ void main() {
           final cover = t.getRect(find.byType(WatchCover));
           expect(title.width, greaterThanOrEqualTo(50 * scale));
           expect(title.right, lessThanOrEqualTo(width));
-          expect(title.bottom, lessThan(cover.top));
+          expect(title.top, greaterThanOrEqualTo(cover.top));
+          expect(title.bottom, lessThanOrEqualTo(cover.bottom));
           final statusBar = t.getRect(
             find.byKey(const Key('watch-composer-status')),
           );

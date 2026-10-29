@@ -31,6 +31,9 @@ class PlayerPage extends StatefulWidget {
     this.canStartPlayback,
     this.onManualPause,
     this.respectSafeArea = true,
+    this.title,
+    this.subtitle,
+    this.onMore,
   });
   final String roomName;
   final String? roomId;
@@ -39,6 +42,9 @@ class PlayerPage extends StatefulWidget {
   final Widget Function(BuildContext, PlayerPresentation, Widget)? presentation;
   final bool Function()? canStartPlayback;
   final VoidCallback? onManualPause;
+  final String? title;
+  final String? subtitle;
+  final VoidCallback? onMore;
 
   /// 竖屏信息流等全屏媒体页传 false：画面顶到状态栏后，控件自行避开安全区。
   final bool respectSafeArea;
@@ -377,6 +383,9 @@ class _PlayerPageState extends State<PlayerPage> with WidgetsBindingObserver {
                     session: s,
                     fullscreen: _fullscreen,
                     pictureInPicture: _pip,
+                    title: widget.title,
+                    subtitle: widget.subtitle,
+                    onMore: widget.onMore,
                     onFullscreen: () => unawaited(_fullscreenToggle()),
                     onBack: () {
                       if (_fullscreen) {

@@ -5,6 +5,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $PSScriptRoot) {
+    $PSScriptRoot = Join-Path (Get-Location).Path 'scripts'
+}
 if (-not $FlutterSdk) {
     $flutterCommand = Get-Command flutter.bat -ErrorAction SilentlyContinue
     if ($flutterCommand) { $FlutterSdk = Split-Path (Split-Path $flutterCommand.Source -Parent) -Parent }

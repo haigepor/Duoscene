@@ -3,6 +3,9 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $PSScriptRoot) {
+    $PSScriptRoot = Join-Path (Get-Location).Path 'scripts'
+}
 $workspace = Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'mobile-env.ps1')
 

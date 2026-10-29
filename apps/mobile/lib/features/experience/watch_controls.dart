@@ -1,11 +1,15 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
 import '../catalog/media_provider.dart';
+import '../catalog/posters.dart';
 import '../playback/player_page.dart';
 
 /// 观看页的三个紧凑入口；具体状态和操作收进对应弹层。
@@ -518,58 +522,427 @@ class _WatchQualitySheetState extends State<_WatchQualitySheet> {
 }
 
 class WatchCover extends StatelessWidget {
-  const WatchCover({super.key, required this.cover, required this.onChoose});
+  const WatchCover({
+    super.key,
+    required this.cover,
+    required this.onChoose,
+    this.film,
+    this.resolving = false,
+    this.error,
+    this.onRetry,
+    this.episode = 1,
+    this.title,
+    this.subtitle,
+    this.onBack,
+    this.onMore,
+  });
   final String cover;
   final VoidCallback onChoose;
+  final Film? film;
+  final bool resolving;
+  final String? error;
+  final VoidCallback? onRetry;
+  final int episode;
+  final String? title;
+  final String? subtitle;
+  final VoidCallback? onBack;
+  final VoidCallback? onMore;
 
   @override
   Widget build(BuildContext context) {
+    final p = DSPalette.of(context);
+    final f = film;
+    final hasFilm = f != null;
+
+    // 背景底图层：若有影片海报则使用海报 + 电影级高斯模糊 + 径向暗角渐变；否则使用本地封面
+    Widget backdrop;
+    if (hasFilm && (f.remote || f.image.isNotEmpty)) {
+      backdrop = Stack(
+        fit: StackFit.expand,
+        children: [
+          FilmArtwork(
+            f,
+            asset: f.id == 'mountains'
+                ? '${DS.media}media-mountains-landscape.png'
+                : (f.image.isNotEmpty ? f.image : cover),
+            cacheWidth: 1080,
+          ),
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+              child: const SizedBox.expand(),
+            ),
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.center,
+                radius: 1.15,
+                colors: [
+                  DSPalette.media.withValues(alpha: .60),
+                  DSPalette.media.withValues(alpha: .94),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      backdrop = Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            cover,
+            cacheWidth: 1080,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const ColoredBox(color: DSPalette.media),
+          ),
+          ColoredBox(color: DSPalette.media.withValues(alpha: .65)),
+        ],
+      );
+    }
+
+    Widget content;
+    if (resolving) {
+      // 正在解析状态：微光环形加载卡 + 标题 + 剧集胶囊标签 + 氛围微提示
+      content = Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DS.space16,
+              vertical: DS.space8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: .08),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: .18),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .35),
+                        blurRadius: 18,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: p.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  '正在解析片源…',
+                  style: TextStyle(
+                    color: DSPalette.onMedia,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: .4,
+                  ),
+                ),
+                if (hasFilm) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3.5,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white.withValues(alpha: .12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: .14),
+                      ),
+                    ),
+                    child: Text(
+                      f.episodes > 1 ? '${f.title} · 第 $episode 集' : f.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: DSPalette.onMedia.withValues(alpha: .85),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 6),
+                Text(
+                  '正在寻找最优线路与画质…',
+                  style: TextStyle(
+                    color: DSPalette.onMedia.withValues(alpha: .48),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else if (error != null) {
+      // 解析失败状态：警告图标 + 错误说明 + 胶囊操作按钮
+      content = Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: DS.space16,
+              vertical: DS.space8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: p.amber.withValues(alpha: .15),
+                    border: Border.all(
+                      color: p.amber.withValues(alpha: .35),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: DSIcon(
+                      'circle-alert',
+                      size: 22,
+                      color: p.amber,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  '片源解析未完成',
+                  style: TextStyle(
+                    color: DSPalette.onMedia,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  error!,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: DSPalette.onMedia.withValues(alpha: .7),
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
+                        side: BorderSide(
+                          color: Colors.white.withValues(alpha: .28),
+                        ),
+                      ),
+                      onPressed: onChoose,
+                      icon: const DSIcon(
+                        'sliders-horizontal',
+                        size: 14,
+                        color: DSPalette.onMedia,
+                      ),
+                      label: const Text(
+                        '切换线路',
+                        style: TextStyle(
+                          color: DSPalette.onMedia,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (onRetry != null)
+                      FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          shape: const StadiumBorder(),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                        ),
+                        onPressed: onRetry,
+                        icon: const DSIcon(
+                          'refresh-cw',
+                          size: 14,
+                          color: DSPalette.onMedia,
+                        ),
+                        label: const Text(
+                          '重试解析',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      // 空闲/手动选择状态：支持测试检索 tooltip，并以毛玻璃圆环风格呈现
+      content = Center(
+        child: IconButton.outlined(
+          tooltip: '选择视频，开始观看',
+          onPressed: onChoose,
+          style: IconButton.styleFrom(
+            minimumSize: const Size(DS.avatarLarge, DS.avatarLarge),
+            backgroundColor: DSPalette.media.withValues(alpha: .5),
+            side: BorderSide(
+              color: DSPalette.onMedia.withValues(alpha: .8),
+              width: 1.5,
+            ),
+          ),
+          icon: const DSIcon(
+            'play',
+            size: DS.space24,
+            color: DSPalette.onMedia,
+          ),
+        ),
+      );
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
-          cover,
-          cacheWidth: 1080,
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => const ColoredBox(color: DSPalette.media),
-        ),
-        ColoredBox(color: DSPalette.media.withValues(alpha: .15)),
-        Center(
-          child: IconButton.outlined(
-            tooltip: '选择视频，开始观看',
-            onPressed: onChoose,
-            style: IconButton.styleFrom(
-              minimumSize: const Size(DS.avatarLarge, DS.avatarLarge),
-              backgroundColor: DSPalette.media.withValues(alpha: .4),
-              side: BorderSide(color: DSPalette.onMedia.withValues(alpha: .8)),
-            ),
-            icon: const DSIcon(
-              'play',
-              size: DS.space24,
-              color: DSPalette.onMedia,
+        backdrop,
+        content,
+        if (onBack != null || title != null || onMore != null)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xCC000000),
+                    Color(0x66000000),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
+                  child: Row(
+                    children: [
+                      if (onBack != null)
+                        IconButton(
+                          tooltip: '返回',
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onPressed: onBack,
+                          style: IconButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(48, 48),
+                          ),
+                        )
+                      else
+                        const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title ?? f?.title ?? '',
+                              key: const Key('watch-header-title'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(0, 1),
+                                    blurRadius: 3,
+                                    color: Colors.black54,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (subtitle != null && subtitle!.isNotEmpty) ...[
+                              const SizedBox(height: 1),
+                              Text(
+                                subtitle!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 11,
+                                  shadows: const [
+                                    Shadow(
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3,
+                                      color: Colors.black54,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (onMore != null)
+                        IconButton(
+                          tooltip: '播放器更多功能',
+                          icon: const Icon(
+                            Icons.more_horiz_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          onPressed: onMore,
+                          style: IconButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(48, 48),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-        Positioned(
-          left: DS.space12,
-          bottom: DS.space12,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: DSPalette.media.withValues(alpha: .7),
-              borderRadius: BorderRadius.circular(DS.radiusSmall),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: DS.space8,
-                vertical: DS.space4,
-              ),
-              child: Text(
-                '封面预览',
-                style: DS.label.copyWith(color: DSPalette.onMedia),
-              ),
-            ),
-          ),
-        ),
       ],
     );
   }
