@@ -13,7 +13,7 @@ void main() {
     expect(const bool.fromEnvironment('ARTWORK_PROBE'), true);
     final source = WhiskletClient(), rows = <Map<String, dynamic>>[];
     try {
-      for (final category in [1, 2, 4]) {
+      for (final category in [1, 2, 4, 21]) {
         final page = await source.videoList(category, 1);
         for (final row in (page['data'] as List).take(20)) {
           if (row is Map)

@@ -177,11 +177,17 @@ void main() {
   });
 
   test('snzypic plaintext image host is the only verified http allowance', () {
-    const url = 'http://snzypic.com/upload/vod/20240103-1/37aa4b49.jpg';
-    final request = ArtworkRequest.parse(url)!;
-    expect(request.uri.scheme, 'http');
-    expect(request.uri.host, 'snzypic.com');
-    expect(request.headers, isEmpty);
+    for (final url in [
+      'http://snzypic.com/upload/vod/20240103-1/37aa4b49.jpg',
+      'https://snzypic.com/upload/vod/20240103-1/37aa4b49.jpg',
+      '//snzypic.com/upload/vod/20240103-1/37aa4b49.jpg',
+    ]) {
+      final request = ArtworkRequest.parse(url)!;
+      expect(request.uri.scheme, 'http', reason: url);
+      expect(request.uri.host, 'snzypic.com', reason: url);
+      expect(request.uri.port, 80, reason: url);
+      expect(request.headers, isEmpty, reason: url);
+    }
     expect(
       ArtworkRequest.parse('http://snzypic.com:8080/upload/vod/x.jpg'),
       isNull,
@@ -194,6 +200,75 @@ void main() {
       expect(request.uri.scheme, 'https', reason: url);
       expect(request.headers, isEmpty, reason: url);
     }
+  });
+
+  test('migrated resource station image hosts rewrite to active CDN hosts', () {
+    for (final sample in [
+      (
+        'https://ps.ryzypics.com/upload/vod/20251029-1/8079c5eb73230ca931b9834b1cb148ef.png',
+        'https://pic.ry-pic.com/upload/vod/20251029-1/8079c5eb73230ca931b9834b1cb148ef.png',
+      ),
+      (
+        'http://ps.ryzypics.com/upload/vod/20251029-1/8079c5eb73230ca931b9834b1cb148ef.png',
+        'https://pic.ry-pic.com/upload/vod/20251029-1/8079c5eb73230ca931b9834b1cb148ef.png',
+      ),
+      (
+        'https://pic.lzzypic.com/upload/vod/20260711-1/ef0294435d26386997a5fe7e9a3d5394.jpg',
+        'https://p.lztutu.com/upload/vod/20260711-1/ef0294435d26386997a5fe7e9a3d5394.jpg',
+      ),
+      (
+        'https://img.lzzyimg.com/upload/vod/20220329-1/d760d846c60a9aa2ef0a527dd6a9fe68.jpg',
+        'https://p.lztutu.com/upload/vod/20220329-1/d760d846c60a9aa2ef0a527dd6a9fe68.jpg',
+      ),
+      (
+        'https://viptulz.com/upload/vod/20250908-1/6fa89c8bc7c7f7c2685a2cf1df832a8a.jpg',
+        'https://p.lztutu.com/upload/vod/20250908-1/6fa89c8bc7c7f7c2685a2cf1df832a8a.jpg',
+      ),
+      (
+        'https://vip.dytt-img.com/upload/vod/20250304-1/ed94e4c49c2463a5f5ed0ab8fc6bc9cb.jpg',
+        'https://img.dytt-tupian.com/upload/vod/20250304-1/ed94e4c49c2463a5f5ed0ab8fc6bc9cb.jpg',
+      ),
+      (
+        'https://vod.dyttimage.com/upload/vod/20260126-1/a19947b699e08365b8b4986d6aa26cb3.jpg',
+        'https://img.dytt-tupian.com/upload/vod/20260126-1/a19947b699e08365b8b4986d6aa26cb3.jpg',
+      ),
+    ]) {
+      final request = ArtworkRequest.parse(sample.$1)!;
+      expect(request.uri.toString(), sample.$2, reason: sample.$1);
+      expect(request.headers, isEmpty, reason: sample.$1);
+    }
+    expect(
+      ArtworkRequest.parse('https://ps.ryzypics.com:8443/upload/vod/a.png')!
+          .uri
+          .host,
+      'ps.ryzypics.com',
+    );
+  });
+
+  test('unescapes HTML &amp; entities in upstream poster query strings', () {
+    const escaped =
+        'https://gimg0.baidu.com/gimg/app=2001&amp;n=0&amp;g=0n&amp;fmt=webp&amp;src=img.jisuimage.com/cover/234c04f19f239b6d91cf473d6738deeb.jpg';
+    final request = ArtworkRequest.parse(escaped)!;
+    expect(
+      request.uri.toString(),
+      'https://gimg0.baidu.com/gimg/app=2001&n=0&g=0n&fmt=webp&src=img.jisuimage.com/cover/234c04f19f239b6d91cf473d6738deeb.jpg',
+    );
+  });
+
+  test('netease music image hosts get public browser User-Agent header', () {
+    final request = ArtworkRequest.parse(
+      'https://p2.music.126.net/Y3I39-aBO3196L5G5mG2kA==/109951172268203468.jpg',
+    )!;
+    expect(request.headers, {'User-Agent': browserAgent});
+    expect(
+      ArtworkRequest.parse('https://p2.music.126.net:8443/a.jpg')!.headers,
+      isEmpty,
+    );
+    expect(
+      ArtworkRequest.parse('https://p2.music.126.net.evil.example/a.jpg')!
+          .headers,
+      isEmpty,
+    );
   });
 
   test('baidu proxy with unverified target keeps the proxy url bare', () {
@@ -331,4 +406,131 @@ void main() {
       },
     );
   }
+
+  test(
+    'automatic domain self-healing probes active CDN hosts, learns working domain, and persists rules',
+    () async {
+      ArtworkRequest.resetLearnedRulesForTest();
+      addTearDown(ArtworkRequest.resetLearnedRulesForTest);
+
+      String? persistedJson;
+      ArtworkRequest.onRulesChanged = (rawJson) {
+        persistedJson = rawJson;
+      };
+
+      // 模拟目录加载过程中观测到上游新启用的活跃图床域名。
+      ArtworkRequest.observeCatalogUrl(
+        'https://cdn-next.ry-pic.example/upload/vod/20261030-1/active.jpg',
+      );
+      expect(
+        ArtworkRequest.observedVodCdnHosts,
+        contains('cdn-next.ry-pic.example'),
+      );
+
+      const brokenUrl =
+          'https://legacy.ry-broken.example/upload/vod/20251029-1/cover.png';
+      final initial = ArtworkRequest.parse(brokenUrl)!;
+      expect(initial.uri.host, 'legacy.ry-broken.example');
+      // 同家族（含 ry）候选域排在普通候选域之前优先探测。
+      expect(
+        ArtworkRequest.candidateFallbackUris(
+          initial.uri,
+        ).take(2).map((u) => u.host),
+        containsAll(['pic.ry-pic.com', 'cdn-next.ry-pic.example']),
+      );
+
+      final probedHosts = <String>[];
+      final healed = await ArtworkRequest.healFailedRequest(
+        initial.uri,
+        probe: (candidate, _) async {
+          probedHosts.add(candidate.host);
+          return candidate.host == 'cdn-next.ry-pic.example';
+        },
+      );
+      expect(healed, isTrue);
+      expect(probedHosts, contains('cdn-next.ry-pic.example'));
+      expect(
+        ArtworkRequest.learnedHostMigrations['legacy.ry-broken.example'],
+        'cdn-next.ry-pic.example',
+      );
+      expect(persistedJson, isNotNull);
+
+      // 自愈后再次解析同一旧域名，直接自动替换为新域名。
+      final rewritten = ArtworkRequest.parse(brokenUrl)!;
+      expect(
+        rewritten.uri.toString(),
+        'https://cdn-next.ry-pic.example/upload/vod/20251029-1/cover.png',
+      );
+
+      // 模拟应用重启后从持久化 JSON 恢复自愈规则。
+      ArtworkRequest.resetLearnedRulesForTest();
+      ArtworkRequest.importLearnedRules(persistedJson);
+      expect(
+        ArtworkRequest.parse(brokenUrl)!.uri.host,
+        'cdn-next.ry-pic.example',
+      );
+    },
+  );
+
+  testWidgets(
+    'FilmArtwork automatically heals broken /upload/vod/ domain and reloads cover',
+    (tester) async {
+      ArtworkRequest.resetLearnedRulesForTest();
+      addTearDown(ArtworkRequest.resetLearnedRulesForTest);
+
+      ArtworkRequest.debugProbe = (candidate, _) async =>
+          candidate.host == 'pic.ry-pic.com';
+
+      const brokenPoster =
+          'https://dead-ry.example/upload/vod/20251029-1/8079c5eb.png';
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: duosceneTheme,
+          home: const Scaffold(
+            body: FilmArtwork(
+              Film(
+                'whisklet:999',
+                'Self heal fixture',
+                '短剧',
+                '',
+                0,
+                posterUrl: brokenPoster,
+              ),
+              width: 96,
+              height: 144,
+              cacheWidth: 192,
+            ),
+          ),
+        ),
+      );
+
+      final before =
+          (tester.widget<Image>(find.byType(Image)).image as ResizeImage)
+              .imageProvider as NetworkImage;
+      expect(before.url, brokenPoster);
+
+      // 触发封面加载失败，验证 FilmArtwork 自动探测并切换到可用 CDN 域名。
+      final image = tester.widget<Image>(find.byType(Image));
+      image.errorBuilder!(
+        tester.element(find.byType(Image)),
+        NetworkImageLoadException(
+          statusCode: 502,
+          uri: Uri.parse(brokenPoster),
+        ),
+        null,
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+
+      final afterImage = tester.widget<Image>(find.byType(Image));
+      expect(afterImage.key, const ValueKey(1));
+      final after =
+          (afterImage.image as ResizeImage).imageProvider as NetworkImage;
+      expect(
+        after.url,
+        'https://pic.ry-pic.com/upload/vod/20251029-1/8079c5eb.png',
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

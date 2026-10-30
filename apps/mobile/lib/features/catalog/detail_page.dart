@@ -146,11 +146,13 @@ class _DetailPageState extends State<DetailPage> {
           style: DS.body.copyWith(color: DSPalette.of(context).muted),
         ),
       if (!loading && f.episodes > 1)
-        MenuRow(
-          'list-video',
-          '选集 · 第 $episode 集',
-          subtitle: '共 ${f.episodes} 集',
-          onTap: () async {
+        _EpisodeSelectorCard(
+          film: f,
+          episode: episode,
+          onEpisodeSelected: (next) {
+            if (mounted) setState(() => episode = next);
+          },
+          onMoreEpisodes: () async {
             final next = await showEpisodes(context, f, episode, shared: false);
             if (next != null && mounted) setState(() => episode = next);
           },
@@ -212,29 +214,39 @@ class _DetailPageState extends State<DetailPage> {
                   fadeExtent: 64,
                   header: SafeArea(
                     bottom: false,
-                    child: Row(
-                      children: [
-                        _CoverAction(
-                          'arrow-left',
-                          '返回',
-                          () => Navigator.maybePop(context),
-                        ),
-                        const Spacer(),
-                        _CoverAction(
-                          l.favorites.contains(f.id)
-                              ? 'bookmark-check'
-                              : 'bookmark',
-                          '收藏影片',
-                          () async {
-                            try {
-                              await l.toggleFavorite(f);
-                              if (mounted) setState(() {});
-                            } catch (_) {
-                              if (context.mounted) tell(context, '收藏保存失败，请重试。');
-                            }
-                          },
-                        ),
-                      ],
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: wide ? 24 : 8,
+                        vertical: wide ? 8 : 2,
+                      ),
+                      child: Row(
+                        children: [
+                          _CoverAction(
+                            'arrow-left',
+                            '返回',
+                            () => Navigator.maybePop(context),
+                            wide: wide,
+                          ),
+                          const Spacer(),
+                          _CoverAction(
+                            l.favorites.contains(f.id)
+                                ? 'bookmark-check'
+                                : 'bookmark',
+                            '收藏影片',
+                            () async {
+                              try {
+                                await l.toggleFavorite(f);
+                                if (mounted) setState(() {});
+                              } catch (_) {
+                                if (context.mounted)
+                                  tell(context, '收藏保存失败，请重试。');
+                              }
+                            },
+                            wide: wide,
+                            active: l.favorites.contains(f.id),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   child: ListView(
@@ -470,27 +482,331 @@ class _DetailPageState extends State<DetailPage> {
       );
 }
 
-/// 媒体封面与滚动后的浅色顶栏都需要稳定对比度，视觉圆片与触控区分离。
+/// 顶栏操作按钮（返回、收藏）：自适应宽屏浅色背景与手机大图暗色背景，
+/// 视觉圆片与触控区分离，不使用原生侵入式 Tooltip 避免长按黑框遮挡。
 class _CoverAction extends StatelessWidget {
-  const _CoverAction(this.icon, this.label, this.onTap);
+  const _CoverAction(
+    this.icon,
+    this.label,
+    this.onTap, {
+    this.wide = false,
+    this.active = false,
+  });
   final String icon, label;
   final VoidCallback onTap;
+  final bool wide;
+  final bool active;
+
   @override
-  Widget build(BuildContext context) => IconButton(
-    tooltip: label,
-    onPressed: onTap,
-    icon: Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: DSPalette.media.withValues(alpha: .45),
+  Widget build(BuildContext context) {
+    final p = DSPalette.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final Color bgColor;
+    final Color iconColor;
+    final Border? border;
+    final List<BoxShadow>? shadows;
+
+    if (wide) {
+      if (active) {
+        bgColor = p.primary.withValues(alpha: .14);
+        iconColor = p.primary;
+        border = Border.all(
+          color: p.primary.withValues(alpha: .35),
+          width: 1,
+        );
+        shadows = null;
+      } else {
+        bgColor = isDark
+            ? p.panel.withValues(alpha: .85)
+            : p.panel.withValues(alpha: .92);
+        iconColor = p.ink;
+        border = Border.all(
+          color: p.line.withValues(alpha: isDark ? .35 : .65),
+          width: 0.8,
+        );
+        shadows = [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? .20 : .05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ];
+      }
+    } else {
+      if (active) {
+        bgColor = p.primary.withValues(alpha: .85);
+        iconColor = p.onPrimary;
+        border = Border.all(
+          color: Colors.white.withValues(alpha: .25),
+          width: 0.8,
+        );
+        shadows = null;
+      } else {
+        bgColor = Colors.black.withValues(alpha: .40);
+        iconColor = Colors.white;
+        border = Border.all(
+          color: Colors.white.withValues(alpha: .20),
+          width: 0.8,
+        );
+        shadows = null;
+      }
+    }
+
+    return Tooltip(
+      message: label,
+      triggerMode: TooltipTriggerMode.manual,
+      child: Semantics(
+        label: label,
+        button: true,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(22),
+            child: Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: wide ? 38 : 34,
+                height: wide ? 38 : 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: bgColor,
+                  border: border,
+                  boxShadow: shadows,
+                ),
+                child: Center(
+                  child: DSIcon(
+                    icon,
+                    size: wide ? 18 : 17,
+                    color: iconColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
-      child: Center(
-        child: DSIcon(icon, size: DS.navigationIcon, color: DSPalette.onMedia),
+    );
+  }
+}
+
+/// 剧集快捷选择卡片：展示当前集、全部选集入口及横向平滑滚动的快捷剧集方块。
+class _EpisodeSelectorCard extends StatefulWidget {
+  const _EpisodeSelectorCard({
+    required this.film,
+    required this.episode,
+    required this.onEpisodeSelected,
+    required this.onMoreEpisodes,
+  });
+
+  final Film film;
+  final int episode;
+  final ValueChanged<int> onEpisodeSelected;
+  final VoidCallback onMoreEpisodes;
+
+  @override
+  State<_EpisodeSelectorCard> createState() => _EpisodeSelectorCardState();
+}
+
+class _EpisodeSelectorCardState extends State<_EpisodeSelectorCard> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToActive());
+  }
+
+  @override
+  void didUpdateWidget(covariant _EpisodeSelectorCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.episode != widget.episode) {
+      _scrollToActive();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToActive() {
+    if (!_scrollController.hasClients) return;
+    final targetOffset = ((widget.episode - 1) * 56.0 - 60.0).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = DSPalette.of(context);
+    final f = widget.film;
+    final total = f.episodes;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final maxShow = total <= 35 ? total : (widget.episode + 15).clamp(30, total);
+    final minShow = total <= 35 ? 1 : (maxShow - 30).clamp(1, total);
+    final displayedEpisodes = [for (var i = minShow; i <= maxShow; i++) i];
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20, bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                '选集',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '·',
+                style: TextStyle(
+                  color: p.muted.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '第 ${widget.episode} 集',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: p.primary,
+                ),
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: widget.onMoreEpisodes,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '共 $total 集',
+                        style: DS.smallFor(context).copyWith(
+                          color: p.muted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      DSIcon(
+                        'chevron-right',
+                        size: 13,
+                        color: p.muted,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 44,
+            child: ListView.separated(
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              itemCount: displayedEpisodes.length + (maxShow < total ? 1 : 0),
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                if (index == displayedEpisodes.length) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: widget.onMoreEpisodes,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        width: 48,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF22252E)
+                              : const Color(0xFFF1F3F5),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '•••',
+                          style: TextStyle(
+                            color: p.muted,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                final ep = displayedEpisodes[index];
+                final isSelected = ep == widget.episode;
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => widget.onEpisodeSelected(ep),
+                    borderRadius: BorderRadius.circular(10),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: ep > 99 ? 56 : 48,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? p.primary
+                            : (isDark
+                                ? const Color(0xFF22252E)
+                                : const Color(0xFFF1F3F5)),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: p.primary.withValues(alpha: .30),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '$ep',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? p.onPrimary : p.ink,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// 详情加载骨架屏：按正文布局铺灰色占位块，替代线性进度条。

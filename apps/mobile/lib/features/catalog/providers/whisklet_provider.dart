@@ -78,10 +78,13 @@ class WhiskletProvider implements FilteredMediaProvider {
     _resolvedCacheAt[identity] = DateTime.now();
   }
 
+  static final _htmlTags = RegExp(r'<[^>]*>');
+  static final _escapedAmp = RegExp(r'&(?:amp;)+');
+
   static String _plain(Object? value) => (value?.toString() ?? '')
-      .replaceAll(RegExp(r'<[^>]*>'), '')
+      .replaceAll(_htmlTags, '')
       .replaceAll('&nbsp;', ' ')
-      .replaceAll('&amp;', '&')
+      .replaceAll(_escapedAmp, '&')
       .trim();
   static int _number(Object? value, [int fallback = 0]) =>
       int.tryParse(value?.toString() ?? '') ?? fallback;
@@ -110,7 +113,9 @@ class WhiskletProvider implements FilteredMediaProvider {
   }
 
   static String? _poster(Object? value) {
-    return ArtworkRequest.parse(value?.toString())?.uri.toString();
+    final raw = value?.toString();
+    ArtworkRequest.observeCatalogUrl(raw);
+    return ArtworkRequest.parse(raw)?.uri.toString();
   }
 
   static List<Film> _items(List<dynamic> rows) {
@@ -189,6 +194,26 @@ class WhiskletProvider implements FilteredMediaProvider {
   Future<List<Film>> search(String query) async =>
       (await searchPage(query)).items;
 
+  // 上游偶发把未配 parse_api 的 B 站/腾讯/爱奇艺/优酷/芒果网页播放页当作直链下发，
+  // 若直接当作直连媒体源会被选为首选线路并导致播放器拉流报错。
+  static const _webpageOnlyHosts = {
+    'www.bilibili.com',
+    'bilibili.com',
+    'm.bilibili.com',
+    'b23.tv',
+    'v.qq.com',
+    'm.v.qq.com',
+    'www.iqiyi.com',
+    'iqiyi.com',
+    'm.iqiyi.com',
+    'v.youku.com',
+    'youku.com',
+    'm.youku.com',
+    'www.mgtv.com',
+    'mgtv.com',
+    'm.mgtv.com',
+  };
+
   static MediaLine parseLine(Map<String, dynamic> row) {
     final code = _plain(row['code']);
     final parser = (row['parse_api'] ?? '').toString().trim();
@@ -199,10 +224,14 @@ class WhiskletProvider implements FilteredMediaProvider {
       if (split <= 0 || split == entry.length - 1) continue;
       final token = entry.substring(split + 1).trim();
       if (parser.isEmpty) {
+        final PlaybackSource source;
         try {
-          PlaybackSource.network(token);
+          source = PlaybackSource.network(token);
         } catch (_) {
           throw const ProviderException('protocol', '线路包含无效媒体地址');
+        }
+        if (_webpageOnlyHosts.contains(source.uri.host.toLowerCase())) {
+          continue;
         }
       }
       episodes.add(MediaEpisode(_plain(entry.substring(0, split)), token));
@@ -275,11 +304,18 @@ class WhiskletProvider implements FilteredMediaProvider {
         info['vod_url_with_player'] is! List)
       throw const ProviderException('protocol', '影片详情不完整，请重试');
     final lines = <String, MediaLine>{};
+    ProviderException? lastLineError;
     for (final row in info['vod_url_with_player'] as List) {
       if (row is! Map<String, dynamic>) continue;
-      final line = parseLine(row);
-      lines[line.code] = line;
+      try {
+        final line = parseLine(row);
+        lines[line.code] = line;
+      } on ProviderException catch (error) {
+        // 单条脏线路不阻断其余可用线路；仅当所有线路均解析异常时上抛。
+        lastLineError = error;
+      }
     }
+    if (lines.isEmpty && lastLineError != null) throw lastLineError;
     final usable = List<MediaLine>.unmodifiable(
       lines.values.where((line) => line.episodes.isNotEmpty),
     );
@@ -336,14 +372,13 @@ class WhiskletProvider implements FilteredMediaProvider {
         return source;
       } on ProviderException catch (error) {
         if (identical(candidate, selected)) primaryFailure = error;
-        // 连接与协议层故障换线同样会失败，立即上抛而不是逐线重试。
+        // 连接、超限与输入校验故障换线同样会失败，立即上抛；单线 secretParse 业务或协议
+        // 错误则继续回退到其余可用线路（如直连 m3u8 备用线）。
         if (const {
           'network',
           'timeout',
           'http',
           'size',
-          'business',
-          'protocol',
           'closed',
           'input',
           'identity',
@@ -382,6 +417,8 @@ class WhiskletProvider implements FilteredMediaProvider {
           'rose': 232,
           'youku': 144,
           'qq': 144,
+          'qiyi': 120,
+          'mgtv': 120,
         };
         final expected = lengths[selected.code];
         if (expected == null)

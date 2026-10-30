@@ -88,12 +88,16 @@ void main() {
       await t.pumpAndSettle();
       final cover = t.getRect(find.byType(WatchCover));
       final chat = t.getRect(find.byType(ChatPanel));
-      expect(cover.width, greaterThan(780));
+      expect(cover.left, 0);
+      expect(cover.width, 1280 - 360 - 24);
       expect(chat.left, greaterThan(cover.right));
       final player = t.state(find.byType(PlayerPage));
       await t.enterText(find.byKey(const Key('chat-input')), 'tablet draft');
       t.view.physicalSize = const Size(853, 1280);
       await t.pumpAndSettle();
+      final portraitCover = t.getRect(find.byType(WatchCover));
+      expect(portraitCover.left, 0);
+      expect(portraitCover.width, 853);
       expect(t.state(find.byType(PlayerPage)), same(player));
       expect(
         t
@@ -134,6 +138,61 @@ void main() {
         t.getSize(find.text(films.first.synopsis)).width,
         lessThanOrEqualTo(720),
       );
+      await t.pumpWidget(const SizedBox.shrink());
+      library.dispose();
+    },
+  );
+
+  testWidgets(
+    'tablet detail renders modern episode selector card with quick rail and polished actions',
+    (t) async {
+      t.view.devicePixelRatio = 1;
+      t.view.physicalSize = const Size(1280, 853);
+      addTearDown(t.view.resetPhysicalSize);
+      addTearDown(t.view.resetDevicePixelRatio);
+      final library = LibraryState(accountId: 'tablet-episode', preview: true);
+      const multiEpFilm = Film(
+        'series-test',
+        '多集剧集',
+        '电视剧',
+        '情感',
+        45,
+        episodes: 12,
+      );
+      await t.pumpWidget(
+        MaterialApp(
+          theme: duosceneTheme,
+          home: DetailPage(film: multiEpFilm, library: library),
+        ),
+      );
+      await t.pumpAndSettle();
+
+      // 验证顶部导航按钮存在，且支持语义与 tooltip 查找
+      expect(find.byTooltip('返回'), findsOneWidget);
+      expect(find.byTooltip('收藏影片'), findsOneWidget);
+      expect(find.bySemanticsLabel('返回'), findsOneWidget);
+      expect(find.bySemanticsLabel('收藏影片'), findsOneWidget);
+
+      // 验证选集卡片渲染
+      expect(find.text('选集'), findsOneWidget);
+      expect(find.text('第 1 集'), findsOneWidget);
+      expect(find.text('共 12 集'), findsOneWidget);
+
+      // 验证横向快捷集数按钮渲染
+      expect(find.text('1'), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
+
+      // 点按快捷集数中的“2”，立即切换当前选集到第 2 集
+      await t.tap(find.text('2'));
+      await t.pumpAndSettle();
+      expect(find.text('第 2 集'), findsOneWidget);
+
+      // 点按收藏按钮，验证收藏逻辑被调用并高亮激活
+      await t.tap(find.bySemanticsLabel('收藏影片'));
+      await t.pumpAndSettle();
+      expect(library.favorites.contains(multiEpFilm.id), isTrue);
+
       await t.pumpWidget(const SizedBox.shrink());
       library.dispose();
     },

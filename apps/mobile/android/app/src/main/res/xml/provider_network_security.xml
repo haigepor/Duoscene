@@ -3,5 +3,6 @@
     <base-config cleartextTrafficPermitted="false"/>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">198.16.39.44</domain>
+        <domain includeSubdomains="false">snzypic.com</domain>
     </domain-config>
 </network-security-config>

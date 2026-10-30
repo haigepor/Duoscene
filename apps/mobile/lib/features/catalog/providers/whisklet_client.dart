@@ -259,16 +259,24 @@ class WhiskletClient {
         uri.host.isEmpty ||
         uri.toString().length > 8192)
       throw const ProviderException('parser', '解析地址无效');
-    final raw = await _request(
-      'GET',
-      uri,
-      headers: {'user-agent': WhiskletProfile.headers['user-agent']!},
-    );
+    final Uint8List raw;
+    try {
+      raw = await _request(
+        'GET',
+        uri,
+        headers: {'user-agent': WhiskletProfile.headers['user-agent']!},
+      );
+    } on ProviderException catch (error) {
+      if (error.code == 'closed' || error.code == 'cancelled') rethrow;
+      // 单条线路的解析器超时或 5xx 归为 parser 失败，允许上层自动回退到其余线路。
+      throw const ProviderException('parser', '该线路解析失败，请切换其他线路');
+    }
     try {
       final result = jsonDecode(utf8.decode(raw));
       if (result is! Map<String, dynamic> ||
           result['code'] != 200 ||
-          result['url'] is! String)
+          result['url'] is! String ||
+          (result['url'] as String).trim().isEmpty)
         throw const FormatException();
       return result;
     } catch (_) {

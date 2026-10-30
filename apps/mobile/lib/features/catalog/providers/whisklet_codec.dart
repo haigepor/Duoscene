@@ -184,7 +184,7 @@ class WhiskletCodec {
             r'{"code":1,"msg":"app\u914d\u7f6e","data":{"img_config":{"splash_img":""},"advert_config":{"adver',
           ]
         : method == 'video_detail'
-        ? [r'{"code":1,"msg":"\u89c6\u9891\u8be6\u60c5","data":{']
+        ? [r'{"code":1,"msg":"\u89c6\u9891\u8be6\u60c5","data":{"vod_info":{"']
         : ['{"code":1,"msg":"","data":"', '{"code":1,"data":"'];
     for (final template in templates) {
       for (

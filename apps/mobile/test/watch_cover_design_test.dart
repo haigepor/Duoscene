@@ -40,13 +40,12 @@ void main() {
       ),
     );
 
-    // Verify resolving text is displayed
+    // Verify resolving minimal card is displayed with clean progress indicator
     expect(find.text('正在解析片源…'), findsOneWidget);
-    expect(find.text('嫁金钗 · 第 1 集'), findsOneWidget);
-    expect(find.text('正在寻找最优线路与画质…'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Verify old ugly artifacts are completely GONE:
+    // Verify unnecessary clutter and old artifacts are completely GONE:
+    expect(find.text('正在寻找最优线路与画质…'), findsNothing);
     expect(find.text('封面预览'), findsNothing);
     expect(find.byTooltip('选择视频，开始观看'), findsNothing);
     expect(tester.takeException(), isNull);

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth/session.dart';
+import 'artwork_request.dart';
 import 'catalog.dart';
 import 'catalog_data.dart';
 import 'media_provider.dart';
@@ -98,7 +99,18 @@ class LibraryState extends ChangeNotifier {
     if (loaded) return;
     if (!preview) {
       try {
-        final raw = (await SharedPreferences.getInstance()).getString(
+        final prefs = await SharedPreferences.getInstance();
+        ArtworkRequest.importLearnedRules(
+          prefs.getString(ArtworkRequest.storageKey),
+        );
+        ArtworkRequest.onRulesChanged ??= (rawJson) {
+          unawaited(
+            SharedPreferences.getInstance()
+                .then((p) => p.setString(ArtworkRequest.storageKey, rawJson))
+                .catchError((Object _) => false),
+          );
+        };
+        final raw = prefs.getString(
           storageKey,
         );
         if (raw != null) {

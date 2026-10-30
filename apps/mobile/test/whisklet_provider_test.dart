@@ -593,4 +593,92 @@ void main() {
     expect(detail.lines.first.episodes.length, 3);
     expect(detail.film.episodes, 5);
   });
+
+  test(
+    'video_detail envelope recovery succeeds when headLength truncates through vod_info prefix',
+    () {
+      final codec = WhiskletCodec();
+      // 8 ("{\"pad\":\"") + 17 ('x'*17) + 23 ("\",\"data\":{\"vod_info\":{\"") = 48 字节（3 个 AES 块）。
+      // 截去前 48 字节密文后，第 3 块密文作为 CBC IV，解密出的明文直接从 `vod_id":45782` 开始，
+      // 复现上游 headLength>=300 时前 4 个明文块被截断导致缺少 `"vod_info":{` 的场景。
+      final fullEncrypted = codec.encrypt({
+        'pad': 'x' * 17,
+        'data': {
+          'vod_info': {
+            'vod_id': 45782,
+            'vod_name': '堕落天使',
+            'vod_url_with_player': <dynamic>[],
+          },
+        },
+      }, iv: Uint8List.fromList(List.filled(16, 7)));
+      final cipherBytes = base64.decode(base64.normalize(fullEncrypted));
+      final middle = base64Url
+          .encode(cipherBytes.sublist(48))
+          .replaceAll('=', '');
+      const head = 'MHgxMDAweDIwMHgzMA'; // base64("0x1000x200x30"), length 18
+      const tail = 'eGRkYXBwc2VjcmV0a2V5MTg'; // base64("xddappsecretkey18")
+      final decoded = codec.decode('$head$middle$tail', 'video_detail');
+      expect(decoded['code'], 1);
+      expect(
+        ((decoded['data'] as Map)['vod_info'] as Map)['vod_id'],
+        45782,
+      );
+    },
+  );
+
+  test(
+    'unparsed webpage portal links (like bilibili) are skipped when parse_api is empty',
+    () async {
+      final line = WhiskletProvider.parseLine({
+        'code': 'bilibili',
+        'name': 'B',
+        'parse_api': '',
+        'url':
+            '正片\$https://www.bilibili.com/bangumi/play/ep7269941?theme=movie',
+      });
+      expect(line.episodes, isEmpty);
+
+      final provider = WhiskletProvider(
+        client: WhiskletClient(
+          transport: MockClient((_) async => http.Response(
+            jsonEncode({
+              'code': 1,
+              'data': {
+                'vod_info': {
+                  'vod_id': 586006,
+                  'vod_name': '敦煌英雄',
+                  'vod_url_with_player': [
+                    {
+                      'code': 'bilibili',
+                      'name': 'B',
+                      'parse_api': '',
+                      'url':
+                          '正片\$https://www.bilibili.com/bangumi/play/ep7269941?theme=movie',
+                    },
+                    {
+                      'code': 'bad_direct',
+                      'name': '脏线路',
+                      'parse_api': '',
+                      'url': '正片\$javascript:void(0)',
+                    },
+                    {
+                      'code': 'jsm3u8',
+                      'name': '备用①',
+                      'parse_api': '',
+                      'url': 'HD\$https://cdn.example/dunhuang.m3u8',
+                    },
+                  ],
+                },
+              },
+            }),
+            200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
+          )),
+        ),
+      );
+      addTearDown(provider.close);
+      final detail = await provider.detail('whisklet:586006');
+      expect(detail.lines.map((l) => l.code), ['jsm3u8']);
+    },
+  );
 }

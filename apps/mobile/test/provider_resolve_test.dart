@@ -201,4 +201,114 @@ void main() {
       provider.close();
     }
   });
+
+  test(
+    'qiyi and mgtv 120-char ajiami lines resolve and empty parser url falls back to backup m3u8',
+    () async {
+      final provider = await providerWith((request) async {
+        if (request.method == 'GET') {
+          if (request.url.queryParameters['url'] == 'Q' * 120) {
+            // 模拟 gj2.php 返回 code: 200 但 url 为空串的场景，应继续回退。
+            return _json({'code': 200, 'url': ''});
+          }
+          if (request.url.queryParameters['url'] == 'M' * 120) {
+            return _json({
+              'code': 200,
+              'url': 'https://cdn.example/mgtv-ep1.m3u8',
+            });
+          }
+          return http.Response('gateway timeout', 504);
+        }
+        final call = WhiskletCodec().decryptRequest(request.body);
+        if (call['method'] == 'video_detail') {
+          return _json({
+            'code': 1,
+            'data': {
+              'vod_info': {
+                'vod_id': 602001,
+                'vod_name': 'Qiyi Mgtv Fixture',
+                'type_id_1': 1,
+                'vod_url_with_player': [
+                  {
+                    'code': 'qiyi',
+                    'name': '官方②',
+                    'parse_api': 'http://198.16.39.44:27264/ajiami/gj2.php/?url=',
+                    'url': '正片\$https://www.iqiyi.com/v_test.html',
+                  },
+                  {
+                    'code': 'mgtv',
+                    'name': '官方③',
+                    'parse_api': 'http://198.16.39.44:27264/ajiami/gj2.php/?url=',
+                    'url': '正片\$https://www.mgtv.com/b/test.html',
+                  },
+                ],
+              },
+            },
+          });
+        }
+        if (call['method'] == 'secret_parse_api_url') {
+          final code = (call['data'] as Map)['player_code'] as String;
+          return _json({
+            'code': 1,
+            'data': (code == 'qiyi' ? 'Q' : 'M') * 120,
+          });
+        }
+        fail('unexpected whisklet call: ${call['method']}');
+      });
+      try {
+        final source = await provider.resolve('whisklet:602001', episode: 1);
+        expect(source.identity, 'whisklet:602001:mgtv:1');
+        expect(source.uri.toString(), 'https://cdn.example/mgtv-ep1.m3u8');
+      } finally {
+        provider.close();
+      }
+    },
+  );
+
+  test(
+    'external parser GET HTTP failure falls back to direct backup line',
+    () async {
+      final provider = await providerWith((request) async {
+        if (request.method == 'GET') {
+          return http.Response('external parser 502', 502);
+        }
+        final call = WhiskletCodec().decryptRequest(request.body);
+        if (call['method'] == 'video_detail') {
+          return _json({
+            'code': 1,
+            'data': {
+              'vod_info': {
+                'vod_id': 602002,
+                'vod_name': 'Parser HTTP Fallback Fixture',
+                'type_id_1': 1,
+                'vod_url_with_player': [
+                  {
+                    'code': 'Ace',
+                    'name': '独家⑤',
+                    'parse_api':
+                        'http://175.24.181.180:5000/api/jiexi/common?Key=k&url=',
+                    'url': '正片\$Ace-ep1',
+                  },
+                  {
+                    'code': 'lzm3u8',
+                    'name': '备用①',
+                    'parse_api': '',
+                    'url': '正片\$https://cdn.example/lz-ep1.m3u8',
+                  },
+                ],
+              },
+            },
+          });
+        }
+        fail('unexpected whisklet call: ${call['method']}');
+      });
+      try {
+        final source = await provider.resolve('whisklet:602002', episode: 1);
+        expect(source.identity, 'whisklet:602002:lzm3u8:1');
+        expect(source.uri.toString(), 'https://cdn.example/lz-ep1.m3u8');
+      } finally {
+        provider.close();
+      }
+    },
+  );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/components.dart';
 import '../../design/tokens.dart';
+import '../../design/window_layout.dart';
 import '../catalog/catalog.dart';
 
 Future<int?> showEpisodes(
@@ -11,18 +12,97 @@ Future<int?> showEpisodes(
   required bool shared,
   bool binge = false,
   ValueChanged<bool>? onBingeChanged,
-}) => showDSSheet<int>(
-  context: context,
-  isScrollControlled: true,
-  useSafeArea: true,
-  builder: (_) => EpisodeSheet(
-    film: film,
-    episode: episode,
-    shared: shared,
-    binge: binge,
-    onBingeChanged: onBingeChanged,
-  ),
-);
+}) {
+  final isWide = WindowLayout.isWide(context);
+  if (isWide) {
+    return _showSideSheet<int>(
+      context: context,
+      builder: (ctx) => EpisodeSheet(
+        film: film,
+        episode: episode,
+        shared: shared,
+        binge: binge,
+        onBingeChanged: onBingeChanged,
+        isSideSheet: true,
+      ),
+    );
+  }
+  return showDSSheet<int>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => EpisodeSheet(
+      film: film,
+      episode: episode,
+      shared: shared,
+      binge: binge,
+      onBingeChanged: onBingeChanged,
+      isSideSheet: false,
+    ),
+  );
+}
+
+Future<T?> _showSideSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+}) {
+  final palette = DSPalette.of(context);
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
+  return showGeneralDialog<T>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: '关闭选集',
+    barrierColor: Colors.black.withValues(alpha: isDark ? 0.60 : 0.38),
+    transitionDuration: const Duration(milliseconds: 260),
+    pageBuilder: (dialogContext, animation, secondaryAnimation) {
+      final width = (MediaQuery.sizeOf(dialogContext).width * 0.44)
+          .clamp(360.0, 440.0);
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            width: width,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: palette.panel,
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(20),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.15),
+                  blurRadius: 24,
+                  offset: const Offset(-4, 0),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              left: false,
+              right: true,
+              child: builder(dialogContext),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(curved),
+        child: child,
+      );
+    },
+  );
+}
 
 class EpisodeSheet extends StatefulWidget {
   const EpisodeSheet({
@@ -32,12 +112,14 @@ class EpisodeSheet extends StatefulWidget {
     required this.shared,
     this.binge = false,
     this.onBingeChanged,
+    this.isSideSheet = false,
   });
   final Film film;
   final int episode;
   final bool shared;
   final bool binge;
   final ValueChanged<bool>? onBingeChanged;
+  final bool isSideSheet;
   @override
   State<EpisodeSheet> createState() => _EpisodeSheetState();
 }
@@ -89,12 +171,18 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
     final end = ((segment + 1) * 20).clamp(1, f.episodes);
     var eps = [for (var ep = start; ep <= end; ep++) ep];
     if (descending) eps = eps.reversed.toList();
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final topPadding = widget.isSideSheet ? 20.0 : 8.0;
+    final horizontalPadding = widget.isSideSheet ? 20.0 : DS.pageInset;
+    final bottomPadding = widget.isSideSheet ? 24.0 : DS.space16;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        DS.pageInset,
-        0,
-        DS.pageInset,
-        DS.space16,
+      padding: EdgeInsets.fromLTRB(
+        horizontalPadding,
+        topPadding,
+        horizontalPadding,
+        bottomPadding,
       ),
       child: SafeArea(
         top: false,
@@ -106,19 +194,20 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
               Row(
                 children: [
                   const Text('选集', style: DS.section),
-                  if (f.episodes > 1) ...[
-                    const SizedBox(width: DS.space8),
-                    orderToggle(palette),
-                  ],
                   const Spacer(),
+                  if (f.episodes > 1) ...[
+                    orderToggle(palette),
+                    const SizedBox(width: DS.space8),
+                  ],
                   IconTap('x', '关闭选集', () => Navigator.pop(context)),
                 ],
               ),
+              const SizedBox(height: 4),
               Text(
                 '${f.title} · 第 ${widget.episode} 集 / 共 ${f.episodes} 集',
                 style: DS.smallFor(context),
               ),
-              const SizedBox(height: DS.space8),
+              const SizedBox(height: 12),
               // 分段多时横向滑动查看，标签按内容取宽不再截断。
               if (count > 1)
                 SingleChildScrollView(
@@ -135,63 +224,87 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
                 ),
               const SizedBox(height: 12),
               LayoutBuilder(
-                builder: (context, c) => Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final ep in eps)
-                      SizedBox(
-                        width: (c.maxWidth - 32) / 5,
-                        height:
-                            (MediaQuery.textScalerOf(context)
-                                            .scale(DS.labelSize) *
-                                        1.4 +
-                                    DS.space24)
-                                .clamp(DS.touchTarget, double.infinity),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9),
+                builder: (context, c) {
+                  const cols = 5;
+                  final itemWidth =
+                      ((c.maxWidth - (cols - 1) * 8) / cols).floorToDouble();
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final ep in eps)
+                        SizedBox(
+                          width: itemWidth,
+                          height: (MediaQuery.textScalerOf(context)
+                                          .scale(DS.labelSize) *
+                                      1.4 +
+                                  DS.space24)
+                              .clamp(DS.touchTarget, double.infinity),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(10),
+                              onTap: waiting
+                                  ? null
+                                  : () async {
+                                      if (ep == widget.episode) {
+                                        Navigator.pop(context);
+                                        return;
+                                      }
+                                      if (widget.shared) {
+                                        // 同看时先确认，绝不提前切换本机片源；没有同步服务时维持等待。
+                                        if (!await confirm(
+                                              context,
+                                              '一起切换到第 $ep 集？',
+                                              '好友确认并准备好后才能切换。',
+                                              action: '请求换集',
+                                            ) ||
+                                            !mounted)
+                                          return;
+                                        setState(() => waiting = true);
+                                      } else {
+                                        Navigator.pop(context, ep);
+                                      }
+                                    },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                decoration: BoxDecoration(
+                                  color: ep == widget.episode
+                                      ? palette.primary
+                                      : (isDark
+                                          ? const Color(0xFF22252E)
+                                          : const Color(0xFFF1F3F5)),
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: ep == widget.episode
+                                      ? [
+                                          BoxShadow(
+                                            color: palette.primary
+                                                .withValues(alpha: .28),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  ep.toString().padLeft(2, '0'),
+                                  style: DS.label.copyWith(
+                                    fontWeight: ep == widget.episode
+                                        ? FontWeight.bold
+                                        : FontWeight.w500,
+                                    color: ep == widget.episode
+                                        ? palette.onPrimary
+                                        : palette.ink,
+                                  ),
+                                ),
+                              ),
                             ),
-                            backgroundColor: ep == widget.episode
-                                ? palette.primary
-                                : Colors.transparent,
-                            foregroundColor: ep == widget.episode
-                                ? palette.onPrimary
-                                : palette.ink,
-                            side: BorderSide(color: palette.line),
-                          ),
-                          onPressed: waiting
-                              ? null
-                              : () async {
-                                  if (ep == widget.episode) {
-                                    Navigator.pop(context);
-                                    return;
-                                  }
-                                  if (widget.shared) {
-                                    // 同看时先确认，绝不提前切换本机片源；没有同步服务时维持等待。
-                                    if (!await confirm(
-                                          context,
-                                          '一起切换到第 $ep 集？',
-                                          '好友确认并准备好后才能切换。',
-                                          action: '请求换集',
-                                        ) ||
-                                        !mounted)
-                                      return;
-                                    setState(() => waiting = true);
-                                  } else {
-                                    Navigator.pop(context, ep);
-                                  }
-                                },
-                          child: Text(
-                            ep.toString().padLeft(2, '0'),
-                            style: DS.label,
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 22),
               if (widget.onBingeChanged != null) ...[
@@ -242,36 +355,43 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
 
   Widget segmentTab(int logical, DSPalette palette) {
     final selected = logical == segment;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = selected
+        ? palette.primary.withValues(alpha: 0.12)
+        : (isDark ? const Color(0xFF22252E) : const Color(0xFFF1F3F5));
+    final textColor = selected ? palette.primary : palette.muted;
+
     return Padding(
       key: selected ? selectedTab : null,
-      padding: const EdgeInsets.only(right: 2),
-      child: TextButton(
-        style: TextButton.styleFrom(
-          // 分段页签补足纵向命中区：只加高度不改视觉位置。
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          minimumSize: const Size(0, 44),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        onPressed: waiting
-            ? null
-            : () {
-                if (logical != segment) setState(() => segment = logical);
-              },
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                width: 2,
-                color: selected ? palette.primary : Colors.transparent,
-              ),
+      padding: const EdgeInsets.only(right: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: waiting
+              ? null
+              : () {
+                  if (logical != segment) setState(() => segment = logical);
+                },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(8),
+              border: selected
+                  ? Border.all(
+                      color: palette.primary.withValues(alpha: 0.35),
+                      width: 1,
+                    )
+                  : null,
             ),
-          ),
-          padding: const EdgeInsets.only(bottom: 6),
-          child: Text(
-            '${logical * 20 + 1}–${((logical + 1) * 20).clamp(1, widget.film.episodes)}',
-            style: DS.label.copyWith(
-              fontWeight: FontWeight.w600,
-              color: selected ? palette.primary : palette.muted,
+            child: Text(
+              '${logical * 20 + 1}–${((logical + 1) * 20).clamp(1, widget.film.episodes)}',
+              style: DS.label.copyWith(
+                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                color: textColor,
+              ),
             ),
           ),
         ),
@@ -306,34 +426,43 @@ class _EpisodeSheetState extends State<EpisodeSheet> {
 
   Widget orderToggle(DSPalette palette) {
     final active = descending;
-    final color = active ? palette.onTint : palette.muted;
-    return TextButton(
-      key: const Key('episode-order-toggle'),
-      style: TextButton.styleFrom(
-        backgroundColor: active ? palette.tint : Colors.transparent,
-        foregroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        minimumSize: const Size(0, 40),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(999),
-          side: BorderSide(color: active ? palette.tint : palette.line),
-        ),
-      ),
-      onPressed: toggleOrder,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DSIcon('arrow-up', size: 13, color: color),
-          const SizedBox(width: 4),
-          Text(
-            '倒序',
-            style: DS.label.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
+    final color = active ? palette.primary : palette.muted;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = active
+        ? palette.primary.withValues(alpha: 0.12)
+        : (isDark ? const Color(0xFF22252E) : const Color(0xFFF1F3F5));
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: const Key('episode-order-toggle'),
+        borderRadius: BorderRadius.circular(16),
+        onTap: toggleOrder,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(16),
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DSIcon(
+                active ? 'arrow-down' : 'arrow-up',
+                size: 13,
+                color: color,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                active ? '倒序' : '正序',
+                style: DS.label.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

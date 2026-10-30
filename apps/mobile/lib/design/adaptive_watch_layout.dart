@@ -12,7 +12,7 @@ class AdaptiveWatchLayout extends StatelessWidget {
     required this.conversation,
     required this.showMedia,
     this.mediaAspectRatio = 16 / 9,
-    this.mediaInset = 16,
+    this.mediaInset = 0,
   });
   final Widget header, media, controls, conversation;
   final bool showMedia;

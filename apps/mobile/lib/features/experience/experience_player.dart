@@ -7,7 +7,6 @@ import '../../design/components.dart';
 import '../../design/tokens.dart';
 import '../../design/motion.dart';
 import '../../design/adaptive_watch_layout.dart';
-import '../../design/window_layout.dart';
 import '../playback/widgets/player_library_view.dart';
 import '../catalog/catalog.dart';
 import '../catalog/library_state.dart';
@@ -175,21 +174,19 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
     intent.dispose();
     final s = player?.session;
     if (s?.source != null && s!.core.playerDuration > Duration.zero) {
-      unawaited(
-        widget.library
-            .record(
-              WatchEntry(
-                film.id,
-                s.core.playerPosition.inSeconds,
-                episode,
-                lineCode: lineCode,
-                // 个人播放只更新个人进度；真实同看使用独立房间路由。
-                shared:
-                    widget.library.preview && (widget.resume?.shared ?? false),
-              ),
-            )
-            .catchError((Object _) {}),
+      final entry = WatchEntry(
+        film.id,
+        s.core.playerPosition.inSeconds,
+        episode,
+        lineCode: lineCode,
+        // 个人播放只更新个人进度；真实同看使用独立房间路由。
+        shared: widget.library.preview && (widget.resume?.shared ?? false),
       );
+      final library = widget.library;
+      // dispose 处于 BuildOwner.lockState 阶段，微任务延后通知避免锁定树时触发 markNeedsBuild。
+      Future.microtask(() {
+        unawaited(library.record(entry).catchError((Object _) {}));
+      });
     }
     super.dispose();
   }
@@ -285,10 +282,8 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
               final videoW = vp?.w ?? 0;
               final videoH = vp?.h ?? 0;
               final portrait = videoW > 0 && videoH > 0 && videoW < videoH;
-              // 手机沿用上游通铺媒体，平板分栏保留内容边距；固定槽位不变。
-              final mediaInset = WindowLayout.isWide(context)
-                  ? DS.pageInset
-                  : 0.0;
+              // 手机与平板设备均使用无边距通铺播放器，占满媒体区完整可用宽度。
+              const mediaInset = 0.0;
               final currentSubtitle = _formatSubtitle(film, episode);
               return Forest(
                 child: LayoutBuilder(
@@ -297,43 +292,24 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
                     mediaAspectRatio: portrait ? videoW / videoH : 16 / 9,
                     mediaInset: mediaInset,
                     header: const SizedBox.shrink(),
-                    media: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: mediaInset),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxHeight: double.infinity,
-                          ),
-                          child: AspectRatio(
-                            aspectRatio: portrait ? videoW / videoH : 16 / 9,
-                            child: ClipRRect(
-                              clipBehavior: mediaInset > 0
-                                  ? Clip.antiAlias
-                                  : Clip.none,
-                              borderRadius: BorderRadius.circular(
-                                mediaInset > 0 ? DS.panelRadius : 0,
-                              ),
-                              child: s.source == null
-                                  ? WatchCover(
-                                      cover: homeArtwork(film, landscape: true),
-                                      onChoose: () => controlsKey.currentState
-                                          ?.chooseSource(),
-                                      film: film,
-                                      resolving: _autoResolving,
-                                      error: _resolveError,
-                                      onRetry: () =>
-                                          unawaited(_autoResolve()),
-                                      episode: episode,
-                                      title: s.source?.title ?? film.title,
-                                      subtitle: currentSubtitle,
-                                      onBack: () => Navigator.pop(context),
-                                      onMore: () => _more(controls),
-                                    )
-                                  : surface,
-                            ),
-                          ),
-                        ),
-                      ),
+                    media: SizedBox.expand(
+                      child: s.source == null
+                          ? WatchCover(
+                              cover: homeArtwork(film, landscape: true),
+                              onChoose: () => controlsKey.currentState
+                                  ?.chooseSource(),
+                              film: film,
+                              resolving: _autoResolving,
+                              error: _resolveError,
+                              onRetry: () =>
+                                  unawaited(_autoResolve()),
+                              episode: episode,
+                              title: s.source?.title ?? film.title,
+                              subtitle: currentSubtitle,
+                              onBack: () => Navigator.pop(context),
+                              onMore: () => _more(controls),
+                            )
+                          : surface,
                     ),
                   controls: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -557,15 +533,21 @@ class _ExperiencePlayerState extends State<ExperiencePlayer> {
         cachedDetail: MediaDetail(film, lines),
       );
       if (!mounted) return;
+      String actualLine = code;
+      final identity = source.identity;
+      if (identity.startsWith('${film.id}:')) {
+        final parts = identity.split(':');
+        if (parts.length >= 3) actualLine = parts[2];
+      }
       applyResume = false;
       await player?.session.setPlaylist([source]);
       if (mounted)
         setState(() {
-          lineCode = code;
+          lineCode = actualLine;
           episode = next;
         });
-    } catch (_) {
-      if (mounted) tell(context, '切换片源失败，请重试。');
+    } catch (error) {
+      if (mounted) tell(context, friendlyError(error));
     } finally {
       if (mounted) setState(() => selectingEpisode = false);
     }

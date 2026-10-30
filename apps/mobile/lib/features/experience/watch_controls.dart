@@ -604,88 +604,33 @@ class WatchCover extends StatelessWidget {
 
     Widget content;
     if (resolving) {
-      // 正在解析状态：微光环形加载卡 + 标题 + 剧集胶囊标签 + 氛围微提示
+      // 沉浸极简解析卡片：与播放器起播缓冲浮层统一
       content = Center(
-        child: SingleChildScrollView(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: const Color(0xcc11141c),
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: DS.space16,
-              vertical: DS.space8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: .08),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: .18),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: .35),
-                        blurRadius: 18,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        color: p.primary,
-                      ),
-                    ),
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: p.primary,
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 const Text(
                   '正在解析片源…',
                   style: TextStyle(
-                    color: DSPalette.onMedia,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: .4,
-                  ),
-                ),
-                if (hasFilm) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 3.5,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.white.withValues(alpha: .12),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: .14),
-                      ),
-                    ),
-                    child: Text(
-                      f.episodes > 1 ? '${f.title} · 第 $episode 集' : f.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: DSPalette.onMedia.withValues(alpha: .85),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 6),
-                Text(
-                  '正在寻找最优线路与画质…',
-                  style: TextStyle(
-                    color: DSPalette.onMedia.withValues(alpha: .48),
-                    fontSize: 11,
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

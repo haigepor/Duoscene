@@ -54,6 +54,12 @@ class _FilmArtworkState extends State<FilmArtwork> {
   Future<void> retry(ImageProvider provider, String? url) async {
     final generation = retryGeneration;
     final filmId = widget.film.id;
+    final currentUri = url == null ? null : Uri.tryParse(url);
+    if (currentUri != null &&
+        (currentUri.path.startsWith('/upload/vod/') ||
+            ArtworkRequest.debugProbe != null)) {
+      await ArtworkRequest.healFailedRequest(currentUri);
+    }
     await provider.evict();
     if (mounted &&
         widget.film.posterUrl == url &&
@@ -63,12 +69,23 @@ class _FilmArtworkState extends State<FilmArtwork> {
   }
 
   bool scheduleRetry(ImageProvider provider, Film film, Object error) {
-    // 瞬时连接/服务端/解码失败只自动重试一次；永久 4xx 不反复请求。
+    final rawUrl = film.posterUrl;
+    final uri = rawUrl == null ? null : Uri.tryParse(rawUrl);
+    final canHealVodHost =
+        uri != null &&
+        uri.path.startsWith('/upload/vod/') &&
+        !(error is NetworkImageLoadException &&
+            error.statusCode == 400 &&
+            ArtworkRequest.debugProbe == null);
+    // 瞬时连接/服务端/解码失败只自动重试一次；普通 4xx 不反复请求，
+    // 但资源站 /upload/vod/ 路径遇到旧域失效时允许自动探测现役 CDN 并自愈重试一次。
     if (error is NetworkImageLoadException &&
         error.statusCode >= 400 &&
         error.statusCode < 500 &&
         error.statusCode != 408 &&
-        error.statusCode != 429)
+        error.statusCode != 429 &&
+        !canHealVodHost &&
+        ArtworkRequest.debugProbe == null)
       return false;
     if (automaticRetries != 0) return retryTimer != null;
     automaticRetries++;
